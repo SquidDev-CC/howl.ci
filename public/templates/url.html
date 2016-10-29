@@ -1,0 +1,29 @@
+<h2>
+	{{url}}
+	<span class="pull-right">
+		<a href="{{url}}" title="Open this URL" target="_blank">
+			<span class="fa fa-0 fa-link"></span>
+		</a>
+	</span>
+</h2>
+
+{{#success}}
+	<div class="computer-control">
+		<canvas class="computer-canvas" id="computer-0"></canvas>
+		<canvas class="computer-canvas" id="computer-overlay-0"></canvas>
+		<input type="range" class="computer-time" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="computer-time-0" step="1" />
+	</div>
+{{/success}}
+{{^success}}
+	{{#status}}
+		<p>My AJAX request went to your URL and all it got was this lousy status code: <code>{{status}}</code></p>
+		<hr />
+		<h3>Response body:</h3>
+		<p><pre>{{text}}</pre></p>
+		<h3>Response headers:</h3>
+		<p><pre>{{headers}}</pre></p>
+	{{/status}}
+	{{^status}}
+		<p>We couldn't connect to this site at at all: maybe it is down?
+	{{/status}}
+{{/success}}

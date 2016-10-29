@@ -1,0 +1,22 @@
+{
+  "name": "howl.ci",
+  "version": "0.1.0",
+  "description": "A viewer for Travis builds",
+  "main": "index.js",
+  "scripts": {
+    "dist": "node build.js",
+    "watch": "node build.js --watch",
+    "start": "http-server dist -o -c"
+  },
+  "author": "SquidDev",
+  "license": "MIT",
+  "devDependencies": {
+    "colors": "^1.1.2",
+    "es6-promise": "^4.0.5",
+    "hogan.js": "^3.0.2",
+    "http-server": "^0.9.0",
+    "node-sass": "^3.10.1",
+    "typescript": "^2.0.6",
+    "uglify-js": "^2.7.4"
+  }
+}

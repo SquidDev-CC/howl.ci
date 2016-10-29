@@ -1,0 +1,79 @@
+plugins {
+	id "com.jfrog.bintray" version "1.4"
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'maven-publish'
+
+group 'org.squiddev'
+version '0.1'
+
+sourceCompatibility = 1.6
+
+repositories {
+	mavenCentral()
+
+	ivy { artifactPattern "http://addons-origin.cursecdn.com/files/2291/384/[module][revision](.[ext])" }
+	maven { url = "https://dl.bintray.com/squiddev/maven" }
+	maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
+}
+
+configurations {
+	shade
+	provided
+	compile.extendsFrom shade
+}
+
+dependencies {
+	provided "ComputerCraft:ComputerCraft:1.79"
+	shade('org.squiddev:cctweaks-lua:1.1.1') {
+		exclude group: 'ComputerCraft'
+		exclude module: 'ConfigGen'
+	}
+}
+
+sourceSets.main.compileClasspath += configurations.provided
+idea { module { scopes.PROVIDED.plus += [configurations.provided] } }
+
+jar {
+	manifest {
+		attributes(
+			'Main-Class': 'org.squiddev.howl.ci.Launch'
+		)
+	}
+
+	from configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
+}
+
+bintray {
+	user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+	key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+	publications = ['mavenJava']
+	pkg {
+		repo = 'maven'
+		name = 'howl.ci'
+		licenses = ['MIT']
+		vcsUrl = 'https://github.com/SquidDev-CC/howl.ci'
+
+		version {
+			name = project.version
+			desc = 'A continuous integration system for ComputerCraft'
+			released = new Date()
+		}
+	}
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+		}
+	}
+}
+
+gradle.projectsEvaluated {
+	tasks.withType(JavaCompile) {
+		options.compilerArgs << "-Xlint"
+	}
+}

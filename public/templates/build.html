@@ -1,0 +1,45 @@
+{{#success}}
+	<h2>
+		{{repo.slug}}
+		<span class="pull-right">
+			<a href="https://github.com/{{repo.slug}}" title="Open on GitHub" target="_blank">
+				<span class="fa fa-0 fa-github"></span>
+			</a>
+			<a href="https://travis-ci.org/{{repo.slug}}" title="Open on Travis.org" target="_blank">
+				<span class="fa fa-0 fa-cubes"></span>
+			</a>
+		</span>
+	</h2>
+	<div class="build build-{{build.state}}">
+		<h3>
+			<a href="?p=build&id={{id}}">
+				#{{build.number}} {{build.state}} :: <span class="fa fa-0 fa-code-fork"></span> {{commit.branch}}
+			</a>
+			<span class="pull-right">
+				<a href="https://github.com/{{repo.slug}}/commit/{{commit.sha}}" title="Open on GitHub" target="_blank">
+					<span class="fa fa-github"></span>
+				</a>
+				<a href="https://travis-ci.org/{{repo.slug}}/builds/{{build.id}}" title="Open on Travis.org" target="_blank">
+					<span class="fa fa-cubes"></span>
+				</a>
+			</span>
+		</h3>
+		<div class="build-info">
+			<p>{{commit.author_name}}: {{commit.message}}</p>
+		</div>
+	</div>
+
+	{{#logs}}
+		<div class="job">
+			<h3>Job #{{job.id}}</h3>
+			<div class="computer-control">
+				<canvas class="computer-canvas" id="computer-{{job.id}}"></canvas>
+				<canvas class="computer-canvas" id="computer-overlay-{{job.id}}"></canvas>
+				<input type="range" class="computer-time" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="computer-time-{{job.id}}" step="1" />
+			</div>
+		</div>
+	{{/logs}}
+{{/success}}
+{{^success}}
+	{{>request_error}}
+{{/success}}

@@ -1,0 +1,12 @@
+<h2>There was an error connecting to the Travis API</h2>
+{{#status}}
+	<p>My AJAX request went to Travis and all it got was this lousy status code: <code>{{status}}</code></p>
+	<hr />
+	<h3>Response body:</h3>
+	<p><pre>{{text}}</pre></p>
+	<h3>Response headers:</h3>
+	<p><pre>{{headers}}</pre></p>
+{{/status}}
+{{^status}}
+	<p>We couldn't connect to Travis at all: maybe it is down?
+{{/status}}

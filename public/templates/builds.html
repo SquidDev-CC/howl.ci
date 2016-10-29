@@ -1,0 +1,40 @@
+{{#success}}
+	<h2>
+		{{repo}}
+		<span class="pull-right">
+			<a href="https://github.com/{{repo}}" title="Open on GitHub" target="_blank">
+				<span class="fa fa-0 fa-github"></span>
+			</a>
+			<a href="https://travis-ci.org/{{repo}}" title="Open on Travis.org" target="_blank">
+				<span class="fa fa-0 fa-cubes"></span>
+			</a>
+		</span>
+	</h2>
+
+	{{#builds}}
+		<div class="build build-{{state}}">
+			<h3>
+				<a href="?p=build&id={{id}}">
+					#{{number}} {{state}} :: <span class="fa fa-0 fa-code-fork"></span> {{commit.branch}}
+				</a>
+				<span class="pull-right">
+					<a href="https://github.com/{{repo}}/commit/{{commit.sha}}" title="Open on GitHub" target="_blank">
+						<span class="fa fa-github"></span>
+					</a>
+					<a href="https://travis-ci.org/{{repo}}/builds/{{id}}" title="Open on Travis.org" target="_blank">
+						<span class="fa fa-cubes"></span>
+					</a>
+				</span>
+			</h3>
+			<div class="build-info">
+				<p>{{commit.author_name}}: {{commit.message}}</p>
+			</div>
+		</div>
+	{{/builds}}
+	{{^builds}}
+		<p>It doesn't appear this repo has any builds. Are you sure it exists?</p>
+	{{/builds}}
+{{/success}}
+{{^success}}
+	{{>request_error}}
+{{/success}}
