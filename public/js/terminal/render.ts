@@ -109,7 +109,7 @@ namespace HowlCI.Terminal {
 					element.setAttribute("data-time", time.toString());
 
 					let kind = document.createElement("span");
-					kind.innerText = levelName;
+					kind.innerText = `[${levelName}]`;
 					kind.className = `log-level log-level-${levelName}`;
 
 					let text = document.createElement("span");
