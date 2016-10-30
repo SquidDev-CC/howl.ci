@@ -1,6 +1,6 @@
 {
   "name": "howl.ci",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A viewer for Travis builds",
   "main": "index.js",
   "scripts": {
