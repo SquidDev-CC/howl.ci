@@ -93,15 +93,11 @@ a:hover {
 	text-decoration: none;
 }
 
-@mixin invert() {
-	a, a:visited, a:active { color: $base06; }
-	a:hover { color: $base07; }
-}
-
 .build {
 	@mixin build($color) {
 		> h3 {
-			@include invert();
+			a, a:visited, a:active { color: $base07; }
+			a:hover { color: lighten($color, 40%); }
 
 			background-color: darken($color, 20%);
 			color: $base07;
@@ -125,7 +121,7 @@ a:hover {
 	}
 
 	&.build-errored {
-		@include build($base05);
+		@include build($base0F);
 	}
 
 	> * { padding: 10px; }
