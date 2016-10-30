@@ -37,7 +37,7 @@ public class HowlAPI implements ILuaAPI {
 	@Override
 	public String[] getMethodNames() {
 		return new String[]{
-			"debug", "warn", "error", "status",
+			"log", "status",
 			"getEnv", "getConfig",
 			"setDay", "setTime",
 			"close", "resize",
@@ -49,21 +49,12 @@ public class HowlAPI implements ILuaAPI {
 	public Object[] callMethod(ILuaContext context, int method, Object[] args) throws LuaException, InterruptedException {
 		switch (method) {
 			case 0: { // debug
-				if (args.length == 0) throw new LuaException("Expected message");
-				emulator.getLogger().debug(computer.getIdentifier(), String.valueOf(args[0]));
+				if (args.length < 2) throw new LuaException("Expected level, message");
+				String levelName = String.valueOf(args[0]);
+				emulator.getLogger().log(computer.getIdentifier(), levelName, String.valueOf(args[1]));
 				return null;
 			}
-			case 1: { // warn
-				if (args.length == 0) throw new LuaException("Expected message");
-				emulator.getLogger().warn(computer.getIdentifier(), String.valueOf(args[0]));
-				return null;
-			}
-			case 2: { // error
-				if (args.length == 0) throw new LuaException("Expected message");
-				emulator.getLogger().error(computer.getIdentifier(), String.valueOf(args[0]));
-				return null;
-			}
-			case 3: { // status
+			case 1: { // status
 				if (args.length < 2) throw new LuaException("Expected status, message");
 
 				String statusName = String.valueOf(args[0]);
@@ -82,13 +73,13 @@ public class HowlAPI implements ILuaAPI {
 
 				return null;
 			}
-			case 4: // getEnv
+			case 2: // getEnv
 				if (args.length == 0 || !(args[0] instanceof String)) throw new LuaException("Expected string");
 				return new Object[]{System.getenv((String) args[0])};
-			case 5: // getConfig
+			case 3: // getConfig
 				if (args.length == 0 || !(args[0] instanceof String)) throw new LuaException("Expected string");
 				return new Object[]{emulator.getConfig().getProperty((String) args[0])};
-			case 6: { // setDay
+			case 4: { // setDay
 				if (args.length == 0 || !(args[0] instanceof Number)) throw new LuaException("Expected number");
 
 				int day = ((Number) args[0]).intValue();
@@ -98,7 +89,7 @@ public class HowlAPI implements ILuaAPI {
 
 				return null;
 			}
-			case 7: { // setTime
+			case 5: { // setTime
 				if (args.length == 0 || !(args[0] instanceof Number)) throw new LuaException("Expected number");
 
 				double time = ((Number) args[0]).doubleValue();
@@ -108,10 +99,10 @@ public class HowlAPI implements ILuaAPI {
 
 				return null;
 			}
-			case 8: // close
+			case 6: // close
 				computer.close();
 				return null;
-			case 9: { // resize
+			case 7: { // resize
 				if (args.length < 2 || !(args[0] instanceof Number) || !(args[1] instanceof Number)) {
 					throw new LuaException("Expected number, number");
 				}

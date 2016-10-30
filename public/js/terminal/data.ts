@@ -1,18 +1,16 @@
 namespace HowlCI.Terminal {
 	"use strict";
 
-	export enum LogLevel {
-		Debug,
-		Warning,
-		Error,
-		Failure,
-		Success,
+	export enum LogKind {
+		Status,
+		Log,
 		Close,
 	};
 
 	export class LogItem {
-		text:string;
-		level:LogLevel;
+		text: string;
+		level: string;
+		kind: LogKind;
 	}
 
 	let interSplice = function(text:string, partial:string, offset:number) {
@@ -215,53 +213,54 @@ namespace HowlCI.Terminal {
 				case "XD": // Add a debug message to the log
 					cloned.log = cloned.log.slice(0);
 					cloned.log.push({
-						level: LogLevel.Debug,
+						level: "debug",
+						kind: LogKind.Log,
 						text: data,
 					});
 					break;
 				case "XW": // Add a warning to the log
 					cloned.log = cloned.log.slice(0);
 					cloned.log.push({
-						level: LogLevel.Warning,
+						level: "warning",
+						kind: LogKind.Log,
 						text: data,
 					});
 					break;
 				case "XE": // Add an error to the log
 					cloned.log = cloned.log.slice(0);
 					cloned.log.push({
-						level: LogLevel.Error,
+						level: "error",
+						kind: LogKind.Log,
 						text: data,
 					});
 					break;
-				case "XS": // Add a status message to the log
+				case "XL": { // Add a log message to the log
 					cloned.log = cloned.log.slice(0);
 
 					let [type, message] = data.split(',', 2);
-					let kind = LogLevel.Error;
-					switch(type) {
-						case "failure":
-							kind = LogLevel.Failure;
-							break;
-						case "error":
-							kind = LogLevel.Error;
-							break;
-						case "success":
-							kind =LogLevel.Success;
-							break;
-						default:
-							// Append unknown entries
-							message = type + "," + message;
-							break;
-					}
 					cloned.log.push({
-						level: kind,
+						level: type,
+						kind: LogKind.Log,
 						text: message,
 					});
 					break;
+				}
+				case "XS": { // Add a status message to the log
+					cloned.log = cloned.log.slice(0);
+
+					let [type, message] = data.split(',', 2);
+					cloned.log.push({
+						level: type,
+						kind: LogKind.Status,
+						text: message,
+					});
+					break;
+				}
 				case "SC": // Close the terminal
 					cloned.log = cloned.log.slice(0);
 					cloned.log.push({
-						level: LogLevel.Close,
+						level: "close",
+						kind: LogKind.Close,
 						text: data,
 					});
 					break;

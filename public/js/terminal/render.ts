@@ -81,7 +81,37 @@ namespace HowlCI.Terminal {
 			this.context = this.canvas.getContext("2d");
 
 			this.time = <HTMLInputElement>document.getElementById("computer-time-" + id);
-			this.log = <HTMLPreElement>document.getElementById("computer-output-" + id);
+			let log = this.log = <HTMLPreElement>document.getElementById("computer-output-" + id);
+
+			// Build the log, adding the entries to the list
+			let logLength = 0;
+			for(let i = 0; i < lines.length; i++) {
+				let time = lines[i].time;
+				let terminal = terminals[i];
+				for(let i = logLength; i < terminal.log.length; i++) {
+					let entry = terminal.log[i];
+					let kindName = LogKind[entry.kind].toLowerCase();
+					let levelName = entry.level.replace(/[^\w-]/g, "").toLowerCase();
+
+					let element = document.createElement("p");
+					element.style.display = "hidden";
+					element.className = `log-entry log-${kindName}`;
+					element.setAttribute("data-time", time.toString());
+
+					let kind = document.createElement("span");
+					kind.innerText = levelName;
+					kind.className = `log-level log-level-${levelName}`;
+
+					let text = document.createElement("span");
+					text.innerText = entry.text;
+
+					element.appendChild(kind);
+					element.appendChild(text);
+
+					log.appendChild(element);
+				}
+				logLength = terminal.log.length;
+			}
 
 			let interacting = false;
 
@@ -112,7 +142,6 @@ namespace HowlCI.Terminal {
 			}
 
 			new ResizeSensor.ResizeSensor(this.canvas.parentElement, () => {
-				console.log("Resized");
 				this.redrawTerminal();
 			});
 		}
@@ -129,14 +158,12 @@ namespace HowlCI.Terminal {
 				}
 			}
 
-			let log = this.log;
-			while(log.firstChild) log.removeChild(log.firstChild);
-
-			for(let entry of terminal.log) {
-				let element = document.createElement("p");
-				element.innerText = entry.text;
-				element.className = "log-entry log-level-" + LogLevel[entry.level].toLowerCase();
-				log.appendChild(element);
+			let logLines = this.log.childNodes;
+			for(let i = 0; i < logLines.length; i++) {
+				let logLine = logLines[i];
+				if(logLine instanceof HTMLElement) {
+					logLine.style.display = parseInt(logLine.getAttribute("data-time"), 10) > time ? "none" : "initial";
+				}
 			}
 
 			let ctx = this.context;

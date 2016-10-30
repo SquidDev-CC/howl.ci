@@ -5,9 +5,7 @@ import java.io.PrintStream;
 public class TRoRLogger {
 	public static final String CORE_ID = "core";
 
-	private static final String EXTENSION_DEBUG = "XD";
-	private static final String EXTENSION_WARN = "XW";
-	private static final String EXTENSION_ERROR = "XE";
+	private static final String EXTENSION_LOG = "XL";
 	private static final String EXTENSION_STATUS = "XS";
 
 	private final PrintStream stream;
@@ -27,23 +25,27 @@ public class TRoRLogger {
 		stream.flush();
 	}
 
+	public void log(String id, String level, String message) {
+		message(EXTENSION_LOG, id, level.toLowerCase().replaceAll("[^\\w-]", "") + "," + message.replace('\n', '\r'));
+	}
+
 	public void debug(String id, String message) {
-		message(EXTENSION_DEBUG, id, message.replace('\n', '\r'));
+		log(id, "debug", message.replace('\n', '\r'));
 	}
 
 	public void warn(String id, String message) {
-		message(EXTENSION_WARN, id, message.replace('\n', '\r'));
+		log(id, "warn", message.replace('\n', '\r'));
 	}
 
 	public void error(String id, String message) {
-		message(EXTENSION_ERROR, id, message.replace('\n', '\r'));
+		log(id, "error", message.replace('\n', '\r'));
 	}
 
 	public void error(String id, String message, Throwable e) {
 		if (e == null) {
-			message(EXTENSION_ERROR, id, message.replace('\n', '\r'));
+			error(id, message);
 		} else {
-			message(EXTENSION_ERROR, id, (message + ": " + e.toString()).replace('\n', '\r'));
+			error(id, message + ": " + e);
 		}
 	}
 

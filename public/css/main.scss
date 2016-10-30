@@ -179,35 +179,34 @@ a:hover {
 
 	.log-entry {
 		color: $base03;
+		width: 100%;
+		display: table;
 
-		&.log-level-debug:before {
-			content: "[Debug] ";
-			color: $base01;
+		span {
+			display: table-cell;
 		}
 
-		&.log-level-warning:before {
-			content: " [Warn] ";
-			color: $base09;
+		.log-level {
+			font-weight: bold;
+			width: 5em;
+			text-align: right;
+			padding-right: 3px;
 		}
+		.log-level:before { content: "["; }
+		.log-level:after { content: "]"; }
 
-		&.log-level-error:before {
-			content: "[Error] ";
-			color: $base08;
-		}
+		.log-level-close,
+		.log-level-verbose,
+		.log-level-debug
+		{ color: $base01; }
 
-		&.log-level-failure:before {
-			content: " [Fail] ";
-			color: $base0E;
-		}
+		.log-level-warning,
+		.log-level-warn
+		{ color: $base09; }
 
-		&.log-level-success:before {
-			content: " [Pass] ";
-			color: $base0B;
-		}
-
-		&.log-level-close:before {
-			content: "[Close] ";
-			color: $base01;
-		}
+		.log-level-error { color: $base08; }
+		.log-level-failure { color: $base0E; }
+		.log-level-success { color: $base0B; }
+		.log-level-close { color: $base01; }
 	}
 }
