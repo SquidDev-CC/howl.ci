@@ -1,3 +1,5 @@
+/// <reference path="../../typings/main.d.ts" />
+
 let queryArgs = window.location.search
 	.substring(1)
 	.split('&')

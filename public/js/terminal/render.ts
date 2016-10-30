@@ -1,3 +1,5 @@
+/// <reference path="../../../typings/main.d.ts" />
+
 namespace HowlCI.Terminal {
 	"use strict";
 
@@ -73,6 +75,8 @@ namespace HowlCI.Terminal {
 		lines: Packets.Packet[];
 		terminals: TerminalData[];
 
+		sticky: Sticky;
+
 		constructor(id: number, lines: Packets.Packet[], terminals: TerminalData[]) {
 			this.lines = lines;
 			this.terminals = terminals;
@@ -82,6 +86,12 @@ namespace HowlCI.Terminal {
 
 			this.time = <HTMLInputElement>document.getElementById("computer-time-" + id);
 			let log = this.log = <HTMLPreElement>document.getElementById("computer-output-" + id);
+
+			this.sticky = new Sticky({
+				marginTop: 10,
+				stickyFor: 800,
+			});
+			this.sticky.setup(this.canvas.parentElement);
 
 			// Build the log, adding the entries to the list
 			let logLength = 0;
@@ -143,6 +153,7 @@ namespace HowlCI.Terminal {
 
 			new ResizeSensor.ResizeSensor(this.canvas.parentElement, () => {
 				this.redrawTerminal();
+				this.sticky.update(this.canvas.parentElement);
 			});
 		}
 
@@ -162,7 +173,7 @@ namespace HowlCI.Terminal {
 			for(let i = 0; i < logLines.length; i++) {
 				let logLine = logLines[i];
 				if(logLine instanceof HTMLElement) {
-					logLine.style.display = parseInt(logLine.getAttribute("data-time"), 10) > time ? "none" : "initial";
+					logLine.style.display = parseInt(logLine.getAttribute("data-time"), 10) > time ? "none" : null;
 				}
 			}
 
@@ -172,17 +183,21 @@ namespace HowlCI.Terminal {
 			let sizeX = terminal.sizeX || 51;
 			let sizeY = terminal.sizeY || 19;
 
-			let actualWidth = this.canvas.parentElement.clientWidth;
+			// Attempt to scale the canvas down to fit the screen
+			// We have to clamp it to a particular scale level to avoid textures being weird.
+			let actualWidth = this.canvas.parentElement.clientWidth - 40;
 
 			let width = sizeX * cellWidth;
+			let height = sizeY * cellHeight;
 			let scale = actualWidth / width;
 
 			scale = Math.floor(scale * 3) / 3;
+			if(scale == 0) scale = 1/3;
 
-			let height = sizeY * cellHeight;
-
-			this.canvas.height = height * scale;
-			this.canvas.width = width * scale;
+			if(this.canvas.height !== height * scale || this.canvas.width !== width * scale) {
+				this.canvas.height = height * scale;
+				this.canvas.width = width * scale;
+			}
 
 			(<any>ctx).imageSmoothingEnabled = false; // Isn't standardised yet so...
 			ctx.oImageSmoothingEnabled = false;

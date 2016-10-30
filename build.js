@@ -16,6 +16,7 @@ let config = {
 let javascript = [
 	'node_modules/hogan.js/lib/template.js',
 	'node_modules/es6-promise/dist/es6-promise.auto.js',
+	'temp/templates.js',
 	'dist/main.js'
 ];
 config.scripts = javascript.map(x => ({script: path.basename(x)}));
@@ -113,10 +114,10 @@ let templatesMake = step('Generate templates', () => {
 			return 'templates["' + name + '"] = new Hogan.Template(' + template + ');';
 		});
 
-	let imprt = '/// <reference path="../typings/hogan.d.ts" />\n';
-	let declr = 'namespace HowlCI {\nexport let templates:{[name:string]:Hogan.Template}={};\n';
+	let header = 'var HowlCI; (function (HowlCI) { var templates = HowlCI.templates = {};\n';
+	let footer = '\n})(HowlCI || (HowlCI = {}));';
 
-	fs.writeFileSync(config.tempDir + 'templates.ts', imprt + declr + templates.join('\n') + "\n}\n");
+	fs.writeFileSync(config.tempDir + 'templates.js', header + templates.join('\n') + footer);
 });
 
 let jsCopy = step('Copy JS', () => {
@@ -213,8 +214,12 @@ if(watching) {
 	});
 
 	watcher("public/templates", () => {
+		templatesLayout();
 		templatesMake();
-		tsBuild();
+
+		let contents = fs.readFileSync('temp/templates.js', 'utf8');
+		fs.writeFileSync('dist/templates.js', contents);
+
 		jsMinify();
 	});
 }

@@ -33,13 +33,14 @@
 		<div class="job">
 			<h3>Job #{{job.id}}</h3>
 
+			<input type="range" class="computer-time" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="computer-time-{{job.id}}" step="1" />
+
 			<div class="computer-control">
 				<div class="computer-log">
 					<pre class="computer-output" id="computer-output-{{job.id}}"></pre>
 				</div>
-				<div class="computer-terminal">
-					<div class="computer-terminal-container">
-						<input type="range" class="computer-time" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="computer-time-{{job.id}}" step="1" />
+				<div class="computer-terminal" data-sticky-container>
+					<div class="computer-terminal-container" id="computer-sticky-{{job.id}}">
 						<canvas class="computer-canvas" id="computer-{{job.id}}"></canvas>
 					</div>
 				</div>

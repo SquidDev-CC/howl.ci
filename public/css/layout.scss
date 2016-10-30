@@ -57,7 +57,7 @@ html, body {
 	align-items: stretch;
 }
 
-@mixin grid-col($gutter, $width) {
+@mixin grid-col($gutter, $width, $breakpoint) {
 	position: relative;
 	padding-left: $gutter/2;
 	padding-right: $gutter/2;
@@ -70,4 +70,11 @@ html, body {
 	// Remove padding on first and last elements
 	&:first-child { padding-left: 0px; }
 	&:last-child { padding-right: 0px; }
+
+	@media(max-width: $breakpoint) {
+		& {
+			flex: 0 0 100%;
+			max-width: 100%;
+		}
+	}
 }
