@@ -24,6 +24,28 @@ if(fs.existsSync('config.json')) {
 	Object.assign(config, JSON.parse(fs.readFileSync('config.json')));
 }
 
+let watching = false;
+for(let arg of process.argv.slice(2)) {
+	switch(arg) {
+		case "--development":
+		case "--dev":
+		case "-d":
+			config.development = true;
+			break;
+		case "--release":
+		case "-r":
+			config.development = false;
+			break;
+		case "--watch":
+		case "-w":
+			watching = true;
+			break;
+		default:
+			console.error(`Unknown option ${arg}`);
+			process.exit(1);
+	}
+}
+
 let updateConfig = () => {
 	let date = new Date();
 	let dateObj = config.date = {};
@@ -164,7 +186,7 @@ let watcher = (file, callback) => fs.watch(file, { recursive: true, persistent: 
 	}
 });
 
-if(process.argv.indexOf("--watch") > 0 || process.argv.indexOf("-w") > 0) {
+if(watching) {
 	watcher("public/css", () => {
 		setTimeout(() => {
 			sassCombine();

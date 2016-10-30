@@ -234,9 +234,27 @@ namespace HowlCI.Terminal {
 					break;
 				case "XS": // Add a status message to the log
 					cloned.log = cloned.log.slice(0);
+
+					let [type, message] = data.split(',', 2);
+					let kind = LogLevel.Error;
+					switch(type) {
+						case "failure":
+							kind = LogLevel.Failure;
+							break;
+						case "error":
+							kind = LogLevel.Error;
+							break;
+						case "success":
+							kind =LogLevel.Success;
+							break;
+						default:
+							// Append unknown entries
+							message = type + "," + message;
+							break;
+					}
 					cloned.log.push({
-						level: LogLevel.Failure,
-						text: data,
+						level: kind,
+						text: message,
 					});
 					break;
 				case "SC": // Close the terminal

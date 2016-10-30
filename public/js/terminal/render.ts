@@ -73,6 +73,7 @@ namespace HowlCI.Terminal {
 		overlayContext: CanvasRenderingContext2D;
 
 		time: HTMLInputElement;
+		log: HTMLPreElement;
 
 		lines: Packets.Packet[];
 		terminals: TerminalData[];
@@ -88,6 +89,7 @@ namespace HowlCI.Terminal {
 			this.overlayContext = this.overlayCanvas.getContext("2d");
 
 			this.time = <HTMLInputElement>document.getElementById("computer-time-" + id);
+			this.log = <HTMLPreElement>document.getElementById("computer-output-" + id);
 
 			let interacting = false;
 
@@ -124,10 +126,20 @@ namespace HowlCI.Terminal {
 			let terminal = this.terminals[0];
 			for(let i = 1; i < this.lines.length; i++) {
 				let line = this.lines[i];
+				terminal = this.terminals[i - 1];
 				if(line.time > time) {
-					terminal = this.terminals[i - 1];
 					break;
 				}
+			}
+
+			let log = this.log;
+			while(log.firstChild) log.removeChild(log.firstChild);
+
+			for(let entry of terminal.log) {
+				let element = document.createElement("p");
+				element.innerText = entry.text;
+				element.className = "log-entry log-level-" + LogLevel[entry.level].toLowerCase();
+				log.appendChild(element);
 			}
 
 			let ctx = this.context;

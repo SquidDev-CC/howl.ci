@@ -1,12 +1,13 @@
 {
   "name": "howl.ci",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A viewer for Travis builds",
   "main": "index.js",
   "scripts": {
     "dist": "node build.js",
     "watch": "node build.js --watch",
-    "start": "http-server dist -o -c"
+    "start": "http-server dist -o -c",
+		"deploy": "node build.js --release && git reset HEAD -- . && (git ls-files -z dist | xargs -0 git update-index --no-assume-unchanged) && git add -- dist && git commit -m \"Update dist\" && (git ls-files -z dist | xargs -0 git update-index --assume-unchanged) && git subtree push --prefix dist origin gh-pages"
   },
   "author": "SquidDev",
   "license": "MIT",
