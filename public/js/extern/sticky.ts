@@ -200,6 +200,7 @@ class Sticky {
 			element.sticky.rect = this.getRectangle(element);
 		}
 
+		// TODO: Fix when too high for screen
 		if (this.scrollTop > (element.sticky.rect.top - element.sticky.marginTop)) {
 			this.css(element, {
 				position: 'fixed',
@@ -271,8 +272,8 @@ class Sticky {
 	getRectangle(element) {
 		this.css(element, { position: '', width: '', top: '', left: '' });
 
-		const width = Math.max(element.offsetWidth, element.clientWidth, element.scrollWidth);
-		const height = Math.max(element.offsetHeight, element.clientHeight, element.scrollHeight);
+		const width = Math.max(element.offsetWidth, element.clientWidth);
+		const height = Math.max(element.offsetHeight, element.clientHeight);
 
 		let top = 0;
 		let left = 0;

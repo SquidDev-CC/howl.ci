@@ -185,7 +185,9 @@ namespace HowlCI.Terminal {
 
 			// Attempt to scale the canvas down to fit the screen
 			// We have to clamp it to a particular scale level to avoid textures being weird.
-			let actualWidth = this.canvas.parentElement.clientWidth - 40;
+
+			// FIXME: We subtract 8 as that is the padding of the parent element.
+			let actualWidth = this.canvas.parentElement.clientWidth - 8;
 
 			let width = sizeX * cellWidth;
 			let height = sizeY * cellHeight;

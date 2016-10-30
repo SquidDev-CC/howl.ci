@@ -8,13 +8,14 @@
 		</span>
 	</h2>
 
+	<input type="range" class="computer-time" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="computer-time-0" step="1" />
+
 	<div class="computer-control">
 		<div class="computer-log">
 			<pre class="computer-output" id="computer-output-0"></pre>
 		</div>
-		<div class="computer-terminal">
+		<div class="computer-terminal" data-sticky-container>
 			<div class="computer-terminal-container">
-				<input type="range" class="computer-time" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="computer-time-0" step="1" />
 				<canvas class="computer-canvas" id="computer-0"></canvas>
 			</div>
 		</div>
