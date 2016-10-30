@@ -175,23 +175,31 @@ let sassMinify = step('Minify Sass', () => {
 	fs.writeFileSync('dist/main.min.css', contents.css);
 }, !config.development);
 
-let watcher = (file, callback) => fs.watch(file, { recursive: true, persistent: true }, () => {
-	try {
-		updateConfig();
-		templatesLayout();
+let watcher = (file, callback) => {
+	let triggered = false;
+	let defer = () => {
+		try {
+			updateConfig();
+			templatesLayout();
 
-		callback();
-	} catch(e) {
-		console.log(colors.red(e));
-	}
-});
+			callback();
+		} catch(e) {
+			console.log(colors.red(e));
+		}
+		triggered = false;
+	};
+
+	fs.watch(file, { recursive: true, persistent: true }, () => {
+		if(triggered) return;
+		triggered = true;
+		setTimeout(defer, 100);
+	});
+};
 
 if(watching) {
 	watcher("public/css", () => {
-		setTimeout(() => {
-			sassCombine();
-			sassMinify();
-		}, 100);
+		sassCombine();
+		sassMinify();
 	});
 
 	watcher("public/js", () => {

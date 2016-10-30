@@ -17,7 +17,9 @@ html, body {
 	}
 
 	#content {
-		padding: 10px;
+		width: 100%;
+		box-sizing: border-box;
+		padding: 15px;
 		padding-bottom: $footer-height;
 	}
 
@@ -29,16 +31,16 @@ html, body {
 		width: 100%;
 		height: $footer-height;
 	}
-
-	#content {
-		width: 900px;
-		margin-left: auto;
-		margin-right: auto;
-	}
 }
 
 .padded-content {
 	padding: 10px;
+}
+
+.text-content {
+	max-width: 700px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .pull-left {
@@ -47,4 +49,25 @@ html, body {
 
 .pull-right {
 	float: right;
+}
+
+@mixin grid-container() {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: stretch;
+}
+
+@mixin grid-col($gutter, $width) {
+	position: relative;
+	padding-left: $gutter/2;
+	padding-right: $gutter/2;
+	width: 100%;
+	flex: 0 0 $width;
+	max-width: $width;
+	flex-basis: 0;
+	flex-grow: 1;
+
+	// Remove padding on first and last elements
+	&:first-child { padding-left: 0px; }
+	&:last-child { padding-right: 0px; }
 }

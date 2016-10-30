@@ -1,3 +1,4 @@
+<div class="text-content">
 {{#success}}
 	<h2>
 		{{repo}}
@@ -27,7 +28,7 @@
 				</span>
 			</h3>
 			<div class="build-info">
-				<p>{{commit.author_name}}: {{commit.message}}</p>
+				<pre>{{commit.author_name}}: {{commit.message}}</pre>
 			</div>
 		</div>
 	{{/builds}}
@@ -38,3 +39,4 @@
 {{^success}}
 	{{>request_error}}
 {{/success}}
+</div>

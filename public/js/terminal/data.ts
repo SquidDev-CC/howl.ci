@@ -7,6 +7,7 @@ namespace HowlCI.Terminal {
 		Error,
 		Failure,
 		Success,
+		Close,
 	};
 
 	export class LogItem {
@@ -260,8 +261,8 @@ namespace HowlCI.Terminal {
 				case "SC": // Close the terminal
 					cloned.log = cloned.log.slice(0);
 					cloned.log.push({
-						level: LogLevel.Debug,
-						text: "Closed: " + data,
+						level: LogLevel.Close,
+						text: data,
 					});
 					break;
 				default:

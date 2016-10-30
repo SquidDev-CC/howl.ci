@@ -1,3 +1,5 @@
+<div class="text-content">
+
 <h2>howl.ci</h2>
 <p>
 	howl.ci is a project which aims to provide a continuous integration service to ComputerCraft users.
@@ -19,7 +21,7 @@
 	Firstly you'll need to get set up with Travis. You need to download the executor and run it in the relevent
 	directory. We'll create a <code>.travis.yml</code> file like so:
 </p>
-<pre>
+<pre class="box">
 jdk:
   - oraclejdk8
 install:
@@ -31,7 +33,7 @@ script:
 	You'll probably want to configure howl.ci for your particular use case. To do this you'll need a
 	<code>.howl.properties</code> file.
 </p>
-<pre>
+<pre class="box">
 computer.0.saveDir=.
 computer.0.startup=.build.lua
 </pre>
@@ -51,3 +53,5 @@ computer.0.startup=.build.lua
 	"error" for when something unexpected that you were not expecting: such as everything crashing. If you don't
 	terminate with a status then howl.ci will presume the build errored.
 </p>
+
+</div>

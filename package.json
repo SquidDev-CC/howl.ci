@@ -7,17 +7,21 @@
     "dist": "node build.js",
     "watch": "node build.js --watch",
     "start": "http-server dist -o -c",
-		"deploy": "node build.js --release && git reset HEAD -- . && (git ls-files -z dist | xargs -0 git update-index --no-assume-unchanged) && git add -- dist && git commit -m \"Update dist\" && (git ls-files -z dist | xargs -0 git update-index --assume-unchanged) && git subtree push --prefix dist origin gh-pages"
+    "preversion": "node build.js --release",
+    "version": "(git ls-files -z dist | xargs -0 git update-index --no-assume-unchanged) && git add -A dist",
+    "postversion": "(git ls-files -z dist | xargs -0 git update-index --assume-unchanged) && git push && git push --tags && git subtree push --prefix dist origin gh-pages"
   },
   "author": "SquidDev",
   "license": "MIT",
   "devDependencies": {
     "colors": "^1.1.2",
-    "es6-promise": "^4.0.5",
-    "hogan.js": "^3.0.2",
     "http-server": "^0.9.0",
     "node-sass": "^3.10.1",
     "typescript": "^2.0.6",
     "uglify-js": "^2.7.4"
+  },
+  "dependencies": {
+    "es6-promise": "^4.0.5",
+    "hogan.js": "^3.0.2"
   }
 }

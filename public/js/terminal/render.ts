@@ -3,12 +3,10 @@ namespace HowlCI.Terminal {
 
 	const cellWidth = 6;
 	const cellHeight = 9;
+	const cellGCD = 3; // Common factor which won't result in characters skewing
 
 	const fontWidth = 96;
 	const fontHeight = 144;
-
-	const terminalScale = 2;
-	const border = 4;
 
 	// Time period to increment the slider by
 	const tickLength = 50;
@@ -69,9 +67,6 @@ namespace HowlCI.Terminal {
 		canvas: HTMLCanvasElement;
 		context: CanvasRenderingContext2D;
 
-		overlayCanvas: HTMLCanvasElement;
-		overlayContext: CanvasRenderingContext2D;
-
 		time: HTMLInputElement;
 		log: HTMLPreElement;
 
@@ -85,9 +80,6 @@ namespace HowlCI.Terminal {
 			this.canvas = <HTMLCanvasElement>document.getElementById("computer-" + id);
 			this.context = this.canvas.getContext("2d");
 
-			this.overlayCanvas = <HTMLCanvasElement>document.getElementById("computer-overlay-" + id);
-			this.overlayContext = this.overlayCanvas.getContext("2d");
-
 			this.time = <HTMLInputElement>document.getElementById("computer-time-" + id);
 			this.log = <HTMLPreElement>document.getElementById("computer-output-" + id);
 
@@ -97,9 +89,9 @@ namespace HowlCI.Terminal {
 			let increment = () => {
 				if(interacting) return null;
 
-				this.time.value = (parseInt(this.time.value, 10) + valueIncrement).toString();
+				this.time.valueAsNumber += valueIncrement;
 				let id : number | null = null;
-				if(this.time.value < this.time.max) {
+				if(this.time.valueAsNumber < parseInt(this.time.max, 10)) {
 					id = setTimeout(increment, tickLength);
 				}
 
@@ -118,6 +110,11 @@ namespace HowlCI.Terminal {
 				interacting = true;
 				if(timeout !== null) clearTimeout(timeout);
 			}
+
+			new ResizeSensor.ResizeSensor(this.canvas.parentElement, () => {
+				console.log("Resized");
+				this.redrawTerminal();
+			});
 		}
 
 		redrawTerminal(): void {
@@ -148,38 +145,27 @@ namespace HowlCI.Terminal {
 			let sizeX = terminal.sizeX || 51;
 			let sizeY = terminal.sizeY || 19;
 
-			let height = sizeY * cellHeight * terminalScale + border * 2;
-			let width = sizeX * cellWidth * terminalScale + border * 2;
+			let actualWidth = this.canvas.parentElement.clientWidth;
 
-			this.canvas.height = this.overlayCanvas.height = height;
-			this.canvas.width = this.overlayCanvas.width = width;
-			this.time.style.width = width + "px";
+			let width = sizeX * cellWidth;
+			let scale = actualWidth / width;
 
-			ctx.imageSmoothingEnabled = false;
+			scale = Math.floor(scale * 3) / 3;
+
+			let height = sizeY * cellHeight;
+
+			this.canvas.height = height * scale;
+			this.canvas.width = width * scale;
+
+			(<any>ctx).imageSmoothingEnabled = false; // Isn't standardised yet so...
 			ctx.oImageSmoothingEnabled = false;
 			ctx.webkitImageSmoothingEnabled = false;
 			ctx.mozImageSmoothingEnabled = false;
 			ctx.msImageSmoothingEnabled = false;
 
-			ctx.beginPath();
-			ctx.rect(0, 0, border, height);
-			ctx.fill();
-
-			ctx.beginPath();
-			ctx.rect(width - border, 0, border, height);
-			ctx.fill();
-
-			ctx.beginPath();
-			ctx.rect(0, 0, width, border);
-			ctx.fill();
-
-			ctx.beginPath();
-			ctx.rect(0, height - border, width, border);
-			ctx.fill();
-
 			if(terminal.sizeX === 0 && terminal.sizeY === 0) {
 				ctx.beginPath();
-				ctx.rect(border, border, width - border * 2, height - border * 2);
+				ctx.rect(0, 0, width * scale, height * scale);
 				ctx.fillStyle = colors["b"];
 				ctx.fill();
 
@@ -187,7 +173,7 @@ namespace HowlCI.Terminal {
 				let startX = Math.floor((sizeX - str.length) / 2);
 				let startY = Math.floor((sizeY - 1) / 2);
 				for(let x = 0; x < str.length; x++) {
-					this.renderForeground(startX + x, startY, "0", str.charAt(x));
+					this.renderForeground(startX + x, startY, "0", str.charAt(x), scale);
 				}
 
 				return;
@@ -195,19 +181,28 @@ namespace HowlCI.Terminal {
 
 			for(let y = 0; y < terminal.sizeY; y++) {
 				for(let x = 0; x < terminal.sizeX; x++) {
-					this.renderBackground(x, y, terminal.back[y].charAt(x));
-					this.renderForeground(x, y, terminal.fore[y].charAt(x), terminal.text[y].charAt(x));
+					this.renderBackground(x, y, terminal.back[y].charAt(x), scale);
+					this.renderForeground(x, y, terminal.fore[y].charAt(x), terminal.text[y].charAt(x), scale);
 				}
+			}
+
+			if(
+				terminal.cursorBlink &&
+				terminal.cursorX >= 0 && terminal.cursorX < sizeX &&
+				terminal.cursorY >= 0 && terminal.cursorY < sizeY &&
+				Math.floor(this.time.valueAsNumber / 400e6) % 2 === 0
+			) {
+				 this.renderForeground(terminal.cursorX, terminal.cursorY, terminal.currentFore, "_", scale);
 			}
 		}
 
-		private renderBackground(x: number, y: number, color: string):void {
+		private renderBackground(x: number, y: number, color: string, scale: number):void {
 			let ctx = this.context;
 
-			let actualWidth = cellWidth * terminalScale;
-			let actualHeight = cellHeight * terminalScale;
-			let cellX = x * actualWidth + border;
-			let cellY = y * actualHeight + border;
+			let actualWidth = cellWidth * scale;
+			let actualHeight = cellHeight * scale;
+			let cellX = x * actualWidth;
+			let cellY = y * actualHeight;
 
 			ctx.beginPath();
 			ctx.rect(cellX, cellY, actualWidth, actualHeight);
@@ -215,15 +210,15 @@ namespace HowlCI.Terminal {
 			ctx.fill();
 		}
 
-		private renderForeground(x: number, y: number, color: string, chr: string):void {
+		private renderForeground(x: number, y: number, color: string, chr: string, scale: number):void {
 			if(!fontLoaded) return;
 
 			let ctx = this.context;
 
-			let actualWidth = cellWidth * terminalScale;
-			let actualHeight = cellHeight * terminalScale;
-			let cellX = x * actualWidth + border;
-			let cellY = y * actualHeight + border;
+			let actualWidth = cellWidth * scale;
+			let actualHeight = cellHeight * scale;
+			let cellX = x * actualWidth;
+			let cellY = y * actualHeight;
 
 			let point = chr.charCodeAt(0);
 
@@ -233,7 +228,7 @@ namespace HowlCI.Terminal {
 			ctx.drawImage(
 				fonts[color],
 				imgX, imgY, cellWidth, cellHeight,
-				cellX, cellY, cellWidth * terminalScale, cellHeight * terminalScale
+				cellX, cellY, cellWidth * scale, cellHeight * scale
 			);
 		}
 	}

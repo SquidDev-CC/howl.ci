@@ -25,22 +25,28 @@
 			</span>
 		</h3>
 		<div class="build-info">
-			<p>{{commit.author_name}}: {{commit.message}}</p>
+			<pre>{{commit.author_name}}: {{commit.message}}</pre>
 		</div>
 	</div>
 
 	{{#logs}}
 		<div class="job">
 			<h3>Job #{{job.id}}</h3>
+
 			<div class="computer-control">
-				<canvas class="computer-canvas" id="computer-{{job.id}}"></canvas>
-				<canvas class="computer-canvas" id="computer-overlay-{{job.id}}"></canvas>
-				<input type="range" class="computer-time" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="computer-time-{{job.id}}" step="1" />
-				<pre class="computer-output" id="computer-output-{{job.id}}"></pre>
+				<div class="computer-log">
+					<pre class="computer-output" id="computer-output-{{job.id}}"></pre>
+				</div>
+				<div class="computer-terminal">
+					<div class="computer-terminal-container">
+						<input type="range" class="computer-time" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="computer-time-{{job.id}}" step="1" />
+						<canvas class="computer-canvas" id="computer-{{job.id}}"></canvas>
+					</div>
+				</div>
 			</div>
 		</div>
 	{{/logs}}
 {{/success}}
 {{^success}}
-	{{>request_error}}
+	<div class="text-content">{{>request_error}}</div>
 {{/success}}

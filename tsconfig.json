@@ -12,6 +12,7 @@
     },
     "files": [
         "temp/templates.ts",
+		"public/js/extern/ResizeSensor.ts",
 		"public/js/packets.ts",
 		"public/js/terminal/data.ts",
 		"public/js/terminal/render.ts",

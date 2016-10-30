@@ -66,10 +66,14 @@ h3 {
 
 pre, code { font-family: "Consolas", monospace; }
 pre {
-	background-color: $base06;
 	padding: 1.2em;
 	font-size: 0.8em;
+	white-space: pre-wrap;
+}
+
+pre.box {
 	border: solid 0.2em $base03;
+	background-color: $base06;
 }
 
 em { font-style: italic; }
@@ -128,7 +132,7 @@ a:hover {
 }
 
 .computer-control {
-	position: relative;
+	@include grid-container();
 
 	.computer-canvas {
 		image-rendering: optimizeSpeed;
@@ -139,27 +143,38 @@ a:hover {
 		-ms-interpolation-mode: nearest-neighbor;
 
 		display: block;
+
 		margin-left: auto;
 		margin-right: auto;
 
-		position: absolute;
-		left: 0px;
-		right: 0px;
-		top: 30px;
+		background-color: #000;
+		padding: 4px;
+		box-sizing: border-box;
 	}
 
-	.computer-time {
+	.computer-log, .computer-terminal {
+		@include grid-col(30px, 50%);
+		min-width: 200px;
+		margin-top: 20px;
+		margin-bottom: 20px;
+	}
+
+	.computer-output, .computer-terminal-wrapper, .computer-time {
 		display: block;
-		margin-left: auto;
-		margin-right: auto;
-		min-width: 400px;
+		width: 100%;
 	}
 
 	.computer-output {
-		display: block;
-		width: 100%;
-		margin-top: 400px;
-		margin-bottom: 20px;
+		height: 100%;
+		box-sizing: border-box;
+		overflow-y: scroll;
+		border: solid 0.2em $base03;
+		background-color: $base06;
+	}
+
+	.computer-output p {
+		overflow-wrap: break-word;
+		word-break: break-all;
 	}
 
 	.log-entry {
@@ -188,6 +203,11 @@ a:hover {
 		&.log-level-success:before {
 			content: " [Pass] ";
 			color: $base0B;
+		}
+
+		&.log-level-close:before {
+			content: "[Close] ";
+			color: $base01;
 		}
 	}
 }
