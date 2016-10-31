@@ -95,10 +95,21 @@ public class Runner {
 		config.addListener(new Runnable() {
 			@Override
 			public void run() {
-				ComputerCraft.default_computer_settings = config.getProperty("computercraft.defaultSettings", "");
+				double version = Double.parseDouble(ComputerCraft.getVersion());
+				if (version >= 1.77) {
+					ComputerCraft.default_computer_settings = config.getProperty("computercraft.defaultSettings", "");
+				}
+
+				if (version >= 1.74) {
+					ComputerCraft.disable_lua51_features = Boolean.parseBoolean(config.getProperty("computercraft.disable51", "false"));
+				}
+
+				if (version >= 63) {
+					ComputerCraft.http_whitelist = config.getProperty("computercraft.whitelist", "*");
+				}
+
 				ComputerCraft.http_enable = Boolean.parseBoolean(config.getProperty("computercraft.http", "true"));
-				ComputerCraft.http_whitelist = config.getProperty("computercraft.whitelist", "*");
-				ComputerCraft.disable_lua51_features = Boolean.parseBoolean(config.getProperty("computercraft.disable51", "false"));
+
 			}
 		});
 
