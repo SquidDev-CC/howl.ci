@@ -11,6 +11,7 @@ namespace HowlCI.Packets {
 
 	export type PacketCollection = {
 		lines: Packet[],
+		exists: boolean,
 		minTime: number,
 		maxTime: number,
 	}
@@ -51,6 +52,7 @@ namespace HowlCI.Packets {
 
 		return {
 			lines: out,
+			exists: out.length > 0,
 			minTime: minTime,
 			maxTime: maxTime,
 		};

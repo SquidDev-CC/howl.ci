@@ -13,8 +13,8 @@
 	</h2>
 
 	{{#builds}}
-		<div class="build build-{{state}}">
-			<h3>
+		<div class="build status-{{state}}">
+			<h3 class="status-label">
 				<a href="?p=build&id={{id}}">
 					#{{number}} {{state}} :: <span class="fa fa-0 fa-code-fork"></span> {{commit.branch}}
 				</a>

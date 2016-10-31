@@ -10,8 +10,8 @@
 			</a>
 		</span>
 	</h2>
-	<div class="build build-{{build.state}}">
-		<h3>
+	<div class="build status-{{build.state}}">
+		<h3 class="status-label">
 			<a href="?p=build&id={{id}}">
 				#{{build.number}} {{build.state}} :: <span class="fa fa-0 fa-code-fork"></span> {{commit.branch}}
 			</a>
@@ -24,27 +24,45 @@
 				</a>
 			</span>
 		</h3>
-		<div class="build-info">
+		<div class="status-info">
 			<pre>{{commit.author_name}}: {{commit.message}}</pre>
 		</div>
 	</div>
 
+	<ul class="jobs">
+		{{#logs}}
+			<li class="status-{{job.state}} status-label">
+				<a href="#job-{{job.id}}" id="job-link-{{job.id}}">#{{job.number}} {{build.state}}</a>
+				<a href="https://travis-ci.org/{{repo.slug}}/jobs/{{job.id}}" titlte="Open on Travis.org" target="_blank">
+					<span class="fa fa-cubes"></span>
+				</a>
+			</li>
+		{{/logs}}
+	</ul>
 	{{#logs}}
-		<div class="job">
-			<h3>Job #{{job.id}}</h3>
+		<div class="job status-{{job.state}}" id="job-{{job.id}}">
+			{{#lines.exists}}
+				<input type="range" class="computer-time" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="computer-time-{{job.id}}" step="1" />
 
-			<input type="range" class="computer-time" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="computer-time-{{job.id}}" step="1" />
-
-			<div class="computer-control">
-				<div class="computer-log">
-					<pre class="computer-output" id="computer-output-{{job.id}}"></pre>
-				</div>
-				<div class="computer-terminal" data-sticky-container>
-					<div class="computer-terminal-container">
-						<canvas class="computer-canvas" id="computer-{{job.id}}"></canvas>
+				<div class="computer-control">
+					<div class="computer-log">
+						<pre class="computer-output" id="computer-output-{{job.id}}"></pre>
+					</div>
+					<div class="computer-terminal" data-sticky-container>
+						<div class="computer-terminal-container">
+							<canvas class="computer-canvas" id="computer-{{job.id}}"></canvas>
+						</div>
 					</div>
 				</div>
-			</div>
+			{{/lines.exists}}
+			{{^lines.exists}}
+				<div class="text-content">
+					<p>
+						This is odd. We can't seem to find any terminal data for this job. Did something go wrong?
+						Are you sure you got the right build?
+					</p>
+				</div>
+			{{/lines.exists}}
 		</div>
 	{{/logs}}
 {{/success}}

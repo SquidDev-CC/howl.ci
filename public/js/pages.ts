@@ -37,6 +37,7 @@ namespace HowlCI {
 		} else {
 			output = {
 				success: false,
+				nothing: true,
 			};
 		}
 
@@ -144,18 +145,55 @@ namespace HowlCI {
 		title: model => "Build #" + model.id + " | howl.ci",
 		after: model => {
 			if(model.success) {
+				let activeJobLink : HTMLElement|null = null;
+				let activeJobTerminal : Terminal.TerminalControl|null = null;
+				let activeJobTab : HTMLElement|null  = null;
+
 				for(const log of model.logs) {
-					let term = Terminal.TerminalData.empty();
+					let terminal : Terminal.TerminalControl|null;;
 
-					const lines = log.lines.lines;
-					const terminals : Terminal.TerminalData[] = new Array(lines.length);
+					if(log.lines.exists) {
+						let term = Terminal.TerminalData.empty();
 
-					for(let x = 0; x < lines.length; x++) {
-						const packet : Packets.Packet = lines[x];
-						term = terminals[x] = term.handlePacket(packet.command, packet.data);
+						const lines = log.lines.lines;
+						const terminals : Terminal.TerminalData[] = new Array(lines.length);
+
+						for(let x = 0; x < lines.length; x++) {
+							const packet : Packets.Packet = lines[x];
+							term = terminals[x] = term.handlePacket(packet.command, packet.data);
+						}
+
+						 terminal = new Terminal.TerminalControl(log.job.id, lines, terminals);
+					} else {
+						terminal = null;
 					}
 
-					new Terminal.TerminalControl(log.job.id, lines, terminals).redrawTerminal();
+
+					const link = <HTMLElement>document.getElementById("job-link-" + log.job.id);
+					const linker = link.parentElement;
+					const tab = <HTMLElement>document.getElementById("job-" + log.job.id);
+
+					const onClick = () => {
+						if(link === activeJobLink) return false;
+
+						if(activeJobLink != null) activeJobLink.classList.remove("active");
+						if(activeJobTab != null) activeJobTab.classList.remove("active");
+						if(activeJobTerminal) activeJobTerminal.detach();
+
+						linker.classList.add("active");
+						tab.classList.add("active");
+						if(terminal != null) terminal.attach();
+
+						activeJobLink = linker;
+						activeJobTab = tab;
+						activeJobTerminal = terminal;
+
+						return false;
+					}
+
+					link.onclick = onClick;
+
+					if(activeJobLink == null) onClick();
 				}
 			}
 		}
@@ -169,18 +207,27 @@ namespace HowlCI {
 				xhr => {
 					const res = xhr.responseText;
 
-					return {
-						url: url,
-						success: true,
-						lines: Packets.parse(res),
-					};
+					let lines = Packets.parse(res);
+					if(lines.exists) {
+						return {
+							url: url,
+							success: true,
+							lines: lines,
+						};
+					} else {
+						return {
+							url: url,
+							success: false,
+							fetched: true,
+						};
+					}
 				},
 				xhr => handleError(xhr, { url: url })
 			);
 		},
 		title: model => "URL " + model.url + " | howl.ci",
 		after: model => {
-			if(model.success) {
+			if(model.success && model.lines) {
 				let term = Terminal.TerminalData.empty();
 
 				const lines = model.lines.lines;
@@ -191,7 +238,8 @@ namespace HowlCI {
 					term = terminals[x] = term.handlePacket(packet.command, packet.data);
 				}
 
-				new Terminal.TerminalControl(0, lines, terminals).redrawTerminal();
+				const terminal = new Terminal.TerminalControl(0, lines, terminals);
+				terminal.attach();
 			}
 		}
 	}

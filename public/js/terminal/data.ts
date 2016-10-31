@@ -265,7 +265,7 @@ namespace HowlCI.Terminal {
 					});
 					break;
 				default:
-					console.log("Unhandled packet " + code);
+					console.warn("Unhandled packet " + code);
 					break;
 			}
 

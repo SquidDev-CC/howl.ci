@@ -8,16 +8,29 @@ namespace HowlCI.Terminal {
 	const valueIncrement = 1e5 * tickLength;
 
 	export class TerminalControl {
-		canvas: HTMLCanvasElement;
-		context: CanvasRenderingContext2D;
+		// Rendering elements
+		private canvas: HTMLCanvasElement;
+		private context: CanvasRenderingContext2D;
 
-		time: HTMLInputElement;
-		log: HTMLPreElement;
+		// Terminal elements
+		private time: HTMLInputElement;
+		private log: HTMLPreElement;
 
-		lines: Packets.Packet[];
-		terminals: TerminalData[];
+		// Terminal data
+		private lines: Packets.Packet[];
+		private terminals: TerminalData[];
 
-		sticky: Sticky;
+		// Sticky terminal
+		private sticky: Sticky;
+
+		// Resize
+		private oldWidth: number;
+		private oldHeight: number;
+		private onResizeHandler : () => void;
+
+		// Playback
+		private playing: boolean;
+		private playbackId : number|null;
 
 		constructor(id: number, lines: Packets.Packet[], terminals: TerminalData[]) {
 			this.lines = lines;
@@ -65,41 +78,29 @@ namespace HowlCI.Terminal {
 				logLength = terminal.log.length;
 			}
 
-			let interacting = false;
+			// Register resize handlers
+			this.onResizeHandler = this.onResize.bind(this);
 
-			// Auto-play the slider
-			const increment = () => {
-				if(interacting) return null;
-
-				this.time.valueAsNumber += valueIncrement;
-				let id : number | null = null;
-				if(this.time.valueAsNumber < parseInt(this.time.max, 10)) {
-					id = setTimeout(increment, tickLength);
-				}
-
-				this.redrawTerminal();
-				return id;
-			};
-
-			// If the slider is changed then abort the animation and set the value
-			const timeout = increment();
+			// Register playback handlers
+			this.playing = true;
 			this.time.oninput = () => {
 				this.redrawTerminal();
-				interacting = true;
-				if(timeout !== null) clearTimeout(timeout);
+				this.playing = false;
+				if(this.playbackId !== null) {
+					this.playbackId = null;
+					clearTimeout(this.playbackId);
+				}
 			}
 			this.time.onmousedown = () => {
-				interacting = true;
-				if(timeout !== null) clearTimeout(timeout);
+				this.playing = false;
+				if(this.playbackId !== null) {
+					this.playbackId = null;
+					clearTimeout(this.playbackId);
+				}
 			}
-
-			new ResizeSensor.ResizeSensor(this.canvas.parentElement, () => {
-				this.redrawTerminal();
-				this.sticky.update(this.canvas.parentElement);
-			});
 		}
 
-		redrawTerminal(): void {
+		private redrawTerminal(): void {
 			const time = this.time.valueAsNumber;
 
 			let terminal = this.terminals[0];
@@ -151,6 +152,54 @@ namespace HowlCI.Terminal {
 				Render.bsod(ctx, sizeX, sizeY, scale, "No terminal output");
 			} else {
 				Render.terminal(ctx, terminal, scale, Math.floor(this.time.valueAsNumber / 400e6) % 2 === 0);
+			}
+		}
+
+		private onResize(force = false) {
+			// Check if we have resized this item
+			const element = this.canvas.parentElement;
+			if(force || element.clientWidth !== this.oldWidth || element.clientHeight !== this.oldHeight) {
+				// Save the new dimensions
+				this.oldWidth = element.clientWidth;
+				this.oldHeight = element.clientHeight;
+
+				// And redraw/update scrolling as size has changed
+				this.redrawTerminal();
+				this.sticky.update(this.canvas.parentElement);
+			}
+		}
+
+		public attach() {
+			window.addEventListener('resize', this.onResizeHandler);
+			this.onResize(true);
+
+			if(this.playing) {
+				// Auto-play the slider
+				const increment = () => {
+					if(!this.playing) return null;
+
+					this.time.valueAsNumber += valueIncrement;
+					if(this.time.valueAsNumber < parseInt(this.time.max, 10)) {
+						this.playbackId = setTimeout(increment, tickLength);
+					} else {
+						this.playing = false;
+						this.playbackId = null;
+					}
+
+					this.redrawTerminal();
+				};
+
+				// If the slider is changed then abort the animation and set the value
+				increment();
+			}
+		}
+
+		public detach() {
+			window.removeEventListener('resize', this.onResizeHandler);
+
+			if(this.playbackId !== null) {
+				clearTimeout(this.playbackId);
+				this.playbackId = null;
 			}
 		}
 	}

@@ -93,38 +93,60 @@ a:hover {
 	text-decoration: none;
 }
 
-.build {
-	@mixin build($color) {
-		> h3 {
-			a, a:visited, a:active { color: $base07; }
-			a:hover { color: lighten($color, 40%); }
+@mixin status($color) {
+	> .status-label, &.status-label {
+		a, a:visited, a:active { color: $base07; }
+		a:hover { color: lighten($color, 40%); }
 
-			background-color: darken($color, 20%);
-			color: $base07;
-		}
-
-		> .build-info {
-			border-left: solid 5px $color;
-			padding-left: 5px;
-		}
+		background-color: darken($color, 20%);
+		color: $base07;
 	}
 
+	> .status-info {
+		border-left: solid 5px $color;
+		padding-left: 5px;
+	}
+}
+
+.status-passed { @include status($base0B); }
+.status-failed { @include status($base08); }
+.status-errored { @include status($base0F); }
+
+.build {
 	margin-bottom: 10px;
 	width: 100%;
 
-	&.build-passed {
-		@include build($base0B);
-	}
-
-	&.build-failed {
-		@include build($base08);
-	}
-
-	&.build-errored {
-		@include build($base0F);
-	}
-
 	> * { padding: 10px; }
+}
+
+.jobs {
+	margin-top: 20px;
+	display: flex;
+
+	li {
+		padding: 10px;
+		margin: 0px;
+
+		&.status-passed:not(.active) { background-color: lighten($base0B, 5%); }
+		&.status-failed:not(.active) { background-color: lighten($base08, 5%); }
+		&.status-errored:not(.active) { background-color: lighten($base0F, 5%); }
+
+		> a:first-child {
+			margin-right: 10px;
+		}
+	}
+}
+
+.job {
+	padding-top: 20px;
+	display: none;
+	border-top: solid 5px transparent;
+
+	&.active { display: block; }
+
+	&.status-passed { border-top-color: darken($base0B, 20%); }
+	&.status-failed { border-top-color: darken($base08, 20%); }
+	&.status-errored { border-top-color: darken($base0F, 20%); }
 }
 
 .computer-control {
@@ -202,6 +224,7 @@ a:hover {
 		.log-level-warn
 		{ color: $base09; }
 
+		.log-level-info { color: $base0D; }
 		.log-level-error { color: $base08; }
 		.log-level-failure { color: $base0E; }
 		.log-level-success { color: $base0B; }

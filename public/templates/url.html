@@ -32,6 +32,9 @@
 		</span>
 	</h2>
 
+	{{#fetched}}
+		<p>We fetched your page OK but couldn't extract a terminal from it. Are you sure it was the right one?</p>
+	{{/fetched}}
 	{{#status}}
 		<p>My AJAX request went to your URL and all it got was this lousy status code: <code>{{status}}</code></p>
 		<hr />
@@ -40,8 +43,8 @@
 		<h3>Response headers:</h3>
 		<p><pre>{{headers}}</pre></p>
 	{{/status}}
-	{{^status}}
+	{{#nothing}}
 		<p>We couldn't connect to this site at at all: maybe it is down?
-	{{/status}}
+	{{/nothing}}
 	</div>
 {{/success}}

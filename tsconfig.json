@@ -11,12 +11,11 @@
         "alwaysStrict": true
     },
     "files": [
-		"public/js/extern/ResizeSensor.ts",
-		"public/js/extern/sticky.ts",
-		"public/js/packets.ts",
-		"public/js/terminal/data.ts",
-		"public/js/terminal/render.ts",
-		"public/js/terminal/control.ts",
+        "public/js/extern/sticky.ts",
+        "public/js/packets.ts",
+        "public/js/terminal/data.ts",
+        "public/js/terminal/render.ts",
+        "public/js/terminal/control.ts",
         "public/js/pages.ts",
         "public/js/main.ts"
     ]
