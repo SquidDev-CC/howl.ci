@@ -13,7 +13,7 @@ namespace HowlCI.Terminal {
 		kind: LogKind;
 	}
 
-	let interSplice = function(text:string, partial:string, offset:number) {
+	const interSplice = function(text:string, partial:string, offset:number) {
 		return text.substr(0, offset) + partial + text.substr(offset + partial.length);
 	}
 
@@ -35,7 +35,7 @@ namespace HowlCI.Terminal {
 		log:LogItem[];
 
 		static empty():TerminalData {
-			let data = new TerminalData();
+			const data = new TerminalData();
 			data.init(0, 0);
 			return data;
 		}
@@ -75,7 +75,7 @@ namespace HowlCI.Terminal {
 		}
 
 		clone():TerminalData {
-			let copied = new TerminalData();
+			const copied = new TerminalData();
 			copied.text = this.text;
 			copied.fore = this.fore;
 			copied.back = this.back;
@@ -96,10 +96,10 @@ namespace HowlCI.Terminal {
 		}
 
 		handlePacket(code:string, data:string):TerminalData {
-			let cloned = this.clone();
+			const cloned = this.clone();
 			switch(code) {
 				case "TC": { // Set cursor position
-					let [_, x, y] = data.match(/(-?\d+),(-?\d+)/);
+					const [_, x, y] = data.match(/(-?\d+),(-?\d+)/);
 					cloned.cursorX = parseInt(x, 10) - 1;
 					cloned.cursorY = parseInt(y, 10) - 1;
 					break;
@@ -117,7 +117,7 @@ namespace HowlCI.Terminal {
 					break;
 				}
 				case "TR": { // Resizes the terminal
-					let [_, width, height] = data.match(/(\d+),(\d+)/);
+					const [_, width, height] = data.match(/(\d+),(\d+)/);
 					cloned.resize(parseInt(width, 10), parseInt(height, 10));
 					break;
 				}
@@ -126,7 +126,7 @@ namespace HowlCI.Terminal {
 					break;
 				}
 				case "TV": { // Blits the entire terminal
-					let width = data.indexOf(',');
+					const width = data.indexOf(',');
 					if(width != cloned.sizeX) throw new Error(`Width: ${width} != ${cloned.sizeX}`);
 
 					cloned.text = new Array(cloned.sizeY);
@@ -144,8 +144,8 @@ namespace HowlCI.Terminal {
 					cloned.fore = cloned.fore.slice(0);
 					cloned.back = cloned.back.slice(0);
 
-					let width = data.indexOf(",");
-					let y = this.cursorY, x = this.cursorX;
+					const width = data.indexOf(",");
+					const y = this.cursorY, x = this.cursorX;
 
 					// TODO: Handle invalid cursor x
 					if(y < 0 || y >= this.sizeY) break;
@@ -161,10 +161,10 @@ namespace HowlCI.Terminal {
 					cloned.back = cloned.back.slice(0);
 
 					// We use [\s\S] to capture "\r" too.
-					let [_, xV, yV, remainder] = data.match(/(\d+),(\d+),([\s\S]*)/);
-					let x = parseInt(xV, 10) - 1, y = parseInt(yV, 10) - 1;
+					const [_, xV, yV, remainder] = data.match(/(\d+),(\d+),([\s\S]*)/);
+					const x = parseInt(xV, 10) - 1, y = parseInt(yV, 10) - 1;
 
-					let width = remainder.indexOf(",");
+					const width = remainder.indexOf(",");
 
 					cloned.fore[y] = interSplice(cloned.fore[y], remainder.substr(0 * (width + 1), width), x);
 					cloned.back[y] = interSplice(cloned.back[y], remainder.substr(1 * (width + 1), width), x);
@@ -173,13 +173,13 @@ namespace HowlCI.Terminal {
 					break;
 				}
 				case "TS": {
-					let [_, dir] = data.match(/(-?\d+)/);
-					let diff = parseInt(dir, 10);
+					const [_, dir] = data.match(/(-?\d+)/);
+					const diff = parseInt(dir, 10);
 
 					cloned.resize(cloned.sizeX, cloned.sizeY);
 
 					for(let y = 0; y < this.sizeY; ++y) {
-						let oldY = y + diff;
+						const oldY = y + diff;
 						if(oldY >= 0 && oldY < this.sizeY) {
 							cloned.text[y] = this.text[oldY];
 							cloned.fore[y] = this.fore[oldY];
@@ -193,8 +193,8 @@ namespace HowlCI.Terminal {
 					cloned.fore = cloned.fore.slice(0);
 					cloned.back = cloned.back.slice(0);
 
-					let width = data.length;
-					let y = this.cursorY, x = this.cursorX;
+					const width = data.length;
+					const y = this.cursorY, x = this.cursorX;
 
 					// TODO: Handle invalid cursor x
 					if(y < 0 || y >= this.sizeY) break;
@@ -237,7 +237,7 @@ namespace HowlCI.Terminal {
 				case "XL": { // Add a log message to the log
 					cloned.log = cloned.log.slice(0);
 
-					let [type, message] = data.split(',', 2);
+					const [type, message] = data.split(',', 2);
 					cloned.log.push({
 						level: type,
 						kind: LogKind.Log,
@@ -248,7 +248,7 @@ namespace HowlCI.Terminal {
 				case "XS": { // Add a status message to the log
 					cloned.log = cloned.log.slice(0);
 
-					let [type, message] = data.split(',', 2);
+					const [type, message] = data.split(',', 2);
 					cloned.log.push({
 						level: type,
 						kind: LogKind.Status,

@@ -1,18 +1,20 @@
 /// <reference path="../../../typings/main.d.ts" />
 
-namespace HowlCI.Terminal {
+namespace HowlCI.Terminal.Render {
 	"use strict";
 
 	const cellWidth = 6;
 	const cellHeight = 9;
-	const cellGCD = 3; // Common factor which won't result in characters skewing
+
+	// Computed from above: the GCD of the two dimensions.
+	// By always scaling to an integer we ensure the texture offsets are also integers.
+	const cellGCD = 3;
+
+	export const pixelWidth = cellWidth / cellGCD;
+	export const pixelHeight = cellHeight / cellGCD;
 
 	const fontWidth = 96;
 	const fontHeight = 144;
-
-	// Time period to increment the slider by
-	const tickLength = 50;
-	const valueIncrement = 1e5 * tickLength;
 
 	// Color code lookups
 	const colors = {
@@ -41,13 +43,13 @@ namespace HowlCI.Terminal {
 	// Generate a series of fonts for each color code
 	let fontLoaded = false;
 	font.onload = () => {
-		for(let key in colors) {
+		for(const key in colors) {
 			if(!colors.hasOwnProperty(key)) {
 				continue;
 			}
 
-			let canvas = document.createElement("canvas");
-			let context = canvas.getContext("2d");
+			const canvas = document.createElement("canvas");
+			const context = canvas.getContext("2d");
 
 			canvas.width = fontWidth;
 			canvas.height = fontHeight;
@@ -65,215 +67,73 @@ namespace HowlCI.Terminal {
 		fontLoaded = true;
 	};
 
-	export class TerminalRender {
-		canvas: HTMLCanvasElement;
-		context: CanvasRenderingContext2D;
+	export const background = (ctx: CanvasRenderingContext2D, x: number, y: number, color: string, scale: number):void => {
+		const actualWidth = cellWidth * scale;
+		const actualHeight = cellHeight * scale;
+		const cellX = x * actualWidth;
+		const cellY = y * actualHeight;
 
-		time: HTMLInputElement;
-		log: HTMLPreElement;
+		ctx.beginPath();
+		ctx.rect(cellX, cellY, actualWidth, actualHeight);
+		ctx.fillStyle = colors[color];
+		ctx.fill();
+	};
 
-		lines: Packets.Packet[];
-		terminals: TerminalData[];
+	export const foreground = (ctx: CanvasRenderingContext2D, x: number, y: number, color: string, chr: string, scale: number):void => {
+		if(!fontLoaded) return;
 
-		sticky: Sticky;
+		const actualWidth = cellWidth * scale;
+		const actualHeight = cellHeight * scale;
+		const cellX = x * actualWidth;
+		const cellY = y * actualHeight;
 
-		constructor(id: number, lines: Packets.Packet[], terminals: TerminalData[]) {
-			this.lines = lines;
-			this.terminals = terminals;
+		const point = chr.charCodeAt(0);
 
-			this.canvas = <HTMLCanvasElement>document.getElementById("computer-" + id);
-			this.context = this.canvas.getContext("2d");
+		const imgX = (point % (fontWidth / cellWidth)) * cellWidth;
+		const imgY = Math.floor(point / (fontHeight / cellHeight)) * cellHeight;
 
-			this.time = <HTMLInputElement>document.getElementById("computer-time-" + id);
-			let log = this.log = <HTMLPreElement>document.getElementById("computer-output-" + id);
+		ctx.drawImage(
+			fonts[color],
+			imgX, imgY, cellWidth, cellHeight,
+			cellX, cellY, cellWidth * scale, cellHeight * scale
+		);
+	};
 
-			this.sticky = new Sticky({
-				marginTop: 10,
-				stickyFor: 800,
-			});
-			this.sticky.setup(this.canvas.parentElement);
+	export const terminal = (ctx: CanvasRenderingContext2D, term: TerminalData, scale: number, blink: boolean) => {
+		scale /= 3;
+		// if((scale * 3 % 1) != 0) throw new Error(`Scale ${scale} must a multiple of 1/3`);
 
-			// Build the log, adding the entries to the list
-			let logLength = 0;
-			for(let i = 0; i < lines.length; i++) {
-				let time = lines[i].time;
-				let terminal = terminals[i];
-				for(let i = logLength; i < terminal.log.length; i++) {
-					let entry = terminal.log[i];
-					let kindName = LogKind[entry.kind].toLowerCase();
-					let levelName = entry.level.replace(/[^\w-]/g, "").toLowerCase();
+		const sizeX = term.sizeX;
+		const sizeY = term.sizeY;
 
-					let element = document.createElement("p");
-					element.style.display = "hidden";
-					element.className = `log-entry log-${kindName}`;
-					element.setAttribute("data-time", time.toString());
-
-					let kind = document.createElement("span");
-					kind.innerText = `[${levelName}]`;
-					kind.className = `log-level log-level-${levelName}`;
-
-					let text = document.createElement("span");
-					text.innerText = entry.text;
-
-					element.appendChild(kind);
-					element.appendChild(text);
-
-					log.appendChild(element);
-				}
-				logLength = terminal.log.length;
-			}
-
-			let interacting = false;
-
-			// Auto-play the slider
-			let increment = () => {
-				if(interacting) return null;
-
-				this.time.valueAsNumber += valueIncrement;
-				let id : number | null = null;
-				if(this.time.valueAsNumber < parseInt(this.time.max, 10)) {
-					id = setTimeout(increment, tickLength);
-				}
-
-				this.redrawTerminal();
-				return id;
-			};
-
-			// If the slider is changed then abort the animation and set the value
-			let timeout = increment();
-			this.time.oninput = () => {
-				this.redrawTerminal();
-				interacting = true;
-				if(timeout !== null) clearTimeout(timeout);
-			}
-			this.time.onmousedown = () => {
-				interacting = true;
-				if(timeout !== null) clearTimeout(timeout);
-			}
-
-			new ResizeSensor.ResizeSensor(this.canvas.parentElement, () => {
-				this.redrawTerminal();
-				this.sticky.update(this.canvas.parentElement);
-			});
-		}
-
-		redrawTerminal(): void {
-			let time = this.time.valueAsNumber;
-
-			let terminal = this.terminals[0];
-			for(let i = 1; i < this.lines.length; i++) {
-				let line = this.lines[i];
-				terminal = this.terminals[i - 1];
-				if(line.time > time) {
-					break;
-				}
-			}
-
-			let logLines = this.log.childNodes;
-			for(let i = 0; i < logLines.length; i++) {
-				let logLine = logLines[i];
-				if(logLine instanceof HTMLElement) {
-					logLine.style.display = parseInt(logLine.getAttribute("data-time"), 10) > time ? "none" : null;
-				}
-			}
-
-			let ctx = this.context;
-			ctx.fillStyle = colors.f;
-
-			let sizeX = terminal.sizeX || 51;
-			let sizeY = terminal.sizeY || 19;
-
-			// Attempt to scale the canvas down to fit the screen
-			// We have to clamp it to a particular scale level to avoid textures being weird.
-
-			// FIXME: We subtract 8 as that is the padding of the parent element.
-			let actualWidth = this.canvas.parentElement.clientWidth - 8;
-
-			let width = sizeX * cellWidth;
-			let height = sizeY * cellHeight;
-			let scale = actualWidth / width;
-
-			scale = Math.floor(scale * 3) / 3;
-			if(scale == 0) scale = 1/3;
-
-			if(this.canvas.height !== height * scale || this.canvas.width !== width * scale) {
-				this.canvas.height = height * scale;
-				this.canvas.width = width * scale;
-			}
-
-			(<any>ctx).imageSmoothingEnabled = false; // Isn't standardised yet so...
-			ctx.oImageSmoothingEnabled = false;
-			ctx.webkitImageSmoothingEnabled = false;
-			ctx.mozImageSmoothingEnabled = false;
-			ctx.msImageSmoothingEnabled = false;
-
-			if(terminal.sizeX === 0 && terminal.sizeY === 0) {
-				ctx.beginPath();
-				ctx.rect(0, 0, width * scale, height * scale);
-				ctx.fillStyle = colors["b"];
-				ctx.fill();
-
-				let str = "No terminal output";
-				let startX = Math.floor((sizeX - str.length) / 2);
-				let startY = Math.floor((sizeY - 1) / 2);
-				for(let x = 0; x < str.length; x++) {
-					this.renderForeground(startX + x, startY, "0", str.charAt(x), scale);
-				}
-
-				return;
-			}
-
-			for(let y = 0; y < terminal.sizeY; y++) {
-				for(let x = 0; x < terminal.sizeX; x++) {
-					this.renderBackground(x, y, terminal.back[y].charAt(x), scale);
-					this.renderForeground(x, y, terminal.fore[y].charAt(x), terminal.text[y].charAt(x), scale);
-				}
-			}
-
-			if(
-				terminal.cursorBlink &&
-				terminal.cursorX >= 0 && terminal.cursorX < sizeX &&
-				terminal.cursorY >= 0 && terminal.cursorY < sizeY &&
-				Math.floor(this.time.valueAsNumber / 400e6) % 2 === 0
-			) {
-				 this.renderForeground(terminal.cursorX, terminal.cursorY, terminal.currentFore, "_", scale);
+		for(let y = 0; y < sizeY; y++) {
+			for(let x = 0; x < sizeX; x++) {
+				background(ctx, x, y, term.back[y].charAt(x), scale);
+				foreground(ctx, x, y, term.fore[y].charAt(x), term.text[y].charAt(x), scale);
 			}
 		}
 
-		private renderBackground(x: number, y: number, color: string, scale: number):void {
-			let ctx = this.context;
-
-			let actualWidth = cellWidth * scale;
-			let actualHeight = cellHeight * scale;
-			let cellX = x * actualWidth;
-			let cellY = y * actualHeight;
-
-			ctx.beginPath();
-			ctx.rect(cellX, cellY, actualWidth, actualHeight);
-			ctx.fillStyle = colors[color];
-			ctx.fill();
+		if(
+			blink && term.cursorBlink &&
+			term.cursorX >= 0 && term.cursorX < sizeX &&
+			term.cursorY >= 0 && term.cursorY < sizeY
+		) {
+				foreground(ctx, term.cursorX, term.cursorY, term.currentFore, "_", scale);
 		}
+	};
 
-		private renderForeground(x: number, y: number, color: string, chr: string, scale: number):void {
-			if(!fontLoaded) return;
+	export const bsod = (ctx: CanvasRenderingContext2D, width: number, height : number, scale: number, text:string) => {
+		scale /= 3;
 
-			let ctx = this.context;
+		ctx.beginPath();
+		ctx.rect(0, 0, width * cellWidth * scale, height * cellHeight * scale);
+		ctx.fillStyle = colors["b"];
+		ctx.fill();
 
-			let actualWidth = cellWidth * scale;
-			let actualHeight = cellHeight * scale;
-			let cellX = x * actualWidth;
-			let cellY = y * actualHeight;
-
-			let point = chr.charCodeAt(0);
-
-			let imgX = (point % (fontWidth / cellWidth)) * cellWidth;
-			let imgY = Math.floor(point / (fontHeight / cellHeight)) * cellHeight;
-
-			ctx.drawImage(
-				fonts[color],
-				imgX, imgY, cellWidth, cellHeight,
-				cellX, cellY, cellWidth * scale, cellHeight * scale
-			);
+		const startX = Math.floor((width - text.length) / 2);
+		const startY = Math.floor((height - 1) / 2);
+		for(let x = 0; x < text.length; x++) {
+			foreground(ctx, startX + x, startY, "0", text.charAt(x), scale);
 		}
-	}
+	};
 }

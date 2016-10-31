@@ -15,20 +15,20 @@ namespace HowlCI.Packets {
 		maxTime: number,
 	}
 
-	export let parse = function(stream : string) : PacketCollection {
-		let out : Packet[] = [];
+	export const parse = function(stream : string) : PacketCollection {
+		const out : Packet[] = [];
 
 		let lastTime = 0;
 
 		let minTime = Number.POSITIVE_INFINITY, maxTime = Number.NEGATIVE_INFINITY;
-		for(let line of stream.split("\n")) {
+		for(const line of stream.split("\n")) {
 			// We use [\s\S] to capture "\r" too.
-			let match = line.match(/^([A-Z]{2}):([^;]*);([\s\S]*)$/);
+			const match = line.match(/^([A-Z]{2}):([^;]*);([\s\S]*)$/);
 			if(match) {
 				let computer = "unknown", time = lastTime;
-				let meta = match[2];
+				const meta = match[2];
 
-				let metaMatch = meta.match(/^([^,]+),(\d+)$/);
+				const metaMatch = meta.match(/^([^,]+),(\d+)$/);
 				if(metaMatch) {
 					computer = metaMatch[1];
 					time = lastTime = parseInt(metaMatch[2], 10);

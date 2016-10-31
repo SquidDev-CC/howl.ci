@@ -1,13 +1,13 @@
 /// <reference path="../../typings/main.d.ts" />
 
-let queryArgs = window.location.search
+const queryArgs = window.location.search
 	.substring(1)
 	.split('&')
 	.map(x => x.split('=', 2).map(decodeURIComponent));
 
-let query : {[key:string]:string}= {};
+const query : {[key:string]:string}= {};
 
-for(let [k, v] of queryArgs) query[k] = v;
+for(const [k, v] of queryArgs) query[k] = v;
 
 let pageName = query['p'] || 'index';
 let page = HowlCI.pages[pageName];
@@ -28,8 +28,8 @@ page.build(query).then(model => {
 	// history.replaceState(model, document.title, window.location.toString());
 
 	// window.onpopstate = function(event) {
-	// 	let model = event.state;
-	// 	let page = pages[model.page];
+	// 	const model = event.state;
+	// 	const page = pages[model.page];
 
 	// 	document.title = page.title(model);
 	// 	document.getElementById("content").innerHTML = page.render(model, templates);

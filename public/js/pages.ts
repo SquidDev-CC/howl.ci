@@ -1,9 +1,9 @@
 namespace HowlCI {
 	"use strict";
 
-	let request = function(url : string, type? : string):Promise<XMLHttpRequest> {
+	const request = function(url : string, type? : string):Promise<XMLHttpRequest> {
 		return new Promise((resolve, reject) => {
-			var xhr = new XMLHttpRequest();
+			const xhr = new XMLHttpRequest();
 
 			xhr.open("GET", url);
 			xhr.setRequestHeader("Accept", type || "application/vnd.travis-ci.2+json");
@@ -23,9 +23,9 @@ namespace HowlCI {
 		});
 	};
 
-	let always = function<T>(args : T) { return  Promise.resolve(args); };
+	const always = function<T>(args : T) { return  Promise.resolve(args); };
 
-	let handleError = function<T extends {}>(xhr : XMLHttpRequest, data : T): T {
+	const handleError = function<T extends {}>(xhr : XMLHttpRequest, data : T): T {
 		let output;
 		if(xhr.status) {
 			output = {
@@ -40,7 +40,7 @@ namespace HowlCI {
 			};
 		}
 
-		for(let key in data) {
+		for(const key in data) {
 			if(data.hasOwnProperty(key)) {
 				output[key] = data[key];
 			}
@@ -56,7 +56,7 @@ namespace HowlCI {
 		after?: (model:T)   => void,
 	}
 
-	export let pages : { [name: string]:Page<any> }= {};
+	export const pages : { [name: string]:Page<any> }= {};
 
 	pages["index"] = {
 		build: always,
@@ -70,17 +70,17 @@ namespace HowlCI {
 
 	pages["builds"] = {
 		build: (args) => {
-			let repo = args["repo"];
+			const repo = args["repo"];
 
 			return request(`https://api.travis-ci.org/repos/${repo}/builds`).then(
 				xhr => {
-					let res = JSON.parse(xhr.responseText);
-					let commitLookup = {};
-					for(let commit of res.commits) {
+					const res = JSON.parse(xhr.responseText);
+					const commitLookup = {};
+					for(const commit of res.commits) {
 						commitLookup[commit.id] = commit;
 					}
 
-					for(let build of res.builds) {
+					for(const build of res.builds) {
 						build.commit = commitLookup[build.commit_id];
 						build.success = build.state === "passed";
 					}
@@ -99,15 +99,15 @@ namespace HowlCI {
 
 	pages["build"] = {
 		build: (args) => {
-			let build = args["id"];
+			const build = args["id"];
 
 			return request(`https://api.travis-ci.org/builds/${build}`)
 				.then(
 					xhr => {
-						let res = JSON.parse(xhr.responseText);
+						const res = JSON.parse(xhr.responseText);
 
 						// Taken from https://github.com/travis-ci/travis-web/blob/master/app/models/log.js
-						let tasks = res.jobs.map(job => request(
+						const tasks = res.jobs.map(job => request(
 							`https://api.travis-ci.org/jobs/${job.id}/log?cors_hax=true`,
 							"application/json; chunked=true; version=2, text/plain; version=2"
 							).then(xhr => {
@@ -125,8 +125,8 @@ namespace HowlCI {
 
 						return Promise.all(tasks)
 							.then((tasks : any[]) => {
-								let repo = tasks.pop();
-								let logs = tasks.map(x => ({job: x.job, lines: Packets.parse(x.content)}));
+								const repo = tasks.pop();
+								const logs = tasks.map(x => ({job: x.job, lines: Packets.parse(x.content)}));
 
 								return {
 									success: true,
@@ -144,18 +144,18 @@ namespace HowlCI {
 		title: model => "Build #" + model.id + " | howl.ci",
 		after: model => {
 			if(model.success) {
-				for(let log of model.logs) {
+				for(const log of model.logs) {
 					let term = Terminal.TerminalData.empty();
 
-					let lines = log.lines.lines;
-					let terminals : Terminal.TerminalData[] = new Array(lines.length);
+					const lines = log.lines.lines;
+					const terminals : Terminal.TerminalData[] = new Array(lines.length);
 
 					for(let x = 0; x < lines.length; x++) {
-						let packet : Packets.Packet = lines[x];
+						const packet : Packets.Packet = lines[x];
 						term = terminals[x] = term.handlePacket(packet.command, packet.data);
 					}
 
-					new Terminal.TerminalRender(log.job.id, lines, terminals).redrawTerminal();
+					new Terminal.TerminalControl(log.job.id, lines, terminals).redrawTerminal();
 				}
 			}
 		}
@@ -163,11 +163,11 @@ namespace HowlCI {
 
 	pages["url"] = {
 		build: (args) => {
-			let url = args["url"];
+			const url = args["url"];
 
 			return request(url).then(
 				xhr => {
-					let res = xhr.responseText;
+					const res = xhr.responseText;
 
 					return {
 						url: url,
@@ -183,15 +183,15 @@ namespace HowlCI {
 			if(model.success) {
 				let term = Terminal.TerminalData.empty();
 
-				let lines = model.lines.lines;
-				let terminals : Terminal.TerminalData[] = new Array(lines.length);
+				const lines = model.lines.lines;
+				const terminals : Terminal.TerminalData[] = new Array(lines.length);
 
 				for(let x = 0; x < lines.length; x++) {
-					let packet : Packets.Packet = lines[x];
+					const packet : Packets.Packet = lines[x];
 					term = terminals[x] = term.handlePacket(packet.command, packet.data);
 				}
 
-				new Terminal.TerminalRender(0, lines, terminals).redrawTerminal();
+				new Terminal.TerminalControl(0, lines, terminals).redrawTerminal();
 			}
 		}
 	}
