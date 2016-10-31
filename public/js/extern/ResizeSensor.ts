@@ -21,6 +21,8 @@
  * https://github.com/marcj/css-element-queries/blob/master/LICENSE.
  */
 namespace ResizeSensor {
+	"use strict";
+
 
 	// Only used for the dirty checking, so the event callback count is limted to max 1 call per fps per sensor.
 	// In combination with the event based resize sensor this saves cpu time, because the sensor is too fast and

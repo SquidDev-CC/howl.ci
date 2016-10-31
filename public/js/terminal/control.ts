@@ -1,6 +1,8 @@
 /// <reference path="../../../typings/main.d.ts" />
 
 namespace HowlCI.Terminal {
+	"use strict";
+
 	// Time period to increment the slider by
 	const tickLength = 50;
 	const valueIncrement = 1e5 * tickLength;

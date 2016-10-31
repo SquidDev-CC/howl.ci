@@ -1,5 +1,7 @@
 /// <reference path="../../typings/main.d.ts" />
 
+"use strict";
+
 const queryArgs = window.location.search
 	.substring(1)
 	.split('&')
