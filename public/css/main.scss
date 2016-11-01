@@ -138,7 +138,6 @@ a:hover {
 }
 
 .job {
-	padding-top: 20px;
 	display: none;
 	border-top: solid 5px transparent;
 
@@ -183,9 +182,32 @@ a:hover {
 	box-sizing: border-box;
 }
 
-.computer-output, .computer-terminal-wrapper, .computer-time {
+.computer-output, .computer-terminal-wrapper {
 	display: block;
 	width: 100%;
+}
+
+.computer-time-wrapper {
+	width: 100%;
+	padding: 10px 0px;
+	height: 50px;
+	box-sizing: border-box;
+	background: rgba(white, 0.5);
+	z-index: 4;
+	display: flex;
+	align-items: center;
+
+	&.fixed + .computer-control {
+		margin-top: 50px;
+	}
+
+	.computer-time {
+		flex-grow: 1;
+	}
+
+	.computer-follow {
+		margin-right: 5px;
+	}
 }
 
 .computer-output {

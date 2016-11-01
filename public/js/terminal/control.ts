@@ -15,6 +15,7 @@ namespace HowlCI.Terminal {
 		// Terminal elements
 		private time: HTMLInputElement;
 		private log: HTMLPreElement;
+		private follow: HTMLInputElement;
 
 		// Terminal data
 		private lines: Packets.Packet[];
@@ -23,10 +24,15 @@ namespace HowlCI.Terminal {
 		// Sticky terminal
 		private sticky: Sticky;
 
+		// Scrolling
+		private expectedScroll: number;
+		private onScrollHandler: () => void;
+
 		// Resize
 		private oldWidth: number;
 		private oldHeight: number;
 		private onResizeHandler: () => void;
+		private resizeSensor: any|null;
 
 		// Playback
 		private playing: boolean;
@@ -41,12 +47,11 @@ namespace HowlCI.Terminal {
 
 			this.time = <HTMLInputElement> document.getElementById("computer-time-" + id);
 			const log = this.log = <HTMLPreElement> document.getElementById("computer-output-" + id);
+			this.follow = <HTMLInputElement> document.getElementById("computer-follow-" + id);
 
-			this.sticky = new Sticky({
-				marginTop: 10,
-				stickyFor: 800,
-			});
-			this.sticky.setup(this.canvas.parentElement);
+			this.sticky = new Sticky({ stickyFor: 800 });
+			this.sticky.setup(this.canvas.parentElement, { marginTop: 50 });
+			this.sticky.setup(this.time.parentElement, { marginTop: 0, stickyClass: "fixed" });
 
 			// Build the log, adding the entries to the list
 			let logLength = 0;
@@ -78,8 +83,9 @@ namespace HowlCI.Terminal {
 				logLength = terminal.log.length;
 			}
 
-			// Register resize handlers
+			// Setup handler objects
 			this.onResizeHandler = this.onResize.bind(this);
+			this.onScrollHandler = this.onScroll.bind(this);
 
 			// Register playback handlers
 			this.playing = true;
@@ -120,6 +126,8 @@ namespace HowlCI.Terminal {
 					logLine.style.display = parseInt(line, 10) > time ? "none" : null;
 				}
 			}
+
+			this.doScroll();
 
 			const ctx = this.context;
 
@@ -167,12 +175,29 @@ namespace HowlCI.Terminal {
 				// And redraw/update scrolling as size has changed
 				this.redrawTerminal();
 				this.sticky.update(this.canvas.parentElement);
+				this.sticky.update(this.time.parentElement);
+			}
+		}
+
+		private onScroll(e: Event) {
+			if(Math.abs(window.scrollY - this.expectedScroll) > 10) {
+				this.follow.checked = false;
+			}
+		}
+
+		private doScroll() {
+			if(this.follow.checked) {
+				// Scroll the window to the bottom of the log.
+				// We have a flag to suppress scroll events
+				let scroll = this.expectedScroll = this.log.parentElement.offsetTop + this.log.parentElement.scrollHeight - window.innerHeight + 10;
+				window.scrollTo(window.scrollX, scroll);
 			}
 		}
 
 		public attach() {
-			window.addEventListener("resize", this.onResizeHandler);
+			this.resizeSensor = new ResizeSensor.ResizeSensor(document.body, this.onResizeHandler);
 			this.onResize(true);
+			this.doScroll();
 
 			if (this.playing) {
 				// Auto-play the slider
@@ -193,10 +218,14 @@ namespace HowlCI.Terminal {
 				// If the slider is changed then abort the animation and set the value
 				increment();
 			}
+
+			window.addEventListener("scroll", this.onScrollHandler);
 		}
 
 		public detach() {
-			window.removeEventListener("resize", this.onResizeHandler);
+			window.removeEventListener("scroll", this.onScrollHandler);
+
+			ResizeSensor.detach(document.body);
 
 			if (this.playbackId !== null) {
 				clearTimeout(this.playbackId);

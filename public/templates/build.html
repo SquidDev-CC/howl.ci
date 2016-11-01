@@ -40,9 +40,15 @@
 		{{/logs}}
 	</ul>
 	{{#logs}}
-		<div class="job status-{{job.state}}" id="job-{{job.id}}">
+		<div class="job status-{{job.state}}" id="job-{{job.id}}" data-sticky-container>
 			{{#lines.exists}}
-				<input type="range" class="computer-time" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="computer-time-{{job.id}}" step="1" />
+				<div class="computer-time-wrapper">
+					<label class="computer-follow">
+						<input type="checkbox" value="1" checked id="computer-follow-{{job.id}}" />
+						Follow log
+					</label>
+					<input type="range" class="computer-time" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="computer-time-{{job.id}}" step="1" />
+				</div>
 
 				<div class="computer-control">
 					<div class="computer-log">
