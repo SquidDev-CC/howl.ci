@@ -4,10 +4,53 @@ namespace HowlCI.Terminal {
 	"use strict";
 
 	// Time period to increment the slider by
-	const tickLength = 50;
-	const valueIncrement = 1e5 * tickLength;
+	const tickLengthMilli = 50;
+	const tickLengthSec = tickLengthMilli * 1e-3;
+
+	// At 1/10th of the speed
+	const timeIncrement = 0.1 * 1e9 * tickLengthSec;
+
+	// Attempt to get through 30 packets per second
+	const packetIncrement = 30 * tickLengthSec;
+
+	// Create an event handler for holding down a button
+	const addHold = (elem: HTMLElement, callback: () => void) => {
+		let id = 0;
+		let holding = false;
+
+		const handler = () => {
+			if (holding) {
+				callback();
+				id = setTimeout(handler, tickLengthMilli);
+			}
+		};
+
+		elem.onclick = () => false;
+		elem.onmousedown = () => {
+			if (!holding) {
+				holding = true;
+				callback();
+
+				// Initial delay for press
+				id = setTimeout(handler, 300);
+			}
+
+			return false;
+		};
+
+		elem.onmouseup = () => {
+			if (holding) {
+				holding = false;
+				clearTimeout(id);
+			}
+
+			return false;
+		};
+	};
 
 	class PlaybackControl {
+		private lines: Packets.PacketCollection;
+
 		private useTime: HTMLInputElement;
 		private usePackets: HTMLInputElement;
 
@@ -22,9 +65,11 @@ namespace HowlCI.Terminal {
 		private playingId: number|null = null;
 		private playingTick: () => void;
 
-		constructor(id: number, callback: () => void) {
+		constructor(id: number, lines: Packets.PacketCollection, callback: (number) => void) {
+			this.lines = lines;
+
 			this.useTime = <HTMLInputElement> document.getElementById("playback-time-" + id);
-			this.usePackets = <HTMLInputElement> document.getElementById("playback-time-" + id);
+			this.usePackets = <HTMLInputElement> document.getElementById("playback-packet-" + id);
 
 			this.goBack = <HTMLLinkElement> document.getElementById("playback-back-" + id);
 			this.goForward = <HTMLLinkElement> document.getElementById("playback-forward-" + id);
@@ -36,37 +81,69 @@ namespace HowlCI.Terminal {
 			// Register playback handlers
 			this.playing = true;
 			this.progress.onmousedown = this.progress.oninput = () => {
-				callback();
+				callback(this.getId());
 				this.doPause();
 			};
 
 			this.playingTick = () => {
 				if (!this.playing) return null;
 
-				this.progress.valueAsNumber += valueIncrement;
+				this.progress.valueAsNumber += this.useTime.checked ? timeIncrement : packetIncrement;
 				if (this.progress.valueAsNumber < parseInt(this.progress.max, 10)) {
-					this.playingId = setTimeout(this.playingTick, tickLength);
+					this.playingId = setTimeout(this.playingTick, tickLengthMilli);
 				} else {
 					this.playing = false;
 					this.playingId = null;
 				}
 
-				callback();
-			}
+				callback(this.getId());
+			};
 
 			this.play.onclick = () => {
 				this.doPlay();
 				return false;
-			}
+			};
 
 			this.pause.onclick = () => {
 				this.doPause();
 				return false;
-			}
+			};
+
+			addHold(this.goBack, () => {
+				this.doPause();
+				const before = this.getId();
+				this.progress.valueAsNumber -= this.useTime.checked ? timeIncrement : 1;
+				callback(this.getId());
+			});
+
+			addHold(this.goForward, () => {
+				this.doPause();
+				const before = this.getId();
+				this.progress.valueAsNumber += this.useTime.checked ? timeIncrement : 1;
+				callback(this.getId());
+			});
 
 			this.useTime.onchange = this.usePackets.onchange = () => {
+				const useTime = this.useTime.checked;
+				// We invert as the value has already changed
+				const termId = this.getIdWithMode(!useTime);
 
-			}
+				if (useTime) {
+					const line = this.lines.lines[termId];
+
+					this.progress.min = this.lines.minTime.toString();
+					this.progress.max = this.lines.maxTime.toString();
+					this.progress.valueAsNumber = line.time;
+					this.progress.step = "1";
+				} else {
+					this.progress.min = "0";
+					this.progress.max = (this.lines.lines.length - 1).toString();
+					this.progress.valueAsNumber = termId;
+					this.progress.step = "0.01";
+				}
+
+				callback(termId);
+			};
 		}
 
 		private doPause() {
@@ -83,7 +160,7 @@ namespace HowlCI.Terminal {
 		private doPlay() {
 			this.playing = true;
 
-			if(this.playingId === null) {
+			if (this.playingId === null) {
 				this.playingTick();
 			}
 
@@ -102,8 +179,33 @@ namespace HowlCI.Terminal {
 			}
 		}
 
-		public getTime():number {
-			return this.progress.valueAsNumber;
+		public getId(): number {
+			return this.getIdWithMode(this.useTime.checked);
+		}
+
+		private getIdWithMode(useTime: boolean): number {
+			const val = Math.floor(this.progress.valueAsNumber);
+			if (useTime) {
+				let termId = 0;
+				const lines = this.lines.lines;
+				for (let i = 1; i < lines.length; i++) {
+					termId = i - 1;
+					if (lines[i].time > val) break;
+				}
+				return termId;
+			} else {
+				return val;
+			}
+		}
+
+		public getTime(): number {
+			if (this.useTime.checked) {
+				return this.progress.valueAsNumber;
+			} else {
+				// TODO: Interpolate between multiple terminals depending on the slider
+				const termId = this.progress.valueAsNumber;
+				return this.lines.lines[termId].time;
+			}
 		}
 	}
 
@@ -118,6 +220,7 @@ namespace HowlCI.Terminal {
 
 		private playback: PlaybackControl;
 		private playbackWrapper: HTMLElement;
+		private lastTerminalId: number = -1;
 
 		// Terminal data
 		private lines: Packets.Packet[];
@@ -136,8 +239,8 @@ namespace HowlCI.Terminal {
 		private onResizeHandler: () => void;
 		private resizeSensor: any|null;
 
-		constructor(id: number, lines: Packets.Packet[], terminals: TerminalData[]) {
-			this.lines = lines;
+		constructor(id: number, lines: Packets.PacketCollection, terminals: TerminalData[]) {
+			this.lines = lines.lines;
 			this.terminals = terminals;
 
 			this.canvas = <HTMLCanvasElement> document.getElementById("computer-" + id);
@@ -146,8 +249,8 @@ namespace HowlCI.Terminal {
 			const log = this.log = <HTMLPreElement> document.getElementById("computer-output-" + id);
 			this.follow = <HTMLInputElement> document.getElementById("computer-follow-" + id);
 
-			this.playback = new PlaybackControl(id, this.redrawTerminal.bind(this));
-			this.playbackWrapper = <HTMLElement> document.getElementById("playback-" + id)
+			this.playback = new PlaybackControl(id, lines, this.redrawTerminal.bind(this));
+			this.playbackWrapper = <HTMLElement> document.getElementById("playback-" + id);
 
 			this.sticky = new Sticky();
 			this.sticky.setup(this.canvas.parentElement, { marginTop: 50, stickyFor: 800 });
@@ -155,25 +258,25 @@ namespace HowlCI.Terminal {
 
 			// Build the log, adding the entries to the list
 			let logLength = 0;
-			for (let i = 0; i < lines.length; i++) {
-				const time = lines[i].time;
-				const terminal = terminals[i];
-				for (let i = logLength; i < terminal.log.length; i++) {
-					const entry = terminal.log[i];
-					const kindName = LogKind[entry.kind].toLowerCase();
-					const levelName = entry.level.replace(/[^\w-]/g, "").toLowerCase();
+			for (let termId = 0; termId < lines.lines.length; termId++) {
+				const time = lines.lines[termId].time;
+				const terminal = terminals[termId];
+				for (let lineId = logLength; lineId < terminal.log.length; lineId++) {
+					const line = terminal.log[lineId];
+					const kindName = LogKind[line.kind].toLowerCase();
+					const levelName = line.level.replace(/[^\w-]/g, "").toLowerCase();
 
 					const element = document.createElement("p");
 					element.style.display = "hidden";
 					element.className = `log-entry log-${kindName}`;
-					element.setAttribute("data-time", time.toString());
+					element.setAttribute("data-terminal", termId.toString());
 
 					const kind = document.createElement("span");
 					kind.innerText = `[${levelName}]`;
 					kind.className = `log-level log-level-${levelName}`;
 
 					const text = document.createElement("span");
-					text.innerText = entry.text;
+					text.innerText = line.text;
 
 					element.appendChild(kind);
 					element.appendChild(text);
@@ -190,24 +293,22 @@ namespace HowlCI.Terminal {
 			this.follow.onchange = this.doScroll.bind(this);
 		}
 
-		private redrawTerminal(): void {
-			const time = this.playback.getTime();
+		private redrawTerminal(id?: number): void {
+			// Skip if we're just redrawing a terminal.
+			// The lack of this value means that *must* redraw
+			if (id !== undefined && id === this.lastTerminalId) return;
 
-			let terminal = this.terminals[0];
-			for (let i = 1; i < this.lines.length; i++) {
-				const line = this.lines[i];
-				terminal = this.terminals[i - 1];
-				if (line.time > time) {
-					break;
-				}
-			}
+			const termId = this.lastTerminalId = id === undefined ? this.playback.getId() : id;
+
+			const terminal = this.terminals[termId];
+			const line = this.lines[termId];
 
 			const logLines = this.log.childNodes;
 			for (let i = 0; i < logLines.length; i++) {
 				const logLine = logLines[i];
 				if (logLine instanceof HTMLElement) {
-					let line = <string> logLine.getAttribute("data-time");
-					logLine.style.display = parseInt(line, 10) > time ? "none" : null;
+					let elem = <string> logLine.getAttribute("data-terminal");
+					logLine.style.display = parseInt(elem, 10) > termId ? "none" : null;
 				}
 			}
 
@@ -264,16 +365,17 @@ namespace HowlCI.Terminal {
 		}
 
 		private onScroll(e: Event) {
-			if(Math.abs(window.scrollY - this.expectedScroll) > 10) {
+			if (Math.abs(window.scrollY - this.expectedScroll) > 10) {
 				this.follow.checked = false;
 			}
 		}
 
 		private doScroll() {
-			if(this.follow.checked) {
+			if (this.follow.checked) {
 				// Scroll the window to the bottom of the log.
 				// We have a flag to suppress scroll events
-				let scroll = this.expectedScroll = this.log.parentElement.offsetTop + this.log.parentElement.scrollHeight - window.innerHeight + 10;
+				const bottom = this.log.parentElement.offsetTop + this.log.parentElement.scrollHeight;
+				const scroll = this.expectedScroll = bottom - window.innerHeight + 10;
 				window.scrollTo(window.scrollX, scroll);
 			}
 		}

@@ -130,7 +130,7 @@ namespace HowlCI {
 								const logs = results.map(x => ({
 									job: x.job,
 									id: x.job.id,
-									lines: Packets.parse(x.content)
+									lines: Packets.parse(x.content),
 								}));
 
 								return {
@@ -167,7 +167,7 @@ namespace HowlCI {
 							term = terminals[x] = term.handlePacket(packet.command, packet.data);
 						}
 
-						terminal = new Terminal.TerminalControl(log.job.id, lines, terminals);
+						terminal = new Terminal.TerminalControl(log.job.id, log.lines, terminals);
 					} else {
 						terminal = null;
 					}
@@ -242,7 +242,7 @@ namespace HowlCI {
 					term = terminals[x] = term.handlePacket(packet.command, packet.data);
 				}
 
-				const terminal = new Terminal.TerminalControl(0, lines, terminals);
+				const terminal = new Terminal.TerminalControl(0, model.lines, terminals);
 				terminal.attach();
 			}
 		},

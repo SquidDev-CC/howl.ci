@@ -25,8 +25,8 @@ namespace ResizeSensor {
 	// Only used for the dirty checking, so the event callback count is limted to max 1 call per fps per sensor.
 	// In combination with the event based resize sensor this saves cpu time, because the sensor is too fast and
 	// would generate too many unnecessary events.
-	let requestAnimationFrame = window.requestAnimationFrame ||
-		(<any>window).mozRequestAnimationFrame ||
+	const requestAnimationFrame = window.requestAnimationFrame ||
+		(<any> window).mozRequestAnimationFrame ||
 		window.webkitRequestAnimationFrame ||
 		function (fn) {
 			return window.setTimeout(fn, 20);
@@ -38,15 +38,16 @@ namespace ResizeSensor {
 	 * @param {HTMLElement|HTMLElement[]} elements
 	 * @param {Function}                  callback
 	 */
-	function forEachElement(elements, callback){
-		let elementsType = Object.prototype.toString.call(elements);
-		let isCollectionTyped = ("[object Array]" === elementsType
+	function forEachElement(elements, callback) {
+		const elementsType = Object.prototype.toString.call(elements);
+
+		const isCollectionTyped = ("[object Array]" === elementsType
 			|| ("[object NodeList]" === elementsType)
 			|| ("[object HTMLCollection]" === elementsType)
 		);
-		let i = 0, j = elements.length;
 		if (isCollectionTyped) {
-			for (; i < j; i++) {
+			const j = elements.length;
+			for (let i; i < j; i++) {
 				callback(elements[i]);
 			}
 		} else {
@@ -58,29 +59,30 @@ namespace ResizeSensor {
 	 *
 	 * @constructor
 	 */
-	let EventQueue = function() {
-		let q : (() => void)[]= [];
+	const EventQueue = function() {
+		let  q: (() => void)[] = [];
 		this.add = ev => q.push(ev);
 
-		let i, j;
 		this.call = function() {
-			for (i = 0, j = q.length; i < j; i++) {
+			const l = q.length;
+			for (let i = 0; i < l; i++) {
 				q[i].call(null);
 			}
 		};
 
 		this.remove = function(ev) {
-			let newQueue : (() => void)[] = [];
-			for(i = 0, j = q.length; i < j; i++) {
-				if(q[i] !== ev) newQueue.push(q[i]);
+			const newQueue: (() => void)[] = [];
+			const l = q.length;
+			for (let i = 0; i < l; i++) {
+				if (q[i] !== ev) newQueue.push(q[i]);
 			}
 			q = newQueue;
-		}
+		};
 
 		this.length = function() {
 			return q.length;
-		}
-	}
+		};
+	};
 
 	/**
 	 * Class for dimension change detection.
@@ -90,7 +92,7 @@ namespace ResizeSensor {
 	 *
 	 * @constructor
 	 */
-	export let ResizeSensor = function(element : HTMLElement, callback : () => void): void {
+	export const ResizeSensor = function(element: HTMLElement, callback: () => void): void {
 		/**
 		 * @param {HTMLElement} element
 		 * @param {String}      prop
@@ -122,8 +124,9 @@ namespace ResizeSensor {
 
 			element.resizeSensor = document.createElement("div");
 			element.resizeSensor.className = "resize-sensor";
-			let style = "position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; z-index: -1; visibility: hidden;";
-			let styleChild = "position: absolute; left: 0; top: 0; transition: 0s;";
+			const style = "position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; z-index: -1;"
+				+ "visibility: hidden;";
+			const styleChild = "position: absolute; left: 0; top: 0; transition: 0s;";
 
 			element.resizeSensor.style.cssText = style;
 			element.resizeSensor.innerHTML =
@@ -133,15 +136,15 @@ namespace ResizeSensor {
 				`</div>`;
 			element.appendChild(element.resizeSensor);
 
-			if (getComputedStyle(element, "position") == "static") {
+			if (getComputedStyle(element, "position") === "static") {
 				element.style.position = "relative";
 			}
 
-			let expand = element.resizeSensor.childNodes[0];
-			let expandChild = expand.childNodes[0];
-			let shrink = element.resizeSensor.childNodes[1];
+			const expand = element.resizeSensor.childNodes[0];
+			const expandChild = expand.childNodes[0];
+			const shrink = element.resizeSensor.childNodes[1];
 
-			let reset = function() {
+			const reset = function() {
 				expandChild.style.width  = 100000 + "px";
 				expandChild.style.height = 100000 + "px";
 
@@ -155,7 +158,7 @@ namespace ResizeSensor {
 			reset();
 			let dirty = false;
 
-			let dirtyChecking = function() {
+			const dirtyChecking = function() {
 				if (!element.resizedAttached) return;
 
 				if (dirty) {
@@ -167,11 +170,16 @@ namespace ResizeSensor {
 			};
 
 			requestAnimationFrame(dirtyChecking);
-			let lastWidth, lastHeight;
-			let cachedWidth, cachedHeight; // useful to not query offsetWidth twice
+			let lastWidth;
+			let lastHeight;
+			let cachedWidth; // useful to not query offsetWidth twice
+			let cachedHeight;
 
-			let onScroll = function() {
-				if ((cachedWidth = element.offsetWidth) !== lastWidth || (cachedHeight = element.offsetHeight) != lastHeight) {
+			const onScroll = function() {
+				if (
+					(cachedWidth = element.offsetWidth) !== lastWidth ||
+					(cachedHeight = element.offsetHeight) !== lastHeight
+				) {
 					dirty = true;
 
 					lastWidth = cachedWidth;
@@ -180,7 +188,7 @@ namespace ResizeSensor {
 				reset();
 			};
 
-			let addEvent = function(el, name, cb) {
+			const addEvent = function(el, name, cb) {
 				if (el.attachEvent) {
 					el.attachEvent("on" + name, cb);
 				} else {
@@ -201,11 +209,11 @@ namespace ResizeSensor {
 		};
 	};
 
-	export let detach = function(element, ev?: (() => void)) {
+	export const detach = function(element, ev?: (() => void)) {
 		forEachElement(element, function(elem){
-			if(elem.resizedAttached && typeof ev === "function"){
+			if (elem.resizedAttached && typeof ev === "function") {
 				elem.resizedAttached.remove(ev);
-				if(elem.resizedAttached.length()) return;
+				if (elem.resizedAttached.length()) return;
 			}
 			if (elem.resizeSensor) {
 				if (elem.contains(elem.resizeSensor)) {

@@ -76,9 +76,12 @@ class Sticky {
 		// set default variables
 		element.sticky.active = false;
 
-		element.sticky.marginTop = parseInt(element.getAttribute("data-margin-top"), 10) || options.marginTop || this.options.marginTop;
-		element.sticky.stickyFor = parseInt(element.getAttribute("data-sticky-for"), 10) || options.stickyFor || this.options.stickyFor;
-		element.sticky.stickyClass = element.getAttribute("data-sticky-class") || options.stickyClass || this.options.stickyClass;
+		element.sticky.marginTop = parseInt(element.getAttribute("data-margin-top"), 10)
+			|| options.marginTop || this.options.marginTop;
+		element.sticky.stickyFor = parseInt(element.getAttribute("data-sticky-for"), 10)
+			|| options.stickyFor || this.options.stickyFor;
+		element.sticky.stickyClass = element.getAttribute("data-sticky-class")
+			|| options.stickyClass || this.options.stickyClass;
 
 		element.sticky.container = this.getStickyContainer(element);
 		element.sticky.container.rect = this.getRectangle(element.sticky.container);

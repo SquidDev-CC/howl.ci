@@ -284,12 +284,12 @@ a:hover {
 			display: none;
 		}
 
-		& > input[type=radio]:checked ~ .button-content, &:active > .button-content {
-			color: $base0D;
-		}
-
 		&:hover > .button-content {
 			color: $base0C;
+		}
+
+		& > input[type=radio]:checked ~ .button-content, &:active > .button-content {
+			color: $base0D;
 		}
 	}
 }
