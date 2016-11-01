@@ -38,7 +38,7 @@ namespace ResizeSensor {
 	 * @param {HTMLElement|HTMLElement[]} elements
 	 * @param {Function}                  callback
 	 */
-	function forEachElement(elements, callback) {
+	function forEachElement(elements: HTMLElement|NodeList|HTMLElement[], callback) {
 		const elementsType = Object.prototype.toString.call(elements);
 
 		const isCollectionTyped = ("[object Array]" === elementsType
@@ -46,7 +46,7 @@ namespace ResizeSensor {
 			|| ("[object HTMLCollection]" === elementsType)
 		);
 		if (isCollectionTyped) {
-			const j = elements.length;
+			const j = (<HTMLElement[]> elements).length;
 			for (let i; i < j; i++) {
 				callback(elements[i]);
 			}
@@ -85,6 +85,21 @@ namespace ResizeSensor {
 	};
 
 	/**
+	 * @param {HTMLElement} element
+	 * @param {String}      prop
+	 * @returns {String|Number}
+	 */
+	function getComputedStyle(element, prop) {
+		if (element.currentStyle) {
+			return element.currentStyle[prop];
+		} else if (window.getComputedStyle) {
+			return window.getComputedStyle(element).getPropertyValue(prop);
+		} else {
+			return element.style[prop];
+		}
+	};
+
+	/**
 	 * Class for dimension change detection.
 	 *
 	 * @param {Element|Element[]|Elements|jQuery} element
@@ -92,22 +107,7 @@ namespace ResizeSensor {
 	 *
 	 * @constructor
 	 */
-	export const ResizeSensor = function(element: HTMLElement, callback: () => void): void {
-		/**
-		 * @param {HTMLElement} element
-		 * @param {String}      prop
-		 * @returns {String|Number}
-		 */
-		function getComputedStyle(element, prop) {
-			if (element.currentStyle) {
-				return element.currentStyle[prop];
-			} else if (window.getComputedStyle) {
-				return window.getComputedStyle(element).getPropertyValue(prop);
-			} else {
-				return element.style[prop];
-			}
-		}
-
+	export const attach = function(elements: HTMLElement|NodeList|HTMLElement[], callback: () => void): void {
 		/**
 		 *
 		 * @param {HTMLElement} element
@@ -176,10 +176,9 @@ namespace ResizeSensor {
 			let cachedHeight;
 
 			const onScroll = function() {
-				if (
-					(cachedWidth = element.offsetWidth) !== lastWidth ||
-					(cachedHeight = element.offsetHeight) !== lastHeight
-				) {
+				cachedWidth = element.offsetWidth;
+				cachedHeight = element.offsetHeight;
+				if (cachedWidth !== lastWidth || cachedHeight !== lastHeight) {
 					dirty = true;
 
 					lastWidth = cachedWidth;
@@ -200,13 +199,9 @@ namespace ResizeSensor {
 			addEvent(shrink, "scroll", onScroll);
 		}
 
-		forEachElement(element, function(elem){
+		forEachElement(elements, function(elem){
 			attachResizeEvent(elem, callback);
 		});
-
-		this.detach = function(ev) {
-			detach(element, ev);
-		};
 	};
 
 	export const detach = function(element, ev?: (() => void)) {

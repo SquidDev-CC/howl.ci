@@ -65,7 +65,7 @@ namespace HowlCI.Terminal {
 		private playingId: number|null = null;
 		private playingTick: () => void;
 
-		constructor(id: number, lines: Packets.PacketCollection, callback: (number) => void) {
+		constructor(id: number, lines: Packets.PacketCollection, callback: (id: number) => void) {
 			this.lines = lines;
 
 			this.useTime = <HTMLInputElement> document.getElementById("playback-time-" + id);
@@ -381,7 +381,7 @@ namespace HowlCI.Terminal {
 		}
 
 		public attach() {
-			this.resizeSensor = new ResizeSensor.ResizeSensor(document.body, this.onResizeHandler);
+			this.resizeSensor = ResizeSensor.attach(document.body, this.onResizeHandler);
 			this.onResize(true);
 			this.doScroll();
 
