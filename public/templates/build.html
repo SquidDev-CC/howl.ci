@@ -41,34 +41,7 @@
 	</ul>
 	{{#logs}}
 		<div class="job status-{{job.state}}" id="job-{{job.id}}" data-sticky-container>
-			{{#lines.exists}}
-				<div class="computer-time-wrapper">
-					<label class="computer-follow">
-						<input type="checkbox" value="1" checked id="computer-follow-{{job.id}}" />
-						Follow log
-					</label>
-					<input type="range" class="computer-time" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="computer-time-{{job.id}}" step="1" />
-				</div>
-
-				<div class="computer-control">
-					<div class="computer-log">
-						<pre class="computer-output" id="computer-output-{{job.id}}"></pre>
-					</div>
-					<div class="computer-terminal" data-sticky-container>
-						<div class="computer-terminal-container">
-							<canvas class="computer-canvas" id="computer-{{job.id}}"></canvas>
-						</div>
-					</div>
-				</div>
-			{{/lines.exists}}
-			{{^lines.exists}}
-				<div class="text-content">
-					<p>
-						This is odd. We can't seem to find any terminal data for this job. Did something go wrong?
-						Are you sure you got the right build?
-					</p>
-				</div>
-			{{/lines.exists}}
+			{{>terminal}}
 		</div>
 	{{/logs}}
 {{/success}}

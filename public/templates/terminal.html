@@ -1,0 +1,28 @@
+{{#lines.exists}}
+	<div class="computer-time-wrapper">
+		<label class="computer-follow">
+			<input type="checkbox" value="1" checked id="computer-follow-{{id}}" />
+			Follow log
+		</label>
+		<input type="range" class="computer-time" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="computer-time-{{id}}" step="1" />
+	</div>
+
+	<div class="computer-control">
+		<div class="computer-log">
+			<pre class="computer-output" id="computer-output-{{id}}"></pre>
+		</div>
+		<div class="computer-terminal" data-sticky-container>
+			<div class="computer-terminal-container">
+				<canvas class="computer-canvas" id="computer-{{id}}"></canvas>
+			</div>
+		</div>
+	</div>
+{{/lines.exists}}
+{{^lines.exists}}
+	<div class="text-content">
+		<p>
+			This is odd. We can't seem to find any terminal data for this. Did something go wrong?
+			Are you sure you got the right page?
+		</p>
+	</div>
+{{/lines.exists}}

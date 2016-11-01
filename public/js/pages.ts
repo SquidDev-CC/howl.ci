@@ -127,7 +127,11 @@ namespace HowlCI {
 						return Promise.all(tasks)
 							.then((results: any[]) => {
 								const repo = results.pop();
-								const logs = results.map(x => ({job: x.job, lines: Packets.parse(x.content)}));
+								const logs = results.map(x => ({
+									job: x.job,
+									id: x.job.id,
+									lines: Packets.parse(x.content)
+								}));
 
 								return {
 									success: true,
@@ -211,6 +215,7 @@ namespace HowlCI {
 						return {
 							url: url,
 							success: true,
+							id: 0,
 							lines: lines,
 						};
 					} else {
