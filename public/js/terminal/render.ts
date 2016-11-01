@@ -41,18 +41,16 @@ namespace HowlCI.Terminal.Render {
 	// Generate a series of fonts for each color code
 	let fontLoaded = false;
 	font.onload = () => {
-		for(const key in colors) {
-			if(!colors.hasOwnProperty(key)) {
-				continue;
-			}
+		for (const key in colors) {
+			if (!colors.hasOwnProperty(key)) continue;
 
 			const canvas = document.createElement("canvas");
-			const context = canvas.getContext("2d");
+			const context = <CanvasRenderingContext2D> canvas.getContext("2d");
 
 			canvas.width = fontWidth;
 			canvas.height = fontHeight;
 
-			context.globalCompositeOperation = 'destination-atop';
+			context.globalCompositeOperation = "destination-atop";
 			context.fillStyle = colors[key];
 			context.globalAlpha = 1.0;
 
@@ -65,7 +63,10 @@ namespace HowlCI.Terminal.Render {
 		fontLoaded = true;
 	};
 
-	export const background = (ctx: CanvasRenderingContext2D, x: number, y: number, color: string, scale: number):void => {
+	export const background = (
+		ctx: CanvasRenderingContext2D, x: number, y: number,
+		color: string, scale: number,
+	): void => {
 		const actualWidth = cellWidth * scale;
 		const actualHeight = cellHeight * scale;
 		const cellX = x * actualWidth;
@@ -77,8 +78,11 @@ namespace HowlCI.Terminal.Render {
 		ctx.fill();
 	};
 
-	export const foreground = (ctx: CanvasRenderingContext2D, x: number, y: number, color: string, chr: string, scale: number):void => {
-		if(!fontLoaded) return;
+	export const foreground = (
+		ctx: CanvasRenderingContext2D, x: number, y: number,
+		color: string, chr: string, scale: number,
+	): void => {
+		if (!fontLoaded) return;
 
 		const actualWidth = cellWidth * scale;
 		const actualHeight = cellHeight * scale;
@@ -93,25 +97,24 @@ namespace HowlCI.Terminal.Render {
 		ctx.drawImage(
 			fonts[color],
 			imgX, imgY, cellWidth, cellHeight,
-			cellX, cellY, cellWidth * scale, cellHeight * scale
+			cellX, cellY, cellWidth * scale, cellHeight * scale,
 		);
 	};
 
 	export const terminal = (ctx: CanvasRenderingContext2D, term: TerminalData, scale: number, blink: boolean) => {
 		scale /= 3;
-		// if((scale * 3 % 1) != 0) throw new Error(`Scale ${scale} must a multiple of 1/3`);
 
 		const sizeX = term.sizeX;
 		const sizeY = term.sizeY;
 
-		for(let y = 0; y < sizeY; y++) {
-			for(let x = 0; x < sizeX; x++) {
+		for (let y = 0; y < sizeY; y++) {
+			for (let x = 0; x < sizeX; x++) {
 				background(ctx, x, y, term.back[y].charAt(x), scale);
 				foreground(ctx, x, y, term.fore[y].charAt(x), term.text[y].charAt(x), scale);
 			}
 		}
 
-		if(
+		if (
 			blink && term.cursorBlink &&
 			term.cursorX >= 0 && term.cursorX < sizeX &&
 			term.cursorY >= 0 && term.cursorY < sizeY
@@ -120,17 +123,20 @@ namespace HowlCI.Terminal.Render {
 		}
 	};
 
-	export const bsod = (ctx: CanvasRenderingContext2D, width: number, height : number, scale: number, text:string) => {
+	export const bsod = (
+		ctx: CanvasRenderingContext2D, width: number, height: number,
+		scale: number, text: string,
+	) => {
 		scale /= 3;
 
 		ctx.beginPath();
 		ctx.rect(0, 0, width * cellWidth * scale, height * cellHeight * scale);
-		ctx.fillStyle = colors["b"];
+		ctx.fillStyle = colors.b;
 		ctx.fill();
 
 		const startX = Math.floor((width - text.length) / 2);
 		const startY = Math.floor((height - 1) / 2);
-		for(let x = 0; x < text.length; x++) {
+		for (let x = 0; x < text.length; x++) {
 			foreground(ctx, startX + x, startY, "0", text.charAt(x), scale);
 		}
 	};

@@ -4,28 +4,29 @@
 
 const queryArgs = window.location.search
 	.substring(1)
-	.split('&')
-	.map(x => x.split('=', 2).map(decodeURIComponent));
+	.split("&")
+	.map(x => x.split("=", 2).map(decodeURIComponent));
 
-const query : {[key:string]:string}= {};
+const query: {[key: string]: string} = {};
 
-for(const [k, v] of queryArgs) query[k] = v;
+for (const [k, v] of queryArgs) query[k] = v;
 
-let pageName = query['p'] || 'index';
+let pageName = query["p"] || "index";
 let page = HowlCI.pages[pageName];
-if(!page) {
+if (!page) {
 	pageName = "error";
 	page = HowlCI.pages["error"];
 }
 
+const contentFrame = <HTMLElement> document.getElementById("content");
 page.build(query).then(model => {
-	if(!model) model = {};
+	if (!model) model = {};
 	model.page = pageName;
 
 	document.title = page.title(model);
-	document.getElementById("content").innerHTML = HowlCI.templates[pageName].render(model, HowlCI.templates);
+	contentFrame.innerHTML = HowlCI.templates[pageName].render(model, HowlCI.templates);
 
-	if(page.after) page.after(model);
+	if (page.after) page.after(model);
 
 	// history.replaceState(model, document.title, window.location.toString());
 
@@ -38,12 +39,12 @@ page.build(query).then(model => {
 	// }
 }, e => {
 	let content = String(e);
-	if(e instanceof Error) content = e.stack;
+	if (e instanceof Error && e.stack) content = e.stack;
 
 	content = content
-		.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")
+		.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/"/g, "&#039;")
 		.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 	document.title = "Error | Howl.CI";
-	document.getElementById("content").innerHTML = `<h2>Error in Error handling</h2><pre>${content}</pre>`;
+	contentFrame.innerHTML = `<h2>Error in Error handling</h2><pre>${content}</pre>`;
 });

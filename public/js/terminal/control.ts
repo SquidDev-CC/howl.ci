@@ -26,21 +26,21 @@ namespace HowlCI.Terminal {
 		// Resize
 		private oldWidth: number;
 		private oldHeight: number;
-		private onResizeHandler : () => void;
+		private onResizeHandler: () => void;
 
 		// Playback
 		private playing: boolean;
-		private playbackId : number|null;
+		private playbackId: number|null;
 
 		constructor(id: number, lines: Packets.Packet[], terminals: TerminalData[]) {
 			this.lines = lines;
 			this.terminals = terminals;
 
-			this.canvas = <HTMLCanvasElement>document.getElementById("computer-" + id);
-			this.context = this.canvas.getContext("2d");
+			this.canvas = <HTMLCanvasElement> document.getElementById("computer-" + id);
+			this.context = <CanvasRenderingContext2D> this.canvas.getContext("2d");
 
-			this.time = <HTMLInputElement>document.getElementById("computer-time-" + id);
-			const log = this.log = <HTMLPreElement>document.getElementById("computer-output-" + id);
+			this.time = <HTMLInputElement> document.getElementById("computer-time-" + id);
+			const log = this.log = <HTMLPreElement> document.getElementById("computer-output-" + id);
 
 			this.sticky = new Sticky({
 				marginTop: 10,
@@ -50,10 +50,10 @@ namespace HowlCI.Terminal {
 
 			// Build the log, adding the entries to the list
 			let logLength = 0;
-			for(let i = 0; i < lines.length; i++) {
+			for (let i = 0; i < lines.length; i++) {
 				const time = lines[i].time;
 				const terminal = terminals[i];
-				for(let i = logLength; i < terminal.log.length; i++) {
+				for (let i = logLength; i < terminal.log.length; i++) {
 					const entry = terminal.log[i];
 					const kindName = LogKind[entry.kind].toLowerCase();
 					const levelName = entry.level.replace(/[^\w-]/g, "").toLowerCase();
@@ -86,37 +86,38 @@ namespace HowlCI.Terminal {
 			this.time.oninput = () => {
 				this.redrawTerminal();
 				this.playing = false;
-				if(this.playbackId !== null) {
-					this.playbackId = null;
+				if (this.playbackId !== null) {
 					clearTimeout(this.playbackId);
+					this.playbackId = null;
 				}
-			}
+			};
 			this.time.onmousedown = () => {
 				this.playing = false;
-				if(this.playbackId !== null) {
-					this.playbackId = null;
+				if (this.playbackId !== null) {
 					clearTimeout(this.playbackId);
+					this.playbackId = null;
 				}
-			}
+			};
 		}
 
 		private redrawTerminal(): void {
 			const time = this.time.valueAsNumber;
 
 			let terminal = this.terminals[0];
-			for(let i = 1; i < this.lines.length; i++) {
+			for (let i = 1; i < this.lines.length; i++) {
 				const line = this.lines[i];
 				terminal = this.terminals[i - 1];
-				if(line.time > time) {
+				if (line.time > time) {
 					break;
 				}
 			}
 
 			const logLines = this.log.childNodes;
-			for(let i = 0; i < logLines.length; i++) {
+			for (let i = 0; i < logLines.length; i++) {
 				const logLine = logLines[i];
-				if(logLine instanceof HTMLElement) {
-					logLine.style.display = parseInt(logLine.getAttribute("data-time"), 10) > time ? "none" : null;
+				if (logLine instanceof HTMLElement) {
+					let line = <string> logLine.getAttribute("data-time");
+					logLine.style.display = parseInt(line, 10) > time ? "none" : null;
 				}
 			}
 
@@ -134,21 +135,21 @@ namespace HowlCI.Terminal {
 			let scale = Math.floor(actualWidth / width);
 
 			// Prevent having an empty terminal.
-			// Sure, you can't read at thsis level but it is better than nothing.
-			if(scale <= 0) scale = 1;
+			// Sure, you can"t read at thsis level but it is better than nothing.
+			if (scale <= 0) scale = 1;
 
-			if(this.canvas.height !== height * scale || this.canvas.width !== width * scale) {
+			if (this.canvas.height !== height * scale || this.canvas.width !== width * scale) {
 				this.canvas.height = height * scale;
 				this.canvas.width = width * scale;
 			}
 
-			(<any>ctx).imageSmoothingEnabled = false; // Isn't standardised so we have to cast.
+			(<any> ctx).imageSmoothingEnabled = false; // Isn"t standardised so we have to cast.
 			ctx.oImageSmoothingEnabled = false;
 			ctx.webkitImageSmoothingEnabled = false;
 			ctx.mozImageSmoothingEnabled = false;
 			ctx.msImageSmoothingEnabled = false;
 
-			if(terminal.sizeX === 0 && terminal.sizeY === 0) {
+			if (terminal.sizeX === 0 && terminal.sizeY === 0) {
 				Render.bsod(ctx, sizeX, sizeY, scale, "No terminal output");
 			} else {
 				Render.terminal(ctx, terminal, scale, Math.floor(this.time.valueAsNumber / 400e6) % 2 === 0);
@@ -158,7 +159,7 @@ namespace HowlCI.Terminal {
 		private onResize(force = false) {
 			// Check if we have resized this item
 			const element = this.canvas.parentElement;
-			if(force || element.clientWidth !== this.oldWidth || element.clientHeight !== this.oldHeight) {
+			if (force || element.clientWidth !== this.oldWidth || element.clientHeight !== this.oldHeight) {
 				// Save the new dimensions
 				this.oldWidth = element.clientWidth;
 				this.oldHeight = element.clientHeight;
@@ -170,16 +171,16 @@ namespace HowlCI.Terminal {
 		}
 
 		public attach() {
-			window.addEventListener('resize', this.onResizeHandler);
+			window.addEventListener("resize", this.onResizeHandler);
 			this.onResize(true);
 
-			if(this.playing) {
+			if (this.playing) {
 				// Auto-play the slider
 				const increment = () => {
-					if(!this.playing) return null;
+					if (!this.playing) return null;
 
 					this.time.valueAsNumber += valueIncrement;
-					if(this.time.valueAsNumber < parseInt(this.time.max, 10)) {
+					if (this.time.valueAsNumber < parseInt(this.time.max, 10)) {
 						this.playbackId = setTimeout(increment, tickLength);
 					} else {
 						this.playing = false;
@@ -195,9 +196,9 @@ namespace HowlCI.Terminal {
 		}
 
 		public detach() {
-			window.removeEventListener('resize', this.onResizeHandler);
+			window.removeEventListener("resize", this.onResizeHandler);
 
-			if(this.playbackId !== null) {
+			if (this.playbackId !== null) {
 				clearTimeout(this.playbackId);
 				this.playbackId = null;
 			}

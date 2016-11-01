@@ -1,22 +1,23 @@
 {
-    "compilerOptions": {
-        "module": "none",
-        "target": "es3",
-        "lib": ["dom", "es5", "es2015.promise", "scripthost"],
-        "sourceMap": false,
-        "outFile": "dist/main.js",
-        "allowJs": true,
-        "forceConsistentCasingInFileNames":true,
-        "newLine": "LF",
-        "alwaysStrict": true
-    },
-    "files": [
-        "public/js/extern/sticky.ts",
-        "public/js/packets.ts",
-        "public/js/terminal/data.ts",
-        "public/js/terminal/render.ts",
-        "public/js/terminal/control.ts",
-        "public/js/pages.ts",
-        "public/js/main.ts"
-    ]
+	"compilerOptions": {
+		"module": "none",
+		"target": "es3",
+		"lib": ["dom", "es5", "es2015.promise", "scripthost"],
+		"sourceMap": false,
+		"outFile": "dist/main.js",
+		"allowJs": true,
+		"forceConsistentCasingInFileNames":true,
+		"newLine": "LF",
+		"alwaysStrict": true,
+		"strictNullChecks": true
+	},
+	"files": [
+		"public/js/extern/sticky.ts",
+		"public/js/packets.ts",
+		"public/js/terminal/data.ts",
+		"public/js/terminal/render.ts",
+		"public/js/terminal/control.ts",
+		"public/js/pages.ts",
+		"public/js/main.ts"
+	]
 }
