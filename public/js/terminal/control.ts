@@ -203,7 +203,7 @@ namespace HowlCI.Terminal {
 				return this.progress.valueAsNumber;
 			} else {
 				// TODO: Interpolate between multiple terminals depending on the slider
-				const termId = this.progress.valueAsNumber;
+				const termId = Math.floor(this.progress.valueAsNumber);
 				return this.lines.lines[termId].time;
 			}
 		}
