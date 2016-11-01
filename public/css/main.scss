@@ -187,7 +187,7 @@ a:hover {
 	width: 100%;
 }
 
-.computer-time-wrapper {
+.playback-wrapper {
 	width: 100%;
 	padding: 10px 0px;
 	height: 50px;
@@ -201,7 +201,7 @@ a:hover {
 		margin-top: 50px;
 	}
 
-	.computer-time {
+	.playback-progress {
 		flex-grow: 1;
 	}
 
@@ -251,5 +251,63 @@ a:hover {
 		.log-level-failure { color: $base0E; }
 		.log-level-success { color: $base0B; }
 		.log-level-close { color: $base01; }
+	}
+}
+
+.button-group {
+	display: flex;
+	margin: 2px;
+
+	.button {
+		cursor: pointer;
+		padding: 5px;
+
+		border-color: $base06;
+		border-width: 1px;
+		border-top-style: solid;
+		border-bottom-style: solid;
+
+		.button-content {
+			display: block;
+			color: $base03;
+		}
+
+		&:first-child {
+			border-left-style: solid;
+		}
+
+		&:last-child  {
+			border-right-style: solid;
+		}
+
+		& > input[type=radio] {
+			display: none;
+		}
+
+		& > input[type=radio]:checked ~ .button-content, &:active > .button-content {
+			color: $base0D;
+		}
+
+		&:hover > .button-content {
+			color: $base0C;
+		}
+	}
+}
+
+.toggle {
+	cursor: pointer;
+	padding: 5px;
+
+	.toggle-content {
+		color: $base03;
+		display: block;
+	}
+
+	& > input[type=checkbox] {
+		display: none;
+	}
+
+	& > input[type=checkbox]:checked ~ .toggle-content {
+		color: $base0D;
 	}
 }

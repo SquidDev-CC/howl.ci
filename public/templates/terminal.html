@@ -1,10 +1,50 @@
 {{#lines.exists}}
-	<div class="computer-time-wrapper">
-		<label class="computer-follow">
-			<input type="checkbox" value="1" checked id="computer-follow-{{id}}" />
-			Follow log
+	<div class="playback-wrapper" id="playback-{{id}}">
+		<label class="toggle computer-follow" title="Follow the log">
+			<input type="checkbox" value="1" id="computer-follow-{{id}}" />
+			<span class="toggle-content">
+				<i class="fa fa-arrow-circle-down" aria-hidden="true"></i>
+			</span>
 		</label>
-		<input type="range" class="computer-time" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="computer-time-{{id}}" step="1" />
+		<div class="button-group">
+			<label class="button" title="Play by time">
+				<input name="playback-mode-{{id}}" id="playback-time-{{id}}" type="radio" value="time" checked/>
+				<span class="button-content">
+					<i class="fa fa-clock-o" aria-hidden="true"></i>
+				</span>
+			</label>
+			<label class="button" title="Play by packet">
+				<input name="playback-mode-{{id}}" id="playback-packet-{{id}}" type="radio" value="packet"/>
+				<span class="button-content">
+					<i class="fa fa-terminal" aria-hidden="true"></i>
+				</span>
+			</label>
+		</div>
+
+		<div class="button-group">
+			<a class="button" href="#!" title="Step backwards one packet">
+				<span class="button-content" id="playback-back-{{id}}">
+					<i class="fa fa-backward" aria-hidden="true"></i>
+				</span>
+			</a>
+			<a class="button" href="#!" title="Play from this point">
+				<span class="button-content" id="playback-play-{{id}}">
+					<i class="fa fa-play" aria-hidden="true"></i>
+				</span>
+			</a>
+			<a class="button" href="#!" title="Pause at this point">
+				<span class="button-content" id="playback-pause-{{id}}">
+					<i class="fa fa-pause" aria-hidden="true"></i>
+				</span>
+			</a>
+			<a class="button" href="#!" title="Step forwards one packet">
+				<span class="button-content" id="playback-forward-{{id}}">
+					<i class="fa fa-forward" aria-hidden="true"></i>
+				</span>
+			</a>
+		</div>
+
+		<input type="range" class="playback-progress" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="playback-progress-{{id}}" step="1" />
 	</div>
 
 	<div class="computer-control">
