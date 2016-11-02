@@ -1,4 +1,4 @@
-﻿/*
+/*
 	Handles various layout items
 */
 
@@ -56,10 +56,9 @@ html, body {
 	padding-left: $gutter/2;
 	padding-right: $gutter/2;
 	width: 100%;
+	box-sizing: border-box;
 	flex: 0 0 $width;
 	max-width: $width;
-	flex-basis: 0;
-	flex-grow: 1;
 
 	// Remove padding on first and last elements
 	&:first-child { padding-left: 0px; }

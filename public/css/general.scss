@@ -8,6 +8,7 @@ header {
 	box-sizing: border-box;
 	color: $header-fore;
 	padding: 10px;
+	height: 50px;
 	vertical-align: middle;
 
 	h1 { font-size: 1.5em; }
@@ -79,7 +80,8 @@ a {
 
 ul.list {
 	list-style-type: disc;
-	list-style-position: inside;
+	list-style-position: outside;
+	padding-left: 2em;
 
 	li {
 		padding: 3px 0px;

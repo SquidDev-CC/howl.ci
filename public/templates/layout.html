@@ -16,7 +16,21 @@
 	<body>
 		<div id="container">
 			<header>
-				<h1><a href="./">howl.ci</a></h1>
+				<h1 class="pull-left"><a href="./">howl.ci</a></h1>
+
+				<div class="pull-right">
+					<form class="repo-search">
+						<input type="hidden" name="p" value="travis/builds">
+						<label>
+							<span class="aria-hint">Repo/Build</span>
+							<input type="text" name="repo" placeholder="User/Repo" class="repo-input"/>
+						</label>
+						<button type="submit" class="repo-submit">
+							<span class="aria-hint">Search</span>
+							<span class="fa fa-search"></span>
+						</button>
+					</form>
+				</div>
 			</header>
 			<div id="content">
 				<div style="text-align:center; margin-top:20px; margin-bottom:20px" aria-hidden="true">

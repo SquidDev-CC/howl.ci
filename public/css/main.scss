@@ -1,4 +1,4 @@
-﻿$footer-height: 30px;
+$footer-height: 30px;
 $header-height: 60px;
 
 $grey00: #151515;
@@ -284,4 +284,34 @@ $status-colors: (
 
 	> *:first-child { border-left-style: solid; }
 	> *:last-child { border-right-style: solid; }
+}
+
+.repo-search {
+	display: flex;
+
+	.repo-input, .repo-submit {
+		height: 30px;
+		box-sizing: border-box;
+		border-color: $grey06;
+		border-width: 1px;
+		border-top-style: solid;
+		border-bottom-style: solid;
+		background-color: $grey08;
+	}
+
+	.repo-input {
+		border-left-style: solid;
+		padding: 5px;
+		min-width: 200px;
+	}
+
+	.repo-submit {
+		border-right-style: solid;
+		cursor: pointer;
+		color: $grey00;
+
+		&:hover {
+			background-color: $grey07;
+		}
+	}
 }
