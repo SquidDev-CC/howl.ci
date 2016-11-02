@@ -7,12 +7,6 @@ namespace HowlCI.Terminal {
 	const tickLengthMilli = 50;
 	const tickLengthSec = tickLengthMilli * 1e-3;
 
-	// At 1/10th of the speed
-	const timeIncrement = 0.1 * 1e9 * tickLengthSec;
-
-	// Attempt to get through 30 packets per second
-	const packetIncrement = 30 * tickLengthSec;
-
 	// Create an event handler for holding down a button
 	const addHold = (elem: HTMLElement, callback: () => void) => {
 		let id = 0;
@@ -53,6 +47,8 @@ namespace HowlCI.Terminal {
 
 		private useTime: HTMLInputElement;
 		private usePackets: HTMLInputElement;
+		private speedTime: HTMLInputElement;
+		private speedPackets: HTMLInputElement;
 
 		private goBack: HTMLLinkElement;
 		private goForward: HTMLLinkElement;
@@ -70,6 +66,8 @@ namespace HowlCI.Terminal {
 
 			this.useTime = <HTMLInputElement> document.getElementById("playback-time-" + id);
 			this.usePackets = <HTMLInputElement> document.getElementById("playback-packet-" + id);
+			this.speedTime = <HTMLInputElement> document.getElementById("playback-speed-time-" + id);
+			this.speedPackets = <HTMLInputElement> document.getElementById("playback-speed-packet-" + id);
 
 			this.goBack = <HTMLLinkElement> document.getElementById("playback-back-" + id);
 			this.goForward = <HTMLLinkElement> document.getElementById("playback-forward-" + id);
@@ -88,12 +86,14 @@ namespace HowlCI.Terminal {
 			this.playingTick = () => {
 				if (!this.playing) return null;
 
-				this.progress.valueAsNumber += this.useTime.checked ? timeIncrement : packetIncrement;
+				this.progress.valueAsNumber += this.useTime.checked
+					? this.speedTime.valueAsNumber * 1e9 * tickLengthSec
+					: this.speedPackets.valueAsNumber * tickLengthSec;
+
 				if (this.progress.valueAsNumber < parseInt(this.progress.max, 10)) {
 					this.playingId = setTimeout(this.playingTick, tickLengthMilli);
 				} else {
-					this.playing = false;
-					this.playingId = null;
+					this.doPause();
 				}
 
 				callback(this.getId());
@@ -112,14 +112,18 @@ namespace HowlCI.Terminal {
 			addHold(this.goBack, () => {
 				this.doPause();
 				const before = this.getId();
-				this.progress.valueAsNumber -= this.useTime.checked ? timeIncrement : 1;
+				this.progress.valueAsNumber -= this.useTime.checked
+					? this.speedTime.valueAsNumber * 1e9 * tickLengthSec
+					: 1;
 				callback(this.getId());
 			});
 
 			addHold(this.goForward, () => {
 				this.doPause();
 				const before = this.getId();
-				this.progress.valueAsNumber += this.useTime.checked ? timeIncrement : 1;
+				this.progress.valueAsNumber += this.useTime.checked
+					? this.speedTime.valueAsNumber * 1e9 * tickLengthSec
+					: 1;
 				callback(this.getId());
 			});
 
@@ -135,15 +139,23 @@ namespace HowlCI.Terminal {
 					this.progress.max = this.lines.maxTime.toString();
 					this.progress.valueAsNumber = line.time;
 					this.progress.step = "1";
+
+					this.speedTime.parentElement.style.display = null;
+					this.speedPackets.parentElement.style.display = "none";
 				} else {
 					this.progress.min = "0";
 					this.progress.max = (this.lines.lines.length - 1).toString();
 					this.progress.valueAsNumber = termId;
 					this.progress.step = "0.01";
+
+					this.speedTime.parentElement.style.display = "none";
+					this.speedPackets.parentElement.style.display = null;
 				}
 
 				callback(termId);
 			};
+
+			this.speedPackets.parentElement.style.display = "none";
 		}
 
 		private doPause() {

@@ -44,6 +44,16 @@
 			</a>
 		</div>
 
+		<div class="number-range" title="Speed of playback in number of seconds per second">
+			<input type="number" min="0" step="0.1" value="0.1" id="playback-speed-time-{{id}}" />
+			<div class="descriptor">s/s</div>
+		</div>
+
+		<div class="number-range" title="Speed of playback in number of packets per second">
+			<input type="number" min="0" step="1" value="30" id="playback-speed-packet-{{id}}" />
+			<div class="descriptor">pkt/s</div>
+		</div>
+
 		<input type="range" class="playback-progress" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="playback-progress-{{id}}" step="1" />
 	</div>
 

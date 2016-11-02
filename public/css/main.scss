@@ -207,8 +207,7 @@ a:hover {
 .playback-wrapper {
 	width: 100%;
 	padding: 10px 0px;
-	height: 50px;
-	box-sizing: border-box;
+	height: 30px;
 	background: rgba(white, 0.9);
 	z-index: 4;
 	display: flex;
@@ -220,10 +219,13 @@ a:hover {
 
 	.playback-progress {
 		flex-grow: 1;
+		min-width: 0px;
 	}
 
-	.computer-follow {
-		margin-right: 5px;
+	> * {
+		height: 30px;
+		box-sizing: border-box;
+		margin: 0px 2px;
 	}
 }
 
@@ -273,28 +275,14 @@ a:hover {
 
 .button-group {
 	display: flex;
-	margin: 2px;
+	border: 1px solid $base06;
 
 	.button {
 		cursor: pointer;
 		padding: 5px;
-
-		border-color: $base06;
-		border-width: 1px;
-		border-top-style: solid;
-		border-bottom-style: solid;
-
 		.button-content {
 			display: block;
 			color: $base03;
-		}
-
-		&:first-child {
-			border-left-style: solid;
-		}
-
-		&:last-child  {
-			border-right-style: solid;
 		}
 
 		& > input[type=radio] {
@@ -312,12 +300,12 @@ a:hover {
 }
 
 .toggle {
+	display: flex;
 	cursor: pointer;
-	padding: 5px;
+	padding: 6px; // 5px + 1px border. Yes, this is awful.
 
 	.toggle-content {
 		color: $base03;
-		display: block;
 	}
 
 	& > input[type=checkbox] {
@@ -327,4 +315,27 @@ a:hover {
 	& > input[type=checkbox]:checked ~ .toggle-content {
 		color: $base0D;
 	}
+}
+
+.number-range {
+	display: flex;
+
+	> * {
+		padding: 5px;
+		border-color: $base06;
+		border-width: 1px;
+		border-top-style: solid;
+		border-bottom-style: solid;
+	}
+
+	> input {
+		width: 40px;
+	}
+
+	.descriptor {
+		font-size: 0.8em;
+	}
+
+	> *:first-child { border-left-style: solid; }
+	> *:last-child { border-right-style: solid; }
 }
