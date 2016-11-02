@@ -331,8 +331,7 @@ namespace HowlCI.Terminal {
 			const sizeX = terminal.sizeX || 51;
 			const sizeY = terminal.sizeY || 19;
 
-			// FIXME: We subtract 8 as that is the padding of the parent element. This is a "magic" value.
-			const actualWidth = this.canvas.parentElement.clientWidth - 8;
+			const actualWidth = this.canvas.parentElement.clientWidth - Render.margin;
 
 			const width = sizeX * Render.pixelWidth;
 			const height = sizeY * Render.pixelHeight;
@@ -343,9 +342,12 @@ namespace HowlCI.Terminal {
 			// Sure, you can"t read at thsis level but it is better than nothing.
 			if (scale <= 0) scale = 1;
 
-			if (this.canvas.height !== height * scale || this.canvas.width !== width * scale) {
-				this.canvas.height = height * scale;
-				this.canvas.width = width * scale;
+			const canvasWidth = width * scale + Render.margin * 2;
+			const canvasHeight = height * scale + Render.margin * 2;
+
+			if (this.canvas.height !== canvasHeight || this.canvas.width !== canvasWidth) {
+				this.canvas.height = canvasHeight;
+				this.canvas.width = canvasWidth;
 			}
 
 			(<any> ctx).imageSmoothingEnabled = false; // Isn"t standardised so we have to cast.

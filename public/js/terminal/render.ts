@@ -11,6 +11,8 @@ namespace HowlCI.Terminal.Render {
 	export const pixelWidth = cellWidth / cellGCD;
 	export const pixelHeight = cellHeight / cellGCD;
 
+	export const margin = 4;
+
 	const fontWidth = 96;
 	const fontHeight = 144;
 
@@ -66,11 +68,28 @@ namespace HowlCI.Terminal.Render {
 	export const background = (
 		ctx: CanvasRenderingContext2D, x: number, y: number,
 		color: string, scale: number,
+		width: number, height: number,
 	): void => {
-		const actualWidth = cellWidth * scale;
-		const actualHeight = cellHeight * scale;
-		const cellX = x * actualWidth;
-		const cellY = y * actualHeight;
+		let actualWidth = cellWidth * scale;
+		let actualHeight = cellHeight * scale;
+		let cellX = x * actualWidth + margin;
+		let cellY = y * actualHeight + margin;
+
+		if (x === 0) {
+			cellX -= margin;
+			actualWidth += margin;
+		}
+		if (x === width - 1) {
+			actualWidth += margin;
+		}
+
+		if (y === 0) {
+			cellY -= margin;
+			actualHeight += margin;
+		}
+		if (y === height - 1) {
+			actualHeight += margin;
+		}
 
 		ctx.beginPath();
 		ctx.rect(cellX, cellY, actualWidth, actualHeight);
@@ -86,8 +105,8 @@ namespace HowlCI.Terminal.Render {
 
 		const actualWidth = cellWidth * scale;
 		const actualHeight = cellHeight * scale;
-		const cellX = x * actualWidth;
-		const cellY = y * actualHeight;
+		const cellX = x * actualWidth + margin;
+		const cellY = y * actualHeight + margin;
 
 		const point = chr.charCodeAt(0);
 
@@ -109,7 +128,7 @@ namespace HowlCI.Terminal.Render {
 
 		for (let y = 0; y < sizeY; y++) {
 			for (let x = 0; x < sizeX; x++) {
-				background(ctx, x, y, term.back[y].charAt(x), scale);
+				background(ctx, x, y, term.back[y].charAt(x), scale, term.sizeX, term.sizeY);
 				foreground(ctx, x, y, term.fore[y].charAt(x), term.text[y].charAt(x), scale);
 			}
 		}
@@ -130,7 +149,11 @@ namespace HowlCI.Terminal.Render {
 		scale /= 3;
 
 		ctx.beginPath();
-		ctx.rect(0, 0, width * cellWidth * scale, height * cellHeight * scale);
+		ctx.rect(
+			0, 0,
+			width * cellWidth * scale + margin * 2,
+			height * cellHeight * scale + margin * 2,
+		);
 		ctx.fillStyle = colors.b;
 		ctx.fill();
 
