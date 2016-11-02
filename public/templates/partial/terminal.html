@@ -3,63 +3,75 @@
 		<label class="toggle computer-follow" title="Follow the log">
 			<input type="checkbox" value="1" id="computer-follow-{{id}}" />
 			<span class="toggle-content">
-				<i class="fa fa-angle-double-down" aria-hidden="true"></i>
+				<span class="fa fa-angle-double-down" aria-hidden="true"></span>
+				<span class="aria-hint">Follow the log</span>
 			</span>
 		</label>
-		<div class="button-group">
+		<div class="button-group" role="toolbar" aria-label="Controls playback mode">
 			<label class="button" title="Play by time">
 				<input name="playback-mode-{{id}}" id="playback-time-{{id}}" type="radio" value="time" checked/>
 				<span class="button-content">
-					<i class="fa fa-clock-o" aria-hidden="true"></i>
+					<span class="fa fa-clock-o" aria-hidden="true"></span>
+					<span class="aria-hint">Play by time</span>
 				</span>
 			</label>
 			<label class="button" title="Play by packet">
 				<input name="playback-mode-{{id}}" id="playback-packet-{{id}}" type="radio" value="packet"/>
 				<span class="button-content">
-					<i class="fa fa-terminal" aria-hidden="true"></i>
+					<span class="fa fa-terminal" aria-hidden="true"></span>
+					<span class="aria-hint">Play by time</span>
 				</span>
 			</label>
 		</div>
 
-		<div class="button-group">
-			<a class="button" href="#!" title="Step backwards one packet">
+		<div class="button-group"  role="toolbar" aria-label="Controls playback position">
+			<button type="button" class="button" title="Step backwards one packet">
 				<span class="button-content" id="playback-back-{{id}}">
-					<i class="fa fa-backward" aria-hidden="true"></i>
+					<span class="fa fa-backward" aria-hidden="true"></span>
+					<span class="aria-hint">Step backwards one packet</span>
 				</span>
-			</a>
-			<a class="button" href="#!" title="Play from this point">
+			</button>
+			<button type="button" class="button" title="Play from this point">
 				<span class="button-content" id="playback-play-{{id}}">
-					<i class="fa fa-play" aria-hidden="true"></i>
+					<span class="fa fa-play" aria-hidden="true"></span>
+					<span class="aria-hint">Play from this point</span>
 				</span>
-			</a>
-			<a class="button" href="#!" title="Pause at this point">
+			</button>
+			<button type="button" class="button" title="Pause at this point">
 				<span class="button-content" id="playback-pause-{{id}}">
-					<i class="fa fa-pause" aria-hidden="true"></i>
+					<span class="fa fa-pause" aria-hidden="true"></span>
+					<span class="aria-hint">Pause at this point</span>
 				</span>
-			</a>
-			<a class="button" href="#!" title="Step forwards one packet">
+			</button>
+			<button type="button" class="button" title="Step forwards one packet">
 				<span class="button-content" id="playback-forward-{{id}}">
-					<i class="fa fa-forward" aria-hidden="true"></i>
+					<span class="fa fa-forward" aria-hidden="true"></span>
+					<span class="aria-hint">Step forwards one packet</span>
 				</span>
-			</a>
+			</button>
 		</div>
 
-		<div class="number-range" title="Speed of playback in number of seconds per second">
+		<label class="number-range" title="Speed of playback in number of seconds per second">
 			<input type="number" min="0" step="0.1" value="0.1" id="playback-speed-time-{{id}}" />
+			<span class="aria-hint">Speed of playback in number of seconds per second</span>
 			<div class="descriptor">s/s</div>
-		</div>
+		</label>
 
-		<div class="number-range" title="Speed of playback in number of packets per second">
+		<label class="number-range" title="Speed of playback in number of packets per second">
 			<input type="number" min="0" step="1" value="30" id="playback-speed-packet-{{id}}" />
+			<span class="aria-hint">Speed of playback in number of packets per second</span>
 			<div class="descriptor">pkt/s</div>
-		</div>
+		</label>
 
-		<input type="range" class="playback-progress" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="playback-progress-{{id}}" step="1" />
+		<label class="playback-progress">
+			<input type="range" class="playback-progress" min="{{lines.minTime}}" max="{{lines.maxTime}}" value="{{lines.minTime}}" id="playback-progress-{{id}}" step="1" />
+			<span class="aria-hint">The progress made through the terminal playback</span>
+		</label>
 	</div>
 
 	<div class="computer-control">
 		<div class="computer-log">
-			<pre class="computer-output" id="computer-output-{{id}}"></pre>
+			<pre class="computer-output" id="computer-output-{{id}}" role="log"></pre>
 		</div>
 		<div class="computer-terminal" data-sticky-container>
 			<div class="computer-terminal-container">

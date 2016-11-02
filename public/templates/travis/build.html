@@ -2,11 +2,13 @@
 	<h2>
 		{{repo.slug}}
 		<span class="pull-right">
-			<a href="https://github.com/{{repo.slug}}" title="Open on GitHub" target="_blank">
-				<span class="fa fa-0 fa-github"></span>
+			<a href="https://github.com/{{repo.slug}}" title="Open on GitHub" target="_blank" class="icon-link">
+				<span class="fa fa-0 fa-github" aria-hidden="true"></span>
+				<span class="aria-hint">Open on GitHub</span>
 			</a>
-			<a href="https://travis-ci.org/{{repo.slug}}" title="Open on Travis.org" target="_blank">
-				<span class="fa fa-0 fa-cubes"></span>
+			<a href="https://travis-ci.org/{{repo.slug}}" title="Open on Travis.org" target="_blank" class="icon-link">
+				<span class="fa fa-0 fa-cubes" aria-hidden="true"></span>
+				<span class="aria-hint">Open on Travis.org</span>
 			</a>
 		</span>
 	</h2>
@@ -16,11 +18,13 @@
 				#{{build.number}} {{build.state}} :: <span class="fa fa-0 fa-code-fork"></span> {{commit.branch}}
 			</a>
 			<span class="pull-right">
-				<a href="https://github.com/{{repo.slug}}/commit/{{commit.sha}}" title="Open on GitHub" target="_blank">
-					<span class="fa fa-github"></span>
+				<a href="https://github.com/{{repo.slug}}/commit/{{commit.sha}}" title="Open on GitHub" target="_blank" class="icon-link">
+					<span class="fa fa-github" aria-hidden="true"></span>
+					<span class="aria-hint">Open on GitHub</span>
 				</a>
-				<a href="https://travis-ci.org/{{repo.slug}}/builds/{{build.id}}" title="Open on Travis.org" target="_blank">
-					<span class="fa fa-cubes"></span>
+				<a href="https://travis-ci.org/{{repo.slug}}/builds/{{build.id}}" title="Open on Travis.org" target="_blank" class="icon-link">
+					<span class="fa fa-cubes" aria-hidden="true"></span>
+					<span class="aria-hint">Open on Travis.org</span>
 				</a>
 			</span>
 		</h3>
@@ -29,18 +33,19 @@
 		</div>
 	</div>
 
-	<ul class="jobs">
+	<ul class="jobs" role="tablist">
 		{{#logs}}
 			<li class="status-{{job.state}} status-label">
-				<a href="#job-{{job.id}}" id="job-link-{{job.id}}">#{{job.number}} {{build.state}}</a>
-				<a href="https://travis-ci.org/{{repo.slug}}/jobs/{{job.id}}" title="Open on Travis.org" target="_blank">
-					<span class="fa fa-cubes"></span>
+				<a href="#job-{{job.id}}" id="job-link-{{job.id}}" aria-controls="job-{{job.id}}" role="tab" aria-selected="false">#{{job.number}} {{build.state}}</a>
+				<a href="https://travis-ci.org/{{repo.slug}}/jobs/{{job.id}}" title="Open on Travis.org" target="_blank" class="icon-link">
+					<span class="fa fa-cubes" aria-hidden="true"></span>
+					<span class="aria-hint">Open on Travis.org</span>
 				</a>
 			</li>
 		{{/logs}}
 	</ul>
 	{{#logs}}
-		<div class="job status-{{job.state}}" id="job-{{job.id}}" data-sticky-container>
+		<div class="job status-{{job.state}}" id="job-{{job.id}}" role="tabpanel" data-sticky-container>
 			{{>partial/terminal}}
 		</div>
 	{{/logs}}

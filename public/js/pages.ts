@@ -184,11 +184,15 @@ namespace HowlCI {
 					const onClick = () => {
 						if (link === activeJobLink) return false;
 
-						if (activeJobLink != null) activeJobLink.classList.remove("active");
+						if (activeJobLink != null) {
+							activeJobLink.classList.remove("active");
+							activeJobLink.firstElementChild.setAttribute("aria-selected", "false");
+						}
 						if (activeJobTab != null) activeJobTab.classList.remove("active");
 						if (activeJobTerminal) activeJobTerminal.detach();
 
 						linker.classList.add("active");
+						linker.firstElementChild.setAttribute("aria-selected", "true");
 						tab.classList.add("active");
 						if (terminal != null) terminal.attach();
 

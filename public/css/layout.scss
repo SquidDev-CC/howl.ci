@@ -14,8 +14,6 @@ html, body {
 
 	header {
 		width: 100%;
-		padding: 10px;
-		box-sizing: border-box;
 	}
 
 	#content {
@@ -27,17 +25,13 @@ html, body {
 
 	footer {
 		position: absolute;
-		left: 0px;
-		right: 0px;
 		bottom: 0px;
 		width: 100%;
 		height: $footer-height;
-		padding: 10px;
-		box-sizing: border-box;
 	}
 }
 
-.text-content {
+.center-content, .text-content {
 	max-width: 700px;
 	margin-left: auto;
 	margin-right: auto;

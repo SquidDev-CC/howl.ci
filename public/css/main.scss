@@ -1,133 +1,75 @@
 ﻿$footer-height: 30px;
 $header-height: 60px;
 
-$base00: #151515;
-$base01: #202020;
-$base02: #303030;
-$base03: #505050;
-$base04: #B0B0B0;
-$base05: #D0D0D0;
-$base06: #E0E0E0;
-$base07: #FFFFFF;
+$grey00: #151515;
+$grey01: #202020;
+$grey02: #505050;
+$grey03: #707070;
+$grey04: #B0B0B0;
+$grey05: #D0D0D0;
+$grey06: #E0E0E0;
+$grey07: #ECF0F1;
+$grey08: #FFFFFF;
+
+$status-passed: #00630C;
+$status-failed: #CF000F;
+$status-errored:#D35400;
+
 $base08: #FF0086;
 $base09: #FD8900;
-$base0A: #ABA800;
 $base0B: #00C918;
-$base0C: #1faaaa;
+$base0C: #1FAAAA;
 $base0D: #3777E6;
 $base0E: #AD00A1;
-$base0F: #cc6633;
-$grey01: #707070;
-$grey02: #909090;
+
+$header-back: $base0C;
+$header-fore: $grey08;
+
+$footer-back: $grey02;
+$footer-fore: $grey08;
+
+$link: darken($base0D, 20%);
+
+$status-colors: (
+	passed: $status-passed,
+	failed: $status-failed,
+	errored: $status-errored,
+);
+
+@mixin link($normal, $hover) {
+	a {
+		&, &:visited, &:active { color: $normal; }
+		&:hover { color: $hover; }
+	}
+}
+
+@mixin icon-link($normal, $hover) {
+	a.icon-link {
+		& .fa, &:visited .fa, &:active .fa { color: $normal; }
+		&:hover  .fa { color: $hover; }
+	}
+}
 
 @import "reset.scss";
 @import "layout.scss";
+@import "general.scss";
 
-body {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans",
-	"Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-}
+@each $key, $color in $status-colors {
+	.status-#{$key} {
+		> .status-label, &.status-label {
+			@include link($grey08, lighten($color, 40%));
+			@include icon-link($grey08, lighten($color, 40%));
 
-header {
-	vertical-align: middle;
-	background-color: $base0C;
-	color: $base07;
+			background-color: $color;
+			color: $grey08;
+		}
 
-	h1 { font-size: 1.5em; }
-	a, a:hover { color: inherit !important; }
-}
-
-.fa.fa-0 {
-	font-size: 0.7em;
-}
-
-footer {
-	background-color: $base03;
-	color: $base07;
-	font-size: 0.7em;
-
-	a, a:visited, a:active { color: $base06; }
-	a:hover { color: $base04; }
-}
-
-h2 {
-	font-size: 2em;
-	padding-bottom: 10px;
-	margin-bottom: 10px;
-	overflow-wrap: break-word;
-	word-break: break-all;
-
-	border-bottom: solid 1px $base05;
-}
-
-h3 {
-	font-size: 1.2em;
-	margin-top: 4px;
-	overflow-wrap: break-word;
-	word-break: break-all;
-}
-
-pre, code { font-family: "Consolas", monospace; }
-pre {
-	padding: 1.2em;
-	font-size: 0.8em;
-	white-space: pre-wrap;
-}
-
-pre.box {
-	border: solid 0.2em $base03;
-	background-color: $base06;
-}
-
-em { font-style: italic; }
-
-p {
-	margin-top: 1em;
-	margin-bottom: 1em;
-}
-
-a, a:visited, a:active {
-	color: $grey01;
-	text-decoration: none;
-}
-
-ul.list {
-	list-style-type: disc;
-	list-style-position: inside;
-
-	li {
-		padding: 3px 0px;
+		> .status-info {
+			border-left: solid 5px lighten($color, 10%);
+			padding-left: 5px;
+		}
 	}
 }
-
-a:hover {
-	color: $base00;
-}
-
-.license {
-	font-size: 0.7em;
-	border-bottom: solid 1px $base05;
-	margin-bottom: 20px;
-}
-
-@mixin status($color) {
-	> .status-label, &.status-label {
-		a, a:visited, a:active { color: $base07; }
-		a:hover { color: lighten($color, 40%); }
-
-		background-color: darken($color, 20%);
-		color: $base07;
-	}
-
-	> .status-info {
-		border-left: solid 5px $color;
-		padding-left: 5px;
-	}
-}
-
-.status-passed { @include status($base0B); }
-.status-failed { @include status($base08); }
-.status-errored { @include status($base0F); }
 
 .build {
 	margin-bottom: 10px;
@@ -144,9 +86,11 @@ a:hover {
 		padding: 10px;
 		margin: 0px;
 
-		&.status-passed:not(.active) { background-color: lighten($base0B, 5%); }
-		&.status-failed:not(.active) { background-color: lighten($base08, 5%); }
-		&.status-errored:not(.active) { background-color: lighten($base0F, 5%); }
+		@each $key, $color in $status-colors {
+			&.status-#{$key}:not(.active) {
+				background-color: lighten($color, 20%);
+			}
+		}
 
 		> a:first-child {
 			margin-right: 10px;
@@ -160,9 +104,11 @@ a:hover {
 
 	&.active { display: block; }
 
-	&.status-passed { border-top-color: darken($base0B, 20%); }
-	&.status-failed { border-top-color: darken($base08, 20%); }
-	&.status-errored { border-top-color: darken($base0F, 20%); }
+	@each $key, $color in $status-colors {
+		&.status-#{$key} {
+			border-top-color: $color;
+		}
+	}
 }
 
 .computer-control {
@@ -216,6 +162,10 @@ a:hover {
 	.playback-progress {
 		flex-grow: 1;
 		min-width: 0px;
+
+		input {
+			width: 100%;
+		}
 	}
 
 	> * {
@@ -228,8 +178,8 @@ a:hover {
 .computer-output {
 	height: 100%;
 	box-sizing: border-box;
-	border: solid 0.2em $base03;
-	background-color: $base06;
+	border: solid 0.2em $grey02;
+	background-color: $grey07;
 
 	p {
 		overflow-wrap: break-word;
@@ -237,7 +187,7 @@ a:hover {
 	}
 
 	.log-entry {
-		color: $base03;
+		color: $grey02;
 		width: 100%;
 		display: table;
 
@@ -255,7 +205,7 @@ a:hover {
 		.log-level-close,
 		.log-level-verbose,
 		.log-level-debug
-		{ color: $base01; }
+		{ color: $grey01; }
 
 		.log-level-warning,
 		.log-level-warn
@@ -265,20 +215,20 @@ a:hover {
 		.log-level-error { color: $base08; }
 		.log-level-failure { color: $base0E; }
 		.log-level-success { color: $base0B; }
-		.log-level-close { color: $base01; }
+		.log-level-close { color: $grey01; }
 	}
 }
 
 .button-group {
 	display: flex;
-	border: 1px solid $base06;
+	border: 1px solid $grey06;
 
 	.button {
 		cursor: pointer;
 		padding: 5px;
 		.button-content {
 			display: block;
-			color: $base03;
+			color: $grey02;
 		}
 
 		& > input[type=radio] {
@@ -301,7 +251,7 @@ a:hover {
 	padding: 6px; // 5px + 1px border. Yes, this is awful.
 
 	.toggle-content {
-		color: $base03;
+		color: $grey02;
 	}
 
 	& > input[type=checkbox] {
@@ -318,7 +268,7 @@ a:hover {
 
 	> * {
 		padding: 5px;
-		border-color: $base06;
+		border-color: $grey06;
 		border-width: 1px;
 		border-top-style: solid;
 		border-bottom-style: solid;
