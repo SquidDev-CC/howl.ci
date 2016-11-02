@@ -69,7 +69,7 @@ namespace HowlCI {
 		title: _ => "Page not found | howl.ci",
 	};
 
-	pages["builds"] = {
+	pages["travis/builds"] = {
 		build: (args) => {
 			const repo = args["repo"];
 
@@ -98,7 +98,7 @@ namespace HowlCI {
 		title: model => model.repo + " | howl.ci",
 	};
 
-	pages["build"] = {
+	pages["travis/build"] = {
 		build: (args) => {
 			const build = args["id"];
 

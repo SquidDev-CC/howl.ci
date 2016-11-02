@@ -41,10 +41,10 @@
 	</ul>
 	{{#logs}}
 		<div class="job status-{{job.state}}" id="job-{{job.id}}" data-sticky-container>
-			{{>terminal}}
+			{{>partial/terminal}}
 		</div>
 	{{/logs}}
 {{/success}}
 {{^success}}
-	<div class="text-content">{{>request_error}}</div>
+	<div class="text-content">{{>travis/error}}</div>
 {{/success}}

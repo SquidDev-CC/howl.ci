@@ -10,13 +10,12 @@ let fs     = require('fs'),
 
 let config = {
 	templateDir: 'public/templates/',
-	tempDir: 'temp/',
 };
 
 let javascript = [
 	'node_modules/hogan.js/lib/template.js',
 	'node_modules/es6-promise/dist/es6-promise.auto.js',
-	'temp/templates.js',
+	'dist/templates.js',
 	'dist/main.js'
 ];
 config.scripts = javascript.map(x => ({script: path.basename(x)}));
@@ -82,7 +81,6 @@ let step = function(name, func, run) {
 }
 
 step('Ensure exists', () => {
-	if(!fs.existsSync('temp')) fs.mkdirSync('temp');
 	if(!fs.existsSync('dist')) fs.mkdirSync('dist');
 });
 
@@ -104,12 +102,29 @@ let templatesLayout = step('Generate layout.html', () => {
 });
 
 let templatesMake = step('Generate templates', () => {
-	let templates = fs.readdirSync(config.templateDir, 'utf8')
-		.filter(x => x != 'layout.html' && x.endsWith('.html'))
+	const results = [];
+	const queue = [''];
+	while(queue.length > 0) {
+		const dir = queue.pop();
+		const wholeDir = path.join(config.templateDir, dir);
+
+		for(const file of fs.readdirSync(wholeDir)) {
+			const wholeFile = path.join(wholeDir, file);
+			const relFile = path.join(dir, file);
+
+			if(fs.statSync(wholeFile).isDirectory()) {
+				queue.push(relFile);
+			} else if(relFile != 'layout.html' && relFile.endsWith('.html')) {
+				results.push(relFile);
+			}
+		}
+	}
+
+	let templates = results
 		.map(file => {
 			let contents = fs.readFileSync(config.templateDir + file, 'utf8');
 			let template = hogan.compile(contents, { asString: true});
-			let name = file.replace(/\..*$/, '');
+			let name = file.replace(/\..*$/, '').replace('\\', '/');
 
 			return 'templates["' + name + '"] = new Hogan.Template(' + template + ');';
 		});
@@ -117,7 +132,7 @@ let templatesMake = step('Generate templates', () => {
 	let header = 'var HowlCI; (function (HowlCI) { var templates = HowlCI.templates = {};\n';
 	let footer = '\n})(HowlCI || (HowlCI = {}));';
 
-	fs.writeFileSync(config.tempDir + 'templates.js', header + templates.join('\n') + footer);
+	fs.writeFileSync('dist/templates.js', header + templates.join('\n') + footer);
 });
 
 let jsCopy = step('Copy JS', () => {
@@ -216,10 +231,6 @@ if(watching) {
 	watcher("public/templates", () => {
 		templatesLayout();
 		templatesMake();
-
-		let contents = fs.readFileSync('temp/templates.js', 'utf8');
-		fs.writeFileSync('dist/templates.js', contents);
-
 		jsMinify();
 	});
 }
