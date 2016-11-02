@@ -45,6 +45,9 @@ footer {
 	background-color: $base03;
 	color: $base07;
 	font-size: 0.7em;
+
+	a, a:visited, a:active { color: $base06; }
+	a:hover { color: $base04; }
 }
 
 h2 {
@@ -84,13 +87,27 @@ p {
 }
 
 a, a:visited, a:active {
-	color: $base04;
+	color: $grey01;
 	text-decoration: none;
+}
+
+ul.list {
+	list-style-type: disc;
+	list-style-position: inside;
+
+	li {
+		padding: 3px 0px;
+	}
 }
 
 a:hover {
 	color: $base00;
-	text-decoration: none;
+}
+
+.license {
+	font-size: 0.7em;
+	border-bottom: solid 1px $base05;
+	margin-bottom: 20px;
 }
 
 @mixin status($color) {

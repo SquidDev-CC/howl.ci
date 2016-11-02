@@ -168,6 +168,7 @@ let jsMinify = step('Minify JS', () => {
 	var result = Uglify.minify(javascript, {
 		mangle: { toplevel: true },
 		compress: false,
+		output: { comments: "some" },
 	});
 	fs.writeFileSync('dist/main.min.js', result.code);
 	fs.unlink('dist/main.js');

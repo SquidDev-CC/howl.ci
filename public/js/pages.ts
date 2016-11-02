@@ -69,6 +69,11 @@ namespace HowlCI {
 		title: _ => "Page not found | howl.ci",
 	};
 
+	pages["credits"] = {
+		build: always,
+		title: _ => "Credits | howl.ci",
+	};
+
 	pages["travis/builds"] = {
 		build: (args) => {
 			const repo = args["repo"];
