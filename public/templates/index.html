@@ -1,57 +1,28 @@
-<div class="text-content">
+<div class="text-content main">
+	<div class="main-content">
 
-<h2>howl.ci</h2>
-<p>
-	howl.ci is a project which aims to provide a continuous integration service to ComputerCraft users.
-</p>
-<p>
-	Builds are executed by <a href="https://travis-ci.org/" title="The Travis CI provider" target="_blank">Travis</a>
-	and the terminal output captured. howl.ci then scrapes these logs and renders them in place on the website.
-</p>
+		<h2>howl.ci</h2>
+		<p>
+			howl.ci is a project which aims to provide a continuous integration service to ComputerCraft users.
+		</p>
+		<p>
+			Builds are executed by <a href="https://travis-ci.org/" title="The Travis CI provider" target="_blank">Travis</a>
+			and the terminal output captured. howl.ci then scrapes these logs and renders them in place on the website.
+		</p>
 
-<h3>Example</h3>
-<p>
-	You can view <a href="?p=travis/builds&repo=SquidDev-CC/Howl">historic builds of Howl</a>. You can also render log files from
-	<a href="?p=url&url=https://gist.githubusercontent.com/SquidDev/b3e88899a86ee73fa2510389b141e9e3/raw/terminal_codes.txt">aribtrary
-	urls</a>
-</p>
+		<h3>Example</h3>
+		<p>
+			You can view <a href="?p=travis/builds&repo=SquidDev-CC/Howl">historic builds of Howl</a>. You can also render log files from
+			<a href="?p=url&url=https://gist.githubusercontent.com/SquidDev/b3e88899a86ee73fa2510389b141e9e3/raw/terminal_codes.txt">aribtrary
+			urls</a>
+		</p>
 
-<h3>Getting set up</h3>
-<p>
-	Firstly you'll need to get set up with Travis. You need to download the executor and run it in the relevent
-	directory. We'll create a <code>.travis.yml</code> file like so:
-</p>
-<pre class="box">
-jdk:
-  - oraclejdk8
-install:
-  - wget -O howlci.jar https://dl.bintray.com/squiddev/maven/org/squiddev/howl.ci/0.1/howl.ci-0.1.jar
-script:
-  - java -jar howlci.jar
-</pre>
-<p>
-	You'll probably want to configure howl.ci for your particular use case. To do this you'll need a
-	<code>.howl.properties</code> file.
-</p>
-<pre class="box">
-computer.0.saveDir=.
-computer.0.startup=.build.lua
-</pre>
-<p>
-	This configures the initial computer to run in the current directory and execute the .build.lua file. You don't need
-	to specify that second line if you have a <code>startup</code> file.
-</p>
+		<h3>Getting started</h3>
+		<p>
+			We've created a <a href="?p=docs/getting-started">useful guide</a> on how to get set up with how.ci.
+		</p>
 
-<h3>Making your builds do something</h3>
-<p>
-	The issue here is that howl.ci, and so Travis has no way of telling if your build has succeeded or not. To do this
-	you should use the <code>howlci</code> API. This provides a <code>howlapi.status(status:string, message:string)</code>
-	that sets the status of your build.
-</p>
-<p>
-	Builds have three states: "success" for when everything went OK, "failure" for when your tests didn't go right and
-	"error" for when something unexpected that you were not expecting: such as everything crashing. If you don't
-	terminate with a status then howl.ci will presume the build errored.
-</p>
+	</div>
 
+	{{>partial/sidebar}}
 </div>

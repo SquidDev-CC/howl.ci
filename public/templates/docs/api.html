@@ -1,0 +1,96 @@
+<div class="text-content main">
+	<div class="main-content">
+		<h2>The <code>howlci</code> API</h2>
+		<p>
+			howl.ci provides an API with several methods to interact with the CI environment.
+		</p>
+
+		<h3 id="func-log"><code>log(level:string, message:any)</code></h3>
+		<p>
+			This is used to output an object string to the log. Any value for level is valid, though there
+			are several explicitly supported by howl.ci:
+		</p>
+
+		<table class="table-grid">
+			<tbody>
+				<tr>
+					<td><code>debug</code>, <code>verbose</code></td>
+					<td>Useful debugging information. Generally not relevant to the user</td>
+				</tr>
+				<tr>
+					<td><code>info</code></td>
+					<td>Information the user might find interesting or useful</td>
+				</tr>
+				<tr>
+					<td><code>warn</code>, <code>warning</code></td>
+					<td>A warning</td>
+				</tr>
+				<tr>
+					<td><code>error</code></td>
+					<td>An error</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h3 id="func-status"><code>status(status:string, message:any)</code></h3>
+		<p>
+			Change the status of the build, also writing to the log. It is worth noting that once a log level has been
+			reached it is not possible to go to a "better" state: you can not change a failure to a success. There are
+			three possible statuses a build can have:
+		</p>
+
+		<table class="table-grid">
+			<tbody>
+				<tr>
+					<td><code>success</code>, <code>ok</code>, <code>pass</code></td>
+					<td>Everything worked as expected</td>
+				<tr>
+					<td><code>failure</code>, <code>fail</code></td>
+					<td>A test failed. This would generally be an assertion failing.</td>
+				</tr>
+				<tr>
+					<td><code>error</code></td>
+					<td>An unexpected error occured</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<p>
+			<strong>Note:</strong>You should always call this method at some point: if you don't then we'll presume
+			something went wrong and mark the build as an error.
+		</p>
+
+		<h3 id="func-status"><code>close()</code></h3>
+		<p>
+			Close this computer, ending the build.
+		</p>
+
+		<h3 id="func-status"><code>resize(width:number, height:number)</code></h3>
+		<p>
+			Resize the terminal to a new set of dimensions.
+		</p>
+
+		<h3 id="func-status"><code>getEnv(name:string):string|nil</code></h3>
+		<p>
+			Get an environment variable, returning <code>nil</code> if not found.
+		</p>
+
+		<h3 id="func-status"><code>getConfig(name:string):string|nil</code></h3>
+		<p>
+			Get a config variable, returning <code>nil</code> if not found.
+		</p>
+
+		<h3 id="func-status"><code>setDay(day:number)</code></h3>
+		<p>
+			Set the current day for all computers. This can be fetched with <code>os.day()</code>.
+		</p>
+
+		<h3 id="func-status"><code>setTime(day:number)</code></h3>
+		<p>
+			Set the current time for all computers, this is a number between 0 and 24000. This can be fetched with
+			<code>os.time()</code>.
+		</p>
+	</div>
+
+	{{>partial/sidebar}}
+</div>

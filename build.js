@@ -230,7 +230,6 @@ if(watching) {
 	});
 
 	watcher("public/templates", () => {
-		templatesLayout();
 		templatesMake();
 		jsMinify();
 	});

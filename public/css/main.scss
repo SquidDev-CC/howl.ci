@@ -286,6 +286,65 @@ $status-colors: (
 	> *:last-child { border-right-style: solid; }
 }
 
+.main {
+	&.text-content {
+		max-width: 90%;
+	}
+
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+
+	.main-content {
+		order: 2;
+		box-sizing: border-box;
+		flex: 0 0 75%;
+		max-width: 75%;
+		padding-left: 15px;
+	}
+
+	.main-sidebar {
+		text-align: right;
+		box-sizing: border-box;
+		flex: 0 0 25%;
+		max-width: 25%;
+		padding-right: 15px;
+
+		li {
+			padding: 3px 0px;
+		}
+
+		ul {
+			margin-top: 5px;
+			margin-bottom: 20px;
+		}
+	}
+
+	// This is awful, but it works.
+	* {
+		overflow-wrap: break-word;
+		word-wrap: break-word;
+		word-break: break-word;
+	}
+
+	@media(max-width: 800px) {
+		.main-content {
+			order: 1;
+			flex-basis: 100%;
+			max-width: 100%;
+			padding-left: 0px;
+		}
+
+		.main-sidebar {
+			order: 2;
+			text-align: left;
+			flex-basis: 100%;
+			max-width: 100%;
+			padding-right: 0px;
+		}
+	}
+}
+
 .repo-search {
 	display: flex;
 

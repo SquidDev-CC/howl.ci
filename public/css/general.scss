@@ -45,6 +45,13 @@ pre, code {
 	font-family: "Consolas", "Courier New", monospace;
 }
 
+code {
+	background-color: $grey07;
+	color: $base0E;
+	padding: 0.1em;
+	font-size: 0.8em;
+}
+
 pre {
 	padding: 1.2em;
 	font-size: 0.8em;
@@ -57,8 +64,13 @@ pre.box {
 }
 
 em { font-style: italic; }
+strong { font-weight: bold; }
 
 p {
+	line-height: 1.3em;
+}
+
+p, table.table-grid, pre.box, ul.list {
 	margin-top: 1em;
 	margin-bottom: 1em;
 }
@@ -102,4 +114,25 @@ ul.list {
 button {
 	background: none;
 	border: none;
+}
+
+
+table.table-grid {
+	td, th {
+		padding: 10px;
+		min-width: 100px;
+	}
+
+	td {
+		border-top: solid 1px $grey06;
+	}
+
+	tbody tr:first-child td {
+		border-top: none;
+	}
+
+	th {
+		font-weight: bold;
+		border-bottom: solid 2px $grey06;
+	}
 }

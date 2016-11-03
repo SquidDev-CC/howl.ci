@@ -59,25 +59,14 @@ namespace HowlCI {
 
 	export const pages: { [name: string]: Page<any> } = {};
 
-	pages["index"] = {
-		build: always,
-		title: _ => "Home | howl.ci",
-	};
+	let staticPage = (title: string) => ({ build: always, title: _ => title });
 
-	pages["error"] = {
-		build: always,
-		title: _ => "Page not found | howl.ci",
-	};
-
-	pages["credits"] = {
-		build: always,
-		title: _ => "Credits | howl.ci",
-	};
-
-	pages["docs/getting-started"] = {
-		build: always,
-		title: _ => "Getting Started | Docs | howl.ci",
-	};
+	pages["index"] = staticPage("Home | howl.ci");
+	pages["error"] = staticPage("Page not found | howl.ci");
+	pages["credits"] = staticPage("Credits | howl.ci");
+	pages["docs/getting-started"] = staticPage("Getting Started | Docs | howl.ci");
+	pages["docs/configuring"] = staticPage("Configuring howl.ci | Docs | howl.ci");
+	pages["docs/api"] = staticPage("The howlci API | Docs | howl.ci");
 
 	pages["travis/builds"] = {
 		build: (args) => {
