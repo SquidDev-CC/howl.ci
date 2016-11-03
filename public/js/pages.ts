@@ -259,4 +259,78 @@ namespace HowlCI {
 			}
 		},
 	};
+
+	pages["gist"] = {
+		build: (args) => {
+			const provided = <string> args["gist"];
+
+			const firstSlash = provided.indexOf("/");
+			const secondSlash = provided.indexOf("/", firstSlash + 1);
+
+			let path;
+			let view;
+			let fetch;
+			const user = provided.substring(0, firstSlash);
+			if (secondSlash >= 0) {
+				const main = provided.substring(firstSlash + 1, secondSlash);
+				const file = provided.substr(secondSlash + 1);
+
+				path = main + "/" + file;
+				view = user + "/" + main + "#file-" + file.replace(".", "-");
+				fetch = user + "/" + main + "/raw/" + file;
+			} else {
+				path = provided.substr(firstSlash + 1);
+				view = provided;
+				fetch = provided + "/raw/";
+			}
+
+			return request(String("https://gist.githubusercontent.com/" + fetch)).then(
+				xhr => {
+					const res = xhr.responseText;
+
+					let lines = Packets.parse(res);
+					if (lines.exists) {
+						return {
+							user: user,
+							path: path,
+							view: view,
+							success: true,
+							id: 0,
+							lines: lines,
+						};
+					} else {
+						return {
+							user: user,
+							path: path,
+							view: view,
+							success: false,
+							fetched: true,
+						};
+					}
+				},
+				xhr => handleError(xhr, {
+					path: path,
+					view: view,
+					user: user,
+				}),
+			);
+		},
+		title: model => "Gist/" + model.path + " | howl.ci",
+		after: model => {
+			if (model.success && model.lines) {
+				let term = Terminal.TerminalData.empty();
+
+				const lines = model.lines.lines;
+				const terminals: Terminal.TerminalData[] = new Array(lines.length);
+
+				for (let x = 0; x < lines.length; x++) {
+					const packet: Packets.Packet = lines[x];
+					term = terminals[x] = term.handlePacket(packet.command, packet.data);
+				}
+
+				const terminal = new Terminal.TerminalControl(0, model.lines, terminals);
+				terminal.attach();
+			}
+		},
+	};
 }
