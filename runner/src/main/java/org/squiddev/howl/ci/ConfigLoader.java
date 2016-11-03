@@ -128,8 +128,8 @@ public class ConfigLoader {
 			String val = System.getenv(key);
 			// Allow falling back to a default
 			if (val == null) val = match.group(2);
-			// Otherwise just use the existing string
-			if (val == null) val = "${" + key + "}";
+			// Otherwise use the empty string
+			if (val == null) val = "";
 			val = val.trim();
 
 			sb.append(val);
