@@ -1,7 +1,17 @@
 <div style="text-align:center; margin-top:20px; margin-bottom:20px" aria-hidden="true">
 	<span style="color:#bbb" class="fa fa-circle-o-notch fa-spin fa-5x fa-fw"></span>
 </div>
-<div style="text-align:center;">
+
+<noscript>
+	<div style="text-align:center;">
+		<p>
+			It looks like your browser doesn't support Javascript or you've disabled it. Sadly this site doesn't work
+			without it.
+		</p>
+	</div>
+</noscript>
+
+<div id="slow-connection">
 	<p>
 		We're either loading or we encountered a problem.
 	</p>
@@ -9,3 +19,14 @@
 		If you're still reading you've probably hit an error (or your network is <em>really</em> slow).
 	</p>
 </div>
+
+<script type="text/javascript">
+if(window.setTimeout && typeof(window.setTimeout) === "function") {
+	setTimeout(function() {
+		var elem = document.getElementById("slow-connection");
+		if(elem != null) {
+			elem.style.opacity = "1";
+		}
+	}, 5000);
+}
+</script>

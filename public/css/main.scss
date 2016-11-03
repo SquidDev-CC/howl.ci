@@ -294,7 +294,7 @@ $status-colors: (
 }
 
 .main {
-	&.text-content {
+	&.center-content {
 		max-width: 90%;
 	}
 
@@ -380,4 +380,11 @@ $status-colors: (
 			background-color: $grey07;
 		}
 	}
+}
+
+#slow-connection {
+	text-align:center;
+	opacity: 0;
+	-webkit-transition: opacity 1s;
+	transition: opacity 1s;
 }
