@@ -25,8 +25,13 @@ namespace HowlCI {
 
 	const always = function<T>(args: T) { return  Promise.resolve(args); };
 
-	const handleError = function<T extends {}>(xhr: XMLHttpRequest, data: T): T {
-		let output;
+	type FailureBase = { success: false, nothing: true } |
+		{ success: false, text: string, status: string, headers: string };
+
+	type Failure<T> = T & FailureBase;
+
+	const handleError = function<T extends {}>(xhr: XMLHttpRequest, data: T): Failure<T> {
+		let output: FailureBase;
 		if (xhr.status) {
 			output = {
 				success: false,
@@ -47,7 +52,7 @@ namespace HowlCI {
 			}
 		}
 
-		return output;
+		return <Failure<T>> output;
 	};
 
 	type Args = { [name: string]: string|null };
@@ -63,10 +68,6 @@ namespace HowlCI {
 
 	pages["index"] = staticPage("Home | howl.ci");
 	pages["error"] = staticPage("Page not found | howl.ci");
-	pages["credits"] = staticPage("Credits | howl.ci");
-	pages["docs/getting-started"] = staticPage("Getting Started | Docs | howl.ci");
-	pages["docs/configuring"] = staticPage("Configuring howl.ci | Docs | howl.ci");
-	pages["docs/api"] = staticPage("The howlci API | Docs | howl.ci");
 
 	pages["travis/builds"] = {
 		build: (args) => {
@@ -205,7 +206,14 @@ namespace HowlCI {
 		},
 	};
 
-	pages["url"] = {
+	type URLModel = Failure<{url: string}> | {
+		success: true,
+		url: string,
+		id: 0,
+		lines: Packets.PacketCollection,
+	};
+
+	pages["url"] = <Page<URLModel>> {
 		build: (args) => {
 			const url = args["url"];
 

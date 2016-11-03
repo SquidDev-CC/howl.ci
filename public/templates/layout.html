@@ -6,17 +6,17 @@
 
 		<title>howl.ci</title>
 		{{#development}}
-			<link rel="stylesheet" href="main.css?v={{version}}" />
+			<link rel="stylesheet" href="{{base}}main.css?v={{version}}" />
 		{{/development}}
 		{{^development}}
-			<link rel="stylesheet" href="main.min.css?v={{version}}" />
+			<link rel="stylesheet" href="{{base}}main.min.css?v={{version}}" />
 		{{/development}}
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
 	</head>
 	<body>
 		<div id="container">
 			<header>
-				<h1 class="pull-left"><a href="./">howl.ci</a></h1>
+				<h1 class="pull-left"><a href="{{base}}">howl.ci</a></h1>
 
 				<div class="pull-right">
 					<form class="repo-search">
@@ -33,33 +33,25 @@
 				</div>
 			</header>
 			<div id="content">
-				<div style="text-align:center; margin-top:20px; margin-bottom:20px" aria-hidden="true">
-					<span style="color:#bbb" class="fa fa-circle-o-notch fa-spin fa-5x fa-fw"></span>
-				</div>
-				<div style="text-align:center;">
-					<p>
-						We're either loading or we encountered a problem.
-					</p>
-					<p>
-						If you're still reading you've probably hit an error (or your network is <em>really</em> slow).
-					</p>
-				</div>
+{{>content}}
 			</div>
 			<footer>
 				<span class="pull-left">
-					&copy; {{date.fullYear }} SquidDev with <a href="?p=credits" data-jslicense="1">help from others</a>
+					&copy; {{date.fullYear }} SquidDev with <a href="{{base}}credits.html" data-jslicense="1">help from others</a>
 				</span>
 				<span class="pull-right">Version <code>{{version}}</code></span>
 			</footer>
 		</div>
 
-		{{#development}}
-			{{#scripts}}
-				<script src="{{script}}?v={{version}}"></script>
-			{{/scripts}}
-		{{/development}}
-		{{^development}}
-			<script src="main.min.js?v={{version}}"></script>
-		{{/development}}
+		{{#javascript}}
+			{{#development}}
+				{{#scripts}}
+					<script src="{{base}}{{script}}?v={{version}}"></script>
+				{{/scripts}}
+			{{/development}}
+			{{^development}}
+				<script src="{{base}}main.min.js?v={{version}}"></script>
+			{{/development}}
+		{{/javascript}}
 	</body>
 </html>

@@ -1,23 +1,25 @@
 'use strict';
 
-let fs     = require('fs'),
-    path   = require('path'),
-    hogan  = require('hogan.js'),
-    sass   = require('node-sass'),
-    Uglify = require('uglify-js'),
-    colors = require('colors'),
-    ts     = require('typescript');
+const fs     = require('fs'),
+      path   = require('path'),
+      hogan  = require('hogan.js'),
+      sass   = require('node-sass'),
+      Uglify = require('uglify-js'),
+      colors = require('colors'),
+      rimraf = require('rimraf'),
+      ts     = require('typescript');
 
-let config = {
+const config = {
 	templateDir: 'public/templates/',
 };
 
-let javascript = [
+const javascript = [
 	'node_modules/hogan.js/lib/template.js',
 	'node_modules/es6-promise/dist/es6-promise.auto.js',
-	'dist/templates.js',
+	'temp/templates.js',
 	'dist/main.js'
 ];
+
 config.scripts = javascript.map(x => ({script: path.basename(x)}));
 
 if(fs.existsSync('config.json')) {
@@ -25,7 +27,7 @@ if(fs.existsSync('config.json')) {
 }
 
 let watching = false;
-for(let arg of process.argv.slice(2)) {
+for(const arg of process.argv.slice(2)) {
 	switch(arg) {
 		case "--development":
 		case "--dev":
@@ -46,10 +48,10 @@ for(let arg of process.argv.slice(2)) {
 	}
 }
 
-let updateConfig = () => {
-	let date = new Date();
-	let dateObj = config.date = {};
-	for(let field of Object.getOwnPropertyNames(Date.prototype)) {
+const updateConfig = () => {
+	const date = new Date();
+	const dateObj = config.date = {};
+	for(const field of Object.getOwnPropertyNames(Date.prototype)) {
 		if(field.startsWith("get")) {
 			dateObj[field.charAt(3).toLowerCase() + field.substr(4)] = Date.prototype[field].call(date);
 		}
@@ -66,12 +68,12 @@ let updateConfig = () => {
 
 updateConfig();
 
-let step = function(name, func, run) {
+const step = function(name, func, run) {
 	if(arguments.length < 3 || run) {
 		console.log(colors.green('Starting ' + name));
-		let start = Date.now();
+		const start = Date.now();
 		func();
-		let end = Date.now();
+		const end = Date.now();
 		console.log(colors.cyan('         ' + name + ' took ' + (end - start) + " milliseconds"));
 	} else {
 		console.log(colors.yellow('Skipping ' + name));
@@ -82,31 +84,24 @@ let step = function(name, func, run) {
 
 step('Ensure exists', () => {
 	if(!fs.existsSync('dist')) fs.mkdirSync('dist');
+	if(!fs.existsSync('temp')) fs.mkdirSync('temp');
 });
 
 step('Clean', () => {
-	for(let file of fs.readdirSync('dist')) fs.unlinkSync("dist/" + file);
+	rimraf.sync('dist/**/*');
 });
 
 step('Copy font', () => {
-	let contents = fs.readFileSync("public/termFont.png");
+	const contents = fs.readFileSync("public/termFont.png");
 	fs.writeFileSync("dist/termFont.png", contents);
 });
 
-let templatesLayout = step('Generate layout.html', () => {
-	let contents = fs.readFileSync(config.templateDir + 'layout.html', 'utf8');
-	let template = hogan.compile(contents);
-
-	let rendered = template.render(config);
-	fs.writeFileSync('dist/index.html', rendered);
-});
-
-let templatesMake = step('Generate templates', () => {
+const listDir = root => {
 	const results = [];
 	const queue = [''];
 	while(queue.length > 0) {
 		const dir = queue.pop();
-		const wholeDir = path.join(config.templateDir, dir);
+		const wholeDir = path.join(root, dir);
 
 		for(const file of fs.readdirSync(wholeDir)) {
 			const wholeFile = path.join(wholeDir, file);
@@ -114,49 +109,84 @@ let templatesMake = step('Generate templates', () => {
 
 			if(fs.statSync(wholeFile).isDirectory()) {
 				queue.push(relFile);
-			} else if(relFile != 'layout.html' && relFile.endsWith('.html')) {
+			} else {
 				results.push(relFile);
 			}
 		}
 	}
 
-	let templates = results
+	return results;
+}
+
+const templatesLayout = step('Generate layout.html', () => {
+	const layout = hogan.compile(fs.readFileSync(config.templateDir + 'layout.html', 'utf8'));
+	const sidebar = hogan.compile(fs.readFileSync(config.templateDir + 'partial/sidebar.html', 'utf8'));
+
+	const root = path.join(config.templateDir, 'static');
+	const templates = listDir(root)
+		.filter(x => x.endsWith(".html"));
+
+	for(const template of templates) {
+		let dir = 'dist/' + path.dirname(template);
+		while(!fs.existsSync(dir)) {
+			fs.mkdirSync(dir);
+			dir = path.dirname(dir);
+		}
+
+		let base = "";
+		let levels = template.split(path.sep).length - 1;
+		if(levels == 0) base = "./";
+		for(let i = 0; i < levels; i++) base += "../";
+
+		fs.writeFileSync('dist/' + template, layout.render(Object.assign({
+			javascript: template == 'index.html',
+			base: base,
+		}, config), {
+			['content']: hogan.compile(fs.readFileSync(path.join(root, template), 'utf8')),
+			['partial/sidebar']: sidebar
+		}));
+	}
+});
+
+const templatesMake = step('Generate templates', () => {
+	const templates = listDir(config.templateDir)
+		.filter(x => x != 'layout.html' && !x.startsWith("static") && x.endsWith(".html"))
 		.map(file => {
-			let contents = fs.readFileSync(config.templateDir + file, 'utf8');
-			let template = hogan.compile(contents, { asString: true});
-			let name = file.replace(/\..*$/, '').replace('\\', '/');
+			const contents = fs.readFileSync(config.templateDir + file, 'utf8');
+			const template = hogan.compile(contents, { asString: true});
+			const name = file.replace(/\..*$/, '').replace('\\', '/');
 
 			return 'templates["' + name + '"] = new Hogan.Template(' + template + ');';
 		});
 
-	let header = 'var HowlCI; (function (HowlCI) { var templates = HowlCI.templates = {};\n';
-	let footer = '\n})(HowlCI || (HowlCI = {}));';
+	const header = 'var HowlCI; (function (HowlCI) { var templates = HowlCI.templates = {};\n';
+	const footer = '\n})(HowlCI || (HowlCI = {}));';
 
-	fs.writeFileSync('dist/templates.js', header + templates.join('\n') + footer);
+	fs.writeFileSync('temp/templates.js', header + templates.join('\n') + footer);
 });
 
-let jsCopy = step('Copy JS', () => {
-	for(let file of javascript) {
+const jsCopy = step('Copy JS', () => {
+	for(const file of javascript) {
 		if(file.startsWith('dist/')) continue;
 
-		let contents = fs.readFileSync(file, 'utf8');
+		const contents = fs.readFileSync(file, 'utf8');
 		fs.writeFileSync('dist/' + path.basename(file), contents);
 	}
 }, config.development);
 
-let tsBuild = step('Compile TS', () => {
-	let config = JSON.parse(fs.readFileSync('tsconfig.json', 'utf8'));
-	let configP = ts.parseJsonConfigFileContent(config, ts.sys, path.resolve("."), null, path.resolve("tsconfig.json"));
+const tsBuild = step('Compile TS', () => {
+	const config = JSON.parse(fs.readFileSync('tsconfig.json', 'utf8'));
+	const configP = ts.parseJsonConfigFileContent(config, ts.sys, path.resolve("."), null, path.resolve("tsconfig.json"));
 
 	// TODO: Incremental compilation?: https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API
-	let program = ts.createProgram(configP.fileNames, configP.options);
-	let emitResult = program.emit();
+	const program = ts.createProgram(configP.fileNames, configP.options);
+	const emitResult = program.emit();
 
-	let diagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
-	for(let diagnostic of diagnostics) {
-		let message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+	const diagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
+	for(const diagnostic of diagnostics) {
+		const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
 		if(diagnostic.start && diagnostic.file) {
-			let pos = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+			const pos = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
 			console.log(colors.red(`${diagnostic.file.fileName} (${pos.line + 1},${pos.character + 1}): `) + message);
 		} else {
 			console.log(colors.red(message));
@@ -164,7 +194,7 @@ let tsBuild = step('Compile TS', () => {
 	}
 });
 
-let jsMinify = step('Minify JS', () => {
+const jsMinify = step('Minify JS', () => {
 	var result = Uglify.minify(javascript, {
 		mangle: { toplevel: true },
 		compress: false,
@@ -174,8 +204,8 @@ let jsMinify = step('Minify JS', () => {
 	fs.unlink('dist/main.js');
 }, !config.development);
 
-let sassCombine = step('Compile Sass', () => {
-	let contents = sass.renderSync({
+const sassCombine = step('Compile Sass', () => {
+	const contents = sass.renderSync({
 		file: 'public/css/main.scss',
 		outputStyle: 'expanded',
 	});
@@ -183,8 +213,8 @@ let sassCombine = step('Compile Sass', () => {
 	fs.writeFileSync('dist/main.css', contents.css);
 }, config.development);
 
-let sassMinify = step('Minify Sass', () => {
-	let contents = sass.renderSync({
+const sassMinify = step('Minify Sass', () => {
+	const contents = sass.renderSync({
 		file: 'public/css/main.scss',
 		outputStyle: 'compressed',
 	});
@@ -192,9 +222,9 @@ let sassMinify = step('Minify Sass', () => {
 	fs.writeFileSync('dist/main.min.css', contents.css);
 }, !config.development);
 
-let watcher = (file, callback) => {
+const watcher = (file, callback) => {
 	let triggered = false;
-	let defer = () => {
+	const defer = () => {
 		try {
 			updateConfig();
 			templatesLayout();
