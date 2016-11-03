@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<title>howl.ci</title>
+			<link rel="stylesheet" href="../main.min.css?v=0.1.11" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+	</head>
+	<body>
+		<div id="container">
+			<header>
+				<h1 class="pull-left"><a href="../">howl.ci</a></h1>
+
+				<div class="pull-right">
+					<form class="repo-search">
+						<input type="hidden" name="p" value="travis/builds">
+						<label>
+							<span class="aria-hint">Repo/Build</span>
+							<input type="text" name="repo" placeholder="User/Repo" class="repo-input"/>
+						</label>
+						<button type="submit" class="repo-submit">
+							<span class="aria-hint">Search</span>
+							<span class="fa fa-search"></span>
+						</button>
+					</form>
+				</div>
+			</header>
+			<div id="content">
+<div class="text-content main">
+	<div class="main-content">
+		<h2>Configuring the howl.ci runner</h2>
+		<p>
+			The howl.ci runner is configured through a <code>.howl.ci.properties</code> file in the root of your repository. This
+			is just a <a href="https://en.wikipedia.org/wiki/.properties" target="_blank"><code>.properties</code></a>
+			file so pretty much every editor supports it. A pretty basic configuration file might look like this:
+		</p>
+
+<pre class="box">
+computer.0.startup=.build.lua
+computer.0.saveDir=.
+</pre>
+
+		<p>
+			It is possible to include environment variables within your <code>.howl.ci.properties</code>. This is done
+			with the <code>${NAME}</code> syntax. This is substituted with the environment variable's value, or an empty
+			string if not found. You can specify a default value by placing a pipe (<code>|</code>) after the symbol.
+			For instance you could specify which a prefered ComputerCraft version, falling back to a default if not set:
+
+<pre class="box">
+computercraft.url=http://addons-origin.cursecdn.com/files/${CC_SPEC | 2291/384/ComputerCraft1.79.jar}
+computercraft.file=${HOME}/.cc-jars/ComputerCraft-${CC_VERSION | 1.79}.jar
+</pre>
+
+		<h3 id="config-download">Configuring ComputerCraft versions</h3>
+		<p>
+			The howl.ci runner works across multiple ComputerCraft versions and so needs to be pointed to the correct one. Firstly
+			it'll look for the file specified by <code>computercraft.file</code>. If it is not there then it will download
+			<code>computercraft.url</code> and save it. If you want to use ComputerCraft 1.75 instead you should change it
+			to point to a different URL.
+		</p>
+
+		<table class="table-grid">
+			<thead>
+				<tr>
+					<th>Version</th>
+					<th><code>computercraft.url</code></th>
+					<th><code>computercraft.file</code></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>ComputerCraft 1.79</td>
+					<td>https://addons-origin.cursecdn.com/files/2291/384/ComputerCraft1.79.jar</td>
+					<td>ComputerCraft1.79.jar</td>
+				</tr>
+				<tr>
+					<td>ComputerCraft 1.75</td>
+					<td>https://addons-origin.cursecdn.com/files/2269/339/ComputerCraft1.75.jar</td>
+					<td>ComputerCraft1.75.jar</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h3 id="config-cc">Configuring ComputerCraft</h3>
+		<p>
+			ComputerCraft has several config options to change its behaviour and so howl.ci allows setting them.
+		</p>
+
+		<table class="table-grid">
+			<tbody>
+				<tr>
+					<td><code>computercraft.defaultSettings</code></td>
+					<td>
+						A comma seperated list of default system settings to set on new computers. For example,
+						<code>shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false</code> will disable
+						all autocompletion
+					</td>
+				</tr>
+				<tr>
+					<td><code>computercraft.disable51</code></td>
+					<td>
+						Disable Lua 5.1 functions that will be removed in a future version of ComputerCraft. Useful for
+						ensuring forward compatibility of your programs now.
+					</td>
+				</tr>
+				<tr>
+					<td><code>computercraft.http</code></td>
+					<td>
+						Enable the <code>http</code> API.
+					</td>
+				</tr>
+				<tr>
+					<td><code>computercraft.whitelist</code></td>
+					<td>
+						A semicolon limited list of wildcards for domains that can be accessed through the <code>http</code>
+						API on Computers. Set this to <code>*</code> to access to the entire internet. For example,
+						<code>*.pastebin.com;*.github.com;*.computercraft.info</code> will restrict access to just those 3 domains.
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h3 id="config-computer">Configuring computers</h3>
+		<p>
+			howl.ci allows configuring each computer individually by id. Each option is specified by
+			<code>computer.{id}.{option}</code>. Please note there is currently no way to create multiple computers
+			though that is planned for later versions of howl.ci.
+		</p>
+
+		<table class="table-grid">
+			<tbody>
+				<tr>
+					<td><code>label</code></td>
+					<td>
+						The computer's label. This can also be set using <code>os.setComputerLabel</code>.
+					</td>
+				</tr>
+				<tr>
+					<td><code>saveDir</code></td>
+					<td>
+						The directory to save files in relative to the root directory. By default this is
+						<code>computer/{id}</code>.
+					</td>
+				</tr>
+				<tr>
+					<td><code>startup</code></td>
+					<td>
+						The file to launch relative to the save directory. <strong>Note:</strong> this will create a
+						file called <code>startup</code> in the save directory, overwriting anything that was there
+						before.
+					</td>
+				</tr>
+				<tr>
+					<td><code>color</code></td>
+					<td>
+						Whether this terminal supports colour. By default this is true, though you may wish to test
+						your program in black and white mode.
+					</td>
+				</tr>
+				<tr>
+					<td><code>width</code>, <code>height</code></td>
+					<td>
+						Set the dimensions of this Computer's terminal. This is 51x19 by default, though you could
+						use this to test running on a pocket computer.
+					</td>
+				</tr>
+				<tr>
+					<td><code>spaceLimit</code></td>
+					<td>
+						The maximum storage capacity of this computer in bytes. By default this is 2^63-1 so you're
+						never really going to run out :).
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h3 id="config-cctweaks">Configuring CCTweaks</h3>
+		<p>
+			CCTweaks is packaged with the howl.ci  runner and enabled by default. You can disable it by setting
+			<code>cctweaks.enabled</code> to false. All other config options are documented on the
+			<a href="https://github.com/SquidDev-CC/CCTweaks-Lua/wiki" target="_blank">CCTweaks-Lua wiki</a>.
+		</p>
+	</div>
+
+	<div class="main-sidebar">
+		<div class="main-sidebar-content">
+			<h3>Getting Started</h3>
+			<ul>
+				<li><a href="../docs/getting-started.html">Getting started</a></li>
+				<li><a href="../docs/configuring.html">Configuring the howl.ci runner</a></li>
+				<li><a href="../docs/api.html">The <code>howlci</code> API</a></li>
+			</ul>
+
+			<h3>Tips and Tricks</h3>
+			<ul>
+				<li><a href="../docs/matrix.html">Running on multiple versions</a></li>
+				<li><a href="../docs/caching.html">Caching ComputerCraft versions</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+			</div>
+			<footer>
+				<span class="pull-left">
+					&copy; 2016 SquidDev with <a href="../credits.html" data-jslicense="1">help from others</a>
+				</span>
+				<span class="pull-right">Version <code>0.1.11</code></span>
+			</footer>
+		</div>
+
+	</body>
+</html>
