@@ -1,8 +1,8 @@
 <div class="text-content main">
 	<div class="main-content">
-		<h2>Configuring howl.ci</h2>
+		<h2>Configuring the howl.ci runner</h2>
 		<p>
-			howl.ci is configured through a <code>.howl.ci.properties</code> file in the root of your repository. This
+			The howl.ci runner is configured through a <code>.howl.ci.properties</code> file in the root of your repository. This
 			is just a <a href="https://en.wikipedia.org/wiki/.properties" target="_blank"><code>.properties</code></a>
 			file so pretty much every editor supports it. A pretty basic configuration file might look like this:
 		</p>
@@ -25,7 +25,7 @@ computercraft.file=${HOME}/.cc-jars/ComputerCraft-${CC_VERSION | 1.79}.jar
 
 		<h3 id="config-download">Configuring ComputerCraft versions</h3>
 		<p>
-			howl.ci works across multiple ComputerCraft versions and so needs to be pointed to the correct one. Firstly
+			The howl.ci runner works across multiple ComputerCraft versions and so needs to be pointed to the correct one. Firstly
 			it'll look for the file specified by <code>computercraft.file</code>. If it is not there then it will download
 			<code>computercraft.url</code> and save it. If you want to use ComputerCraft 1.75 instead you should change it
 			to point to a different URL.
@@ -148,8 +148,8 @@ computercraft.file=${HOME}/.cc-jars/ComputerCraft-${CC_VERSION | 1.79}.jar
 
 		<h3 id="config-cctweaks">Configuring CCTweaks</h3>
 		<p>
-			CCTweaks is packaged with howl.ci and enabled by default. You can disable it by setting <code>cctweaks.enabled</code>
-			to false. All other config options are documented on the
+			CCTweaks is packaged with the howl.ci  runner and enabled by default. You can disable it by setting
+			<code>cctweaks.enabled</code> to false. All other config options are documented on the
 			<a href="https://github.com/SquidDev-CC/CCTweaks-Lua/wiki" target="_blank">CCTweaks-Lua wiki</a>.
 		</p>
 	</div>

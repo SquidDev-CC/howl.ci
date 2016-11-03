@@ -29,10 +29,11 @@
 			ComputerCraft, so we need to configure that next.
 		</p>
 
-		<h3 id="adding-howl">Adding howl.ci</h3>
+		<h3 id="adding-howl">Adding the howl.ci runner</h3>
 		<p>
 			Travis uses a <code>.travis.yml</code> file to change how your build works. To execute within ComputerCraft's
-			environment we need to download an emulator and execute your code in there. Let's take a look:
+			environment we need to download an emulator and execute your code in there. This is known as the howl.ci runner.
+			Let's take a look:
 		</p>
 
 <pre class="box">
@@ -46,19 +47,19 @@ script:
 
 		<h3>Making your builds do something</h3>
 		<p>
-			The issue here is that howl.ci, and so Travis has no way of telling if your build has succeeded or not. To do this
+			The issue here is that the howl.ci runner, and so Travis has no way of telling if your build has succeeded or not. To do this
 			you should use the <code>howlci</code> API. This provides a <code>howlapi.status(status:string, message:string)</code>
 			that sets the status of your build.
 		</p>
 		<p>
 			Builds have three states: "success" for when everything went OK, "failure" for when your tests didn't go right and
 			"error" for when something unexpected that you were not expecting: such as everything crashing. If you don't
-			terminate with a status then howl.ci will presume the build errored.
+			terminate with a status then the howl.ci runner will presume the build errored.
 		</p>
 
 		<h3>Running your build</h3>
 		<p>
-			You should now be able to commit and push your code. howl.ci will look for a <code>startup</code> file
+			You should now be able to commit and push your code. The howl.ci runner will look for a <code>startup</code> file
 			and execute it. Make sure you have one before you push!
 		</p>
 
@@ -74,7 +75,7 @@ script:
 
 		<h3 id="next">Moving on</h3>
 		<p>
-			Of course the capabilities of howl.ci don't stop there. If you wish you can add tweak howl.ci to
+			Of course the capabilities of howl.ci don't stop there. If you wish you can add tweak the runner to
 			execute in different versions of ComputerCraft, with or without CCTweaks or using different monitor
 			resolutions. This can be done through the <code>.howl.ci.properties</code> file which is discussed in detail
 			on <a href="{{base}}docs/configuring">another page</a>.
