@@ -39,7 +39,7 @@
 jdk:
   - oraclejdk8
 install:
-  - wget -O howlci.jar https://dl.bintray.com/squiddev/maven/org/squiddev/howl.ci/0.2/howl.ci-0.2.jar
+  - wget -O howlci.jar https://dl.bintray.com/squiddev/maven/org/squiddev/howl.ci/{{runner_version}}/howl.ci-{{runner_version}}.jar
 script:
   - java -jar howlci.jar
 </pre>

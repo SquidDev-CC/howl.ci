@@ -1,0 +1,40 @@
+<div class="text-content main">
+	<div class="main-content">
+		<h2>Caching ComputerCraft versions</h2>
+		<p>
+			Every time howl.ci runs you have to wait for the ComputerCraft file to be downloaded. Instead, we can
+			utilise Travis's <a href="https://docs.travis-ci.com/user/caching/" target="_blank">caching capabilities</a>
+			to save the ComputerCraft file.
+		</p>
+
+		<p>
+			In order to cache, we'll have to download to a directory instead. We'll choose to use <code>$HOME/.ccjars</code>
+			but we'll have to create that first. Then we simply set Travis to download that.
+		</p>
+
+<pre class="box">
+install:
+  - mkdir -p $HOME/.cc-jars
+  - wget -O howlci.jar https://dl.bintray.com/squiddev/maven/org/squiddev/howl.ci/{{runner_version}}/howl.ci-{{runner_version}}.jar
+cache:
+  directories:
+  - $HOME/.cc-jars
+</pre>
+
+		<p>
+			Then we just need to instruct the howl.ci runner to download into that directory instead. This is a trivial
+			addition to our <code>.howl.properties</code> file.
+		</p>
+
+<pre class="box">
+computercraft.file=${HOME}/.cc-jars/ComputerCraft1.79.jar
+</pre>
+
+		<p>
+			The first time you run under caching it'll still download the files, but after that you'll never
+			have to wait again!
+		</p>
+	</div>
+
+	{{>partial/sidebar}}
+</div>

@@ -1,0 +1,41 @@
+<div class="text-content main">
+	<div class="main-content">
+		<h2>Running on multiple versions</h2>
+		<p>
+			Travis provides functionality to run builds with multiple environments. Each individual environment is a
+			row in a <a href="https://docs.travis-ci.com/user/customizing-the-build/#Build-Matrix" target="_blank">build
+			matrix</a>. We can use this to execute under different versions of ComputerCraft.
+		</p>
+
+		<p>
+			Firstly we'll need to setup our <code>.travis.yml</code> file to list the different environments. We'll
+			specify a list of ComputerCraft versions and the appropriate download url. We're using the download links
+			from <a href="configuring.html#config-download">this page</a>.
+		</p>
+
+<pre class="box">
+env:
+  - CC_VERSION=1.79 CC_URL=https://addons-origin.cursecdn.com/files/2291/384/ComputerCraft1.79.jar
+  - CC_VERSION=1.75 CC_URL=https://addons-origin.cursecdn.com/files/2269/339/ComputerCraft1.75.jar
+</pre>
+
+		<p>
+			If you were to run this build now, you'd notice travis would create two jobs: one for each environment.
+			Now we just need to instruct the howl.ci runner to use each version. We can reference these variables in the
+			<code>.howl.properties</code> file.
+		</p>
+
+<pre class="box">
+computercraft.url=${CC_URL|https://addons-origin.cursecdn.com/files/2291/384/ComputerCraft1.79.jar}
+computercraft.file=ComputerCraft${CC_VERSION|1.79}.jar
+</pre>
+
+		<p>
+			Now commit and push your configuration changes: you should see two builds start and execute under different
+			versions. You might want to log the <code>_HOST</code> variable (or <code>_CC_VERSION</code> on
+			ComputerCraft <= 1.75) so you can tell which version you're using.
+		</p>
+	</div>
+
+	{{>partial/sidebar}}
+</div>

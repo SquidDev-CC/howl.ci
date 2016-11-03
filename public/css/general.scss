@@ -23,6 +23,12 @@ footer {
 	padding: 10px;
 
 	@include link($grey06, $grey04);
+
+	code {
+		background: none;
+		color: inherit;
+		font-size: inherit;
+	}
 }
 
 h2, h3 {
