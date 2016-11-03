@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<title>howl.ci</title>
+			<link rel="stylesheet" href="../main.min.css?v=0.1.11" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+	</head>
+	<body>
+		<div id="container">
+			<header>
+				<h1 class="pull-left"><a href="../">howl.ci</a></h1>
+
+				<div class="pull-right">
+					<form class="repo-search">
+						<input type="hidden" name="p" value="travis/builds">
+						<label>
+							<span class="aria-hint">Repo/Build</span>
+							<input type="text" name="repo" placeholder="User/Repo" class="repo-input"/>
+						</label>
+						<button type="submit" class="repo-submit">
+							<span class="aria-hint">Search</span>
+							<span class="fa fa-search"></span>
+						</button>
+					</form>
+				</div>
+			</header>
+			<div id="content">
+<div class="text-content main">
+	<div class="main-content">
+		<h2>The <code>howlci</code> API</h2>
+		<p>
+			howl.ci provides an API with several methods to interact with the CI environment.
+		</p>
+
+		<h3 id="func-log"><code>log(level:string, message:any)</code></h3>
+		<p>
+			This is used to output an object string to the log. Any value for level is valid, though there
+			are several explicitly supported by howl.ci:
+		</p>
+
+		<table class="table-grid">
+			<tbody>
+				<tr>
+					<td><code>debug</code>, <code>verbose</code></td>
+					<td>Useful debugging information. Generally not relevant to the user</td>
+				</tr>
+				<tr>
+					<td><code>info</code></td>
+					<td>Information the user might find interesting or useful</td>
+				</tr>
+				<tr>
+					<td><code>warn</code>, <code>warning</code></td>
+					<td>A warning</td>
+				</tr>
+				<tr>
+					<td><code>error</code></td>
+					<td>An error</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h3 id="func-status"><code>status(status:string, message:any)</code></h3>
+		<p>
+			Change the status of the build, also writing to the log. It is worth noting that once a log level has been
+			reached it is not possible to go to a "better" state: you can not change a failure to a success. There are
+			three possible statuses a build can have:
+		</p>
+
+		<table class="table-grid">
+			<tbody>
+				<tr>
+					<td><code>success</code>, <code>ok</code>, <code>pass</code></td>
+					<td>Everything worked as expected</td>
+				<tr>
+					<td><code>failure</code>, <code>fail</code></td>
+					<td>A test failed. This would generally be an assertion failing.</td>
+				</tr>
+				<tr>
+					<td><code>error</code></td>
+					<td>An unexpected error occured</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<p>
+			<strong>Note:</strong> You should always call this method at some point: if you don't then we'll presume
+			something went wrong and mark the build as an error.
+		</p>
+
+		<h3 id="func-status"><code>close()</code></h3>
+		<p>
+			Close this computer, ending the build.
+		</p>
+
+		<h3 id="func-status"><code>resize(width:number, height:number)</code></h3>
+		<p>
+			Resize the terminal to a new set of dimensions.
+		</p>
+
+		<h3 id="func-status"><code>getEnv(name:string):string|nil</code></h3>
+		<p>
+			Get an environment variable, returning <code>nil</code> if not found.
+		</p>
+
+		<h3 id="func-status"><code>getConfig(name:string):string|nil</code></h3>
+		<p>
+			Get a config variable, returning <code>nil</code> if not found.
+		</p>
+
+		<h3 id="func-status"><code>setDay(day:number)</code></h3>
+		<p>
+			Set the current day for all computers. This can be fetched with <code>os.day()</code>.
+		</p>
+
+		<h3 id="func-status"><code>setTime(day:number)</code></h3>
+		<p>
+			Set the current time for all computers, this is a number between 0 and 24000. This can be fetched with
+			<code>os.time()</code>.
+		</p>
+	</div>
+
+	<div class="main-sidebar">
+		<div class="main-sidebar-content">
+			<h3>Getting Started</h3>
+			<ul>
+				<li><a href="../docs/getting-started.html">Getting started</a></li>
+				<li><a href="../docs/configuring.html">Configuring the howl.ci runner</a></li>
+				<li><a href="../docs/api.html">The <code>howlci</code> API</a></li>
+			</ul>
+
+			<h3>Tips and Tricks</h3>
+			<ul>
+				<li><a href="../docs/matrix.html">Running on multiple versions</a></li>
+				<li><a href="../docs/caching.html">Caching ComputerCraft versions</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+			</div>
+			<footer>
+				<span class="pull-left">
+					&copy; 2016 SquidDev with <a href="../credits.html" data-jslicense="1">help from others</a>
+				</span>
+				<span class="pull-right">Version <code>0.1.11</code></span>
+			</footer>
+		</div>
+
+	</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<title>howl.ci</title>
+			<link rel="stylesheet" href="../main.min.css?v=0.1.11" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+	</head>
+	<body>
+		<div id="container">
+			<header>
+				<h1 class="pull-left"><a href="../">howl.ci</a></h1>
+
+				<div class="pull-right">
+					<form class="repo-search">
+						<input type="hidden" name="p" value="travis/builds">
+						<label>
+							<span class="aria-hint">Repo/Build</span>
+							<input type="text" name="repo" placeholder="User/Repo" class="repo-input"/>
+						</label>
+						<button type="submit" class="repo-submit">
+							<span class="aria-hint">Search</span>
+							<span class="fa fa-search"></span>
+						</button>
+					</form>
+				</div>
+			</header>
+			<div id="content">
+<div class="text-content main">
+	<div class="main-content">
+		<h2>Getting started</h2>
+
+		<p>
+			Before we do anything else you'll need to <a href="https://github.com/new" target="_blank">create a repository</a>
+			for your code on GitHub if you haven't got one already.
+		</p>
+
+		<h3 id="enabling-build">Enabling your build on Travis</h3>
+		<p>
+			howl.ci uses <a href="https://travis-ci.org/" target="_blank">Travis.org</a> to execute your code. So first
+			we need to setup Travis. You can find more detailed instructions and further documentation
+			<a href="https://docs.travis-ci.com/user/getting-started/#To-get-started-with-Travis-CI%3A" target="_blank">on the Travis
+			website</a>.
+		</p>
+
+		<ul class="list">
+			<li><a href="https://travis-ci.org/auth" target="_blank">Sign in to Travis</a> with your GitHub account</li>
+			<li>
+				Go to your <a href="https://travis-ci.org/profile" target="_blank">profile page</a> and find the
+				repository you want to build.
+			</li>
+			<li>Enable building for that repository. You should just be able to flip the green switch.</li>
+		</ul>
+
+		<p>
+			That's it: you've setup Travis to build your code! However Travis doesn't know anything about
+			ComputerCraft, so we need to configure that next.
+		</p>
+
+		<h3 id="adding-howl">Adding the howl.ci runner</h3>
+		<p>
+			Travis uses a <code>.travis.yml</code> file to change how your build works. To execute within ComputerCraft's
+			environment we need to download an emulator and execute your code in there. This is known as the howl.ci runner.
+			Let's take a look:
+		</p>
+
+<pre class="box">
+jdk:
+  - oraclejdk8
+install:
+  - wget -O howlci.jar https://dl.bintray.com/squiddev/maven/org/squiddev/howl.ci/0.1.9/howl.ci-0.1.9.jar
+script:
+  - java -jar howlci.jar
+</pre>
+
+		<h3>Making your builds do something</h3>
+		<p>
+			The issue here is that the howl.ci runner, and so Travis has no way of telling if your build has succeeded or not. To do this
+			you should use the <code>howlci</code> API. This provides a <code>howlapi.status(status:string, message:string)</code>
+			that sets the status of your build.
+		</p>
+		<p>
+			Builds have three states: "success" for when everything went OK, "failure" for when your tests didn't go right and
+			"error" for when something unexpected that you were not expecting: such as everything crashing. If you don't
+			terminate with a status then the howl.ci runner will presume the build errored.
+		</p>
+
+		<h3>Running your build</h3>
+		<p>
+			You should now be able to commit and push your code. The howl.ci runner will look for a <code>startup</code> file
+			and execute it. Make sure you have one before you push!
+		</p>
+
+		<p>
+			You can visit your repository's builds by using the textbox in the page header. Click on the latest build,
+			it should be a pleasant green colour. If not: go back and check you've got everything right.
+		</p>
+
+		<p>
+			You should now see a log and a ComputerCraft terminal displaying the results of your build. You can use
+			the playback bar to go through your build and see what the was output when.
+		</p>
+
+		<h3 id="next">Moving on</h3>
+		<p>
+			Of course the capabilities of howl.ci don't stop there. If you wish you can add tweak the runner to
+			execute in different versions of ComputerCraft, with or without CCTweaks or using different monitor
+			resolutions. This can be done through the <code>.howl.ci.properties</code> file which is discussed in detail
+			on <a href="../docs/configuring">another page</a>.
+		<p>
+	</div>
+
+	<div class="main-sidebar">
+		<div class="main-sidebar-content">
+			<h3>Getting Started</h3>
+			<ul>
+				<li><a href="../docs/getting-started.html">Getting started</a></li>
+				<li><a href="../docs/configuring.html">Configuring the howl.ci runner</a></li>
+				<li><a href="../docs/api.html">The <code>howlci</code> API</a></li>
+			</ul>
+
+			<h3>Tips and Tricks</h3>
+			<ul>
+				<li><a href="../docs/matrix.html">Running on multiple versions</a></li>
+				<li><a href="../docs/caching.html">Caching ComputerCraft versions</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+			</div>
+			<footer>
+				<span class="pull-left">
+					&copy; 2016 SquidDev with <a href="../credits.html" data-jslicense="1">help from others</a>
+				</span>
+				<span class="pull-right">Version <code>0.1.11</code></span>
+			</footer>
+		</div>
+
+	</body>
+</html>
