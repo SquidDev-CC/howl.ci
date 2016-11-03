@@ -46,7 +46,22 @@
 	</ul>
 	{{#logs}}
 		<div class="job status-{{job.state}}" id="job-{{job.id}}" role="tabpanel" data-sticky-container>
-			{{>partial/terminal}}
+			{{#config}}
+				<div class="job-config">
+					<h3>Configuration</h3>
+					<table class="table-rows table-grid">
+						{{#job.config.env}}
+							<tr>
+								<th>Environment</th>
+								<td><code>{{job.config.env}}</code></td>
+							</tr>
+						{{/job.config.env}}
+					</table>
+				</div>
+			{{/config}}
+			<div>
+				{{>partial/terminal}}
+			</div>
 		</div>
 	{{/logs}}
 {{/success}}

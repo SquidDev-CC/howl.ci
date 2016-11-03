@@ -16,7 +16,7 @@ const config = {
 const javascript = [
 	'node_modules/hogan.js/lib/template.js',
 	'node_modules/es6-promise/dist/es6-promise.auto.js',
-	'temp/templates.js',
+	'dist/templates.js',
 	'dist/main.js'
 ];
 
@@ -162,7 +162,7 @@ const templatesMake = step('Generate templates', () => {
 	const header = 'var HowlCI; (function (HowlCI) { var templates = HowlCI.templates = {};\n';
 	const footer = '\n})(HowlCI || (HowlCI = {}));';
 
-	fs.writeFileSync('temp/templates.js', header + templates.join('\n') + footer);
+	fs.writeFileSync('dist/templates.js', header + templates.join('\n') + footer);
 });
 
 const jsCopy = step('Copy JS', () => {
@@ -201,7 +201,9 @@ const jsMinify = step('Minify JS', () => {
 		output: { comments: "some" },
 	});
 	fs.writeFileSync('dist/main.min.js', result.code);
-	fs.unlink('dist/main.js');
+	for(const file of javascript) {
+		if(file.startsWith('dist/')) fs.unlink(file);
+	}
 }, !config.development);
 
 const sassCombine = step('Compile Sass', () => {

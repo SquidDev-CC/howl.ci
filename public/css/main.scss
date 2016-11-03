@@ -109,6 +109,13 @@ $status-colors: (
 			border-top-color: $color;
 		}
 	}
+
+	.job-config {
+		margin-top: 10px;
+		table {
+			margin: 0px;
+		}
+	}
 }
 
 .computer-control {

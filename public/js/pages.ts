@@ -117,7 +117,12 @@ namespace HowlCI {
 								} else {
 									return req;
 								}
-							}).then(req => ({ job: job, content: req.responseText })),
+							}).then(req => ({
+								job: job,
+								id: job.id,
+								lines: Packets.parse(req.responseText),
+								config: !!job.config.env,
+							})),
 						);
 						tasks.push(
 							request(`https://api.travis-ci.org/repos/${res.build.repository_id}`)
@@ -127,11 +132,7 @@ namespace HowlCI {
 						return Promise.all(tasks)
 							.then((results: any[]) => {
 								const repo = results.pop();
-								const logs = results.map(x => ({
-									job: x.job,
-									id: x.job.id,
-									lines: Packets.parse(x.content),
-								}));
+								const logs = results;
 
 								return {
 									success: true,
