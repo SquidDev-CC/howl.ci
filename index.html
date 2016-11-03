@@ -5,13 +5,27 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 		<title>howl.ci</title>
-			<link rel="stylesheet" href="main.min.css?v=0.1.8" />
+			<link rel="stylesheet" href="main.min.css?v=0.1.9" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
 	</head>
 	<body>
 		<div id="container">
 			<header>
-				<h1><a href="./">howl.ci</a></h1>
+				<h1 class="pull-left"><a href="./">howl.ci</a></h1>
+
+				<div class="pull-right">
+					<form class="repo-search">
+						<input type="hidden" name="p" value="travis/builds">
+						<label>
+							<span class="aria-hint">Repo/Build</span>
+							<input type="text" name="repo" placeholder="User/Repo" class="repo-input"/>
+						</label>
+						<button type="submit" class="repo-submit">
+							<span class="aria-hint">Search</span>
+							<span class="fa fa-search"></span>
+						</button>
+					</form>
+				</div>
 			</header>
 			<div id="content">
 				<div style="text-align:center; margin-top:20px; margin-bottom:20px" aria-hidden="true">
@@ -30,10 +44,10 @@
 				<span class="pull-left">
 					&copy; 2016 SquidDev with <a href="?p=credits" data-jslicense="1">help from others</a>
 				</span>
-				<span class="pull-right">Version <code>0.1.8</code></span>
+				<span class="pull-right">Version <code>0.1.9</code></span>
 			</footer>
 		</div>
 
-			<script src="main.min.js?v=0.1.8"></script>
+			<script src="main.min.js?v=0.1.9"></script>
 	</body>
 </html>
