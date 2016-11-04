@@ -1,27 +1,51 @@
 <div class="center-content main">
 	<div class="main-content text-content">
-
 		<h2>howl.ci</h2>
 		<p>
 			howl.ci is a project which aims to provide a continuous integration service to ComputerCraft users.
 		</p>
+
+		<h3>So what is this "Continuous Integration" thing anyway?</h3>
+		<p>
+			In this context, continuous integration is a way of automating "building" your code whenever you push a
+			commit. This could mean checking your code compiles, running a series of tests, or even uploading your finished
+			build to be distributed to the appreciative public.
+		</p>
+
+		<h3>What's in it for me?</h3>
+		<p>
+			Continuous integration is a way of automating a task that you do a lot: testing and releasing code. It gives
+			you instant feedback of when you (or someone else) has written broken code. howl.ci allows testing against
+			multiple versions of ComputerCraft, with or without CCTweaks, on normal, advanced or pocket computers.
+		</p>
+		<p>
+			This of course would take a very long time to do manually, especially if you do it every commit. With
+			howl.ci you'll have every build result back within a manner of minutes, avalible on an easy to use interface.
+		</p>
+
+		<h3>How does it work?</h3>
 		<p>
 			Builds are executed by <a href="https://travis-ci.org/" title="The Travis CI provider" target="_blank">Travis</a>
-			and the terminal output captured. howl.ci then scrapes these logs and renders them in place on the website.
+			using a special emulator called the howl.ci runner. This outputs a log file detailing actions taken during
+			the build. The howl.ci interface then scrapes this log file and extracts useful information such as terminal
+			output, build status and log messages and displays it to you. You can then step through the build to see
+			the state at any point.
 		</p>
 
-		<h3>Example</h3>
+		<h3>Let's see an example then!</h3>
 		<p>
-			You can view <a href="?p=travis/builds&repo=SquidDev-CC/Howl">historic builds of Howl</a>. You can also render log files from
-			<a href="?p=url&url=https://gist.githubusercontent.com/SquidDev/b3e88899a86ee73fa2510389b141e9e3/raw/terminal_codes.txt">aribtrary
-			urls</a>
+			The Howl build system uses howl.ci to build itself, ensuring that all code is valid. You can
+			<a href="?p=travis/builds&repo=SquidDev-CC/Howl">view the latest builds</a> if you fancy a look.
+		</p>
+		<p>
+			It is also possible to display log files from arbitrary URLs, such as
+			<a href="?p=url&url=https://gist.githubusercontent.com/SquidDev/b3e88899a86ee73fa2510389b141e9e3/raw/terminal_codes.txt">this one</a>.
 		</p>
 
-		<h3>Getting started</h3>
+		<h3>I wanna do this!</h3>
 		<p>
 			We've created a <a href="docs/getting-started.html">useful guide</a> on how to get set up with how.ci.
 		</p>
-
 	</div>
 
 	{{>partial/sidebar}}
