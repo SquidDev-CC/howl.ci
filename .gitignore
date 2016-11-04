@@ -3,3 +3,7 @@ temp/
 .vscode
 config.json
 *.log
+
+dist/*.js
+dist/main.css
+!dist/*.min.js

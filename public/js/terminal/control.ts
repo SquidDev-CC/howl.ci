@@ -352,7 +352,7 @@ namespace HowlCI.Terminal {
 			// If we're just redrawing the cursor. We've aborted earlier if the cursor is not visible/
 			// out of range and hasn't changed.
 			if (!changed) {
-				if(blink) {
+				if (blink) {
 					Render.foreground(ctx, terminal.cursorX, terminal.cursorY, terminal.currentFore, "_", scale);
 				} else {
 					const x = terminal.cursorX;
