@@ -233,6 +233,7 @@ namespace HowlCI.Terminal {
 		private playback: PlaybackControl;
 		private playbackWrapper: HTMLElement;
 		private lastTerminalId: number = -1;
+		private lastBlink: boolean = false;
 
 		// Terminal data
 		private lines: Packets.Packet[];
@@ -306,15 +307,65 @@ namespace HowlCI.Terminal {
 		}
 
 		private redrawTerminal(id?: number): void {
-			// Skip if we're just redrawing a terminal.
-			// The lack of this value means that *must* redraw
-			if (id !== undefined && id === this.lastTerminalId) return;
+			// If id is undefined then we *must* redraw
+			const changed = id === undefined || id !== this.lastTerminalId;
 
 			const termId = this.lastTerminalId = id === undefined ? this.playback.getId() : id;
 
 			const terminal = this.terminals[termId];
 			const line = this.lines[termId];
 
+			const sizeX = terminal.sizeX || 51;
+			const sizeY = terminal.sizeY || 19;
+
+			const blink = Math.floor(this.playback.getTime() / 400e6) % 2 === 0;
+
+			// Abort as soon as possible if we don't need to redraw at all.
+			if (
+				!changed &&
+				(
+					!terminal.cursorBlink || this.lastBlink === blink ||
+					terminal.cursorX < 0 || terminal.cursorX >= sizeX ||
+					terminal.cursorY < 0 || terminal.cursorY >= sizeY
+				)
+			) {
+				return;
+			}
+			this.lastBlink = blink;
+
+			const ctx = this.context;
+
+			// Calculate terminal scaling to fit the screen
+			const actualWidth = this.canvas.parentElement.clientWidth - Render.margin;
+
+			const width = sizeX * Render.pixelWidth;
+			const height = sizeY * Render.pixelHeight;
+
+			// It has to be an integer (though converted within the renderer) to ensure pixels are integers.
+			// Otherwise you get texture issues.
+			let scale = Math.floor(actualWidth / width);
+
+			// Prevent having an empty terminal.
+			// Sure, you can"t read at thsis level but it is better than nothing.
+			if (scale <= 0) scale = 1;
+
+			// If we're just redrawing the cursor. We've aborted earlier if the cursor is not visible/
+			// out of range and hasn't changed.
+			if (!changed) {
+				if(blink) {
+					Render.foreground(ctx, terminal.cursorX, terminal.cursorY, terminal.currentFore, "_", scale);
+				} else {
+					const x = terminal.cursorX;
+					const y = terminal.cursorY;
+
+					Render.background(ctx, x, y, terminal.back[y][x], scale, sizeX, sizeY);
+					Render.foreground(ctx, x, y, terminal.fore[y][x],  terminal.text[y][x], scale);
+				}
+
+				return;
+			}
+
+			// Update the log lines
 			const logLines = this.log.childNodes;
 			for (let i = 0; i < logLines.length; i++) {
 				const logLine = logLines[i];
@@ -326,22 +377,7 @@ namespace HowlCI.Terminal {
 
 			this.doScroll();
 
-			const ctx = this.context;
-
-			const sizeX = terminal.sizeX || 51;
-			const sizeY = terminal.sizeY || 19;
-
-			const actualWidth = this.canvas.parentElement.clientWidth - Render.margin;
-
-			const width = sizeX * Render.pixelWidth;
-			const height = sizeY * Render.pixelHeight;
-
-			let scale = Math.floor(actualWidth / width);
-
-			// Prevent having an empty terminal.
-			// Sure, you can"t read at thsis level but it is better than nothing.
-			if (scale <= 0) scale = 1;
-
+			// Actually update the canvas dimensions.
 			const canvasWidth = width * scale + Render.margin * 2;
 			const canvasHeight = height * scale + Render.margin * 2;
 
@@ -350,16 +386,18 @@ namespace HowlCI.Terminal {
 				this.canvas.width = canvasWidth;
 			}
 
+			// Prevent blur when up/down-scaling
 			(<any> ctx).imageSmoothingEnabled = false; // Isn"t standardised so we have to cast.
 			ctx.oImageSmoothingEnabled = false;
 			ctx.webkitImageSmoothingEnabled = false;
 			ctx.mozImageSmoothingEnabled = false;
 			ctx.msImageSmoothingEnabled = false;
 
+			// And render!
 			if (terminal.sizeX === 0 && terminal.sizeY === 0) {
 				Render.bsod(ctx, sizeX, sizeY, scale, "No terminal output");
 			} else {
-				Render.terminal(ctx, terminal, scale, Math.floor(this.playback.getTime() / 400e6) % 2 === 0);
+				Render.terminal(ctx, terminal, scale, blink);
 			}
 		}
 

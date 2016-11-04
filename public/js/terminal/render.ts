@@ -70,6 +70,8 @@ namespace HowlCI.Terminal.Render {
 		color: string, scale: number,
 		width: number, height: number,
 	): void => {
+		scale /= 3;
+
 		let actualWidth = cellWidth * scale;
 		let actualHeight = cellHeight * scale;
 		let cellX = x * actualWidth + margin;
@@ -103,6 +105,8 @@ namespace HowlCI.Terminal.Render {
 	): void => {
 		if (!fontLoaded) return;
 
+		scale /= 3;
+
 		const actualWidth = cellWidth * scale;
 		const actualHeight = cellHeight * scale;
 		const cellX = x * actualWidth + margin;
@@ -121,8 +125,6 @@ namespace HowlCI.Terminal.Render {
 	};
 
 	export const terminal = (ctx: CanvasRenderingContext2D, term: TerminalData, scale: number, blink: boolean) => {
-		scale /= 3;
-
 		const sizeX = term.sizeX;
 		const sizeY = term.sizeY;
 
@@ -138,7 +140,7 @@ namespace HowlCI.Terminal.Render {
 			term.cursorX >= 0 && term.cursorX < sizeX &&
 			term.cursorY >= 0 && term.cursorY < sizeY
 		) {
-				foreground(ctx, term.cursorX, term.cursorY, term.currentFore, "_", scale);
+			foreground(ctx, term.cursorX, term.cursorY, term.currentFore, "_", scale);
 		}
 	};
 
@@ -146,13 +148,13 @@ namespace HowlCI.Terminal.Render {
 		ctx: CanvasRenderingContext2D, width: number, height: number,
 		scale: number, text: string,
 	) => {
-		scale /= 3;
+		const oScale = scale / 3;
 
 		ctx.beginPath();
 		ctx.rect(
 			0, 0,
-			width * cellWidth * scale + margin * 2,
-			height * cellHeight * scale + margin * 2,
+			width * cellWidth * oScale + margin * 2,
+			height * cellHeight * oScale + margin * 2,
 		);
 		ctx.fillStyle = colors.b;
 		ctx.fill();
