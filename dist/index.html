@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 		<title>howl.ci</title>
-			<link rel="stylesheet" href="./main.min.css?v=0.1.11" />
+			<link rel="stylesheet" href="./main.min.css?v=0.1.12" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
 	</head>
 	<body>
@@ -31,7 +31,17 @@
 <div style="text-align:center; margin-top:20px; margin-bottom:20px" aria-hidden="true">
 	<span style="color:#bbb" class="fa fa-circle-o-notch fa-spin fa-5x fa-fw"></span>
 </div>
-<div style="text-align:center;">
+
+<noscript>
+	<div style="text-align:center;">
+		<p>
+			It looks like your browser doesn't support Javascript or you've disabled it. Sadly this site doesn't work
+			without it.
+		</p>
+	</div>
+</noscript>
+
+<div id="slow-connection">
 	<p>
 		We're either loading or we encountered a problem.
 	</p>
@@ -39,15 +49,26 @@
 		If you're still reading you've probably hit an error (or your network is <em>really</em> slow).
 	</p>
 </div>
+
+<script type="text/javascript">
+if(window.setTimeout && typeof(window.setTimeout) === "function") {
+	setTimeout(function() {
+		var elem = document.getElementById("slow-connection");
+		if(elem != null) {
+			elem.style.opacity = "1";
+		}
+	}, 5000);
+}
+</script>
 			</div>
 			<footer>
 				<span class="pull-left">
 					&copy; 2016 SquidDev with <a href="./credits.html" data-jslicense="1">help from others</a>
 				</span>
-				<span class="pull-right">Version <code>0.1.11</code></span>
+				<span class="pull-right">Version <code>0.1.12</code></span>
 			</footer>
 		</div>
 
-				<script src="./main.min.js?v=0.1.11"></script>
+				<script src="./main.min.js?v=0.1.12"></script>
 	</body>
 </html>
