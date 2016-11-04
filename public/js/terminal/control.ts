@@ -165,8 +165,8 @@ namespace HowlCI.Terminal {
 				this.playingId = null;
 			}
 
-			this.play.parentElement.style.display = null;
-			this.pause.parentElement.style.display = "none";
+			this.play.style.display = null;
+			this.pause.style.display = "none";
 		}
 
 		private doPlay() {
@@ -176,8 +176,8 @@ namespace HowlCI.Terminal {
 				this.playingTick();
 			}
 
-			this.play.parentElement.style.display = "none";
-			this.pause.parentElement.style.display = null;
+			this.play.style.display = "none";
+			this.pause.style.display = null;
 		}
 
 		public attach() {
