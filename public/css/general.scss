@@ -45,6 +45,8 @@ h2 {
 
 h3 {
 	font-size: 1.2em;
+	padding-top: 8px;
+	padding-bottom: 8px;
 }
 
 pre, code {
@@ -65,8 +67,8 @@ pre {
 }
 
 pre.box {
-	border: solid 0.2em $grey02;
-	background-color: $grey07;
+	border: solid 1px $grey05;
+	background-color: $grey08;
 }
 
 em { font-style: italic; }
@@ -92,8 +94,14 @@ a {
 	display: none;
 }
 
-.text-content a {
-	font-weight: 600;
+.text-content {
+	a {
+		font-weight: 600;
+	}
+
+	h3 {
+		border-bottom: $grey05 1px solid;
+	}
 }
 
 ul.list {

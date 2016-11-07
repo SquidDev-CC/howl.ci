@@ -9,7 +9,8 @@ $grey04: #B0B0B0;
 $grey05: #D0D0D0;
 $grey06: #E0E0E0;
 $grey07: #ECF0F1;
-$grey08: #FFFFFF;
+$grey08: #FAFAFA;
+$grey09: #FFFFFF;
 
 $status-passed: #00630C;
 $status-failed: #CF000F;
@@ -23,10 +24,10 @@ $base0D: #3777E6;
 $base0E: #AD00A1;
 
 $header-back: $base0C;
-$header-fore: $grey08;
+$header-fore: $grey09;
 
 $footer-back: $grey02;
-$footer-fore: $grey08;
+$footer-fore: $grey09;
 
 $link: darken($base0D, 20%);
 
@@ -57,11 +58,11 @@ $status-colors: (
 @each $key, $color in $status-colors {
 	.status-#{$key} {
 		> .status-label, &.status-label {
-			@include link($grey08, lighten($color, 40%));
-			@include icon-link($grey08, lighten($color, 40%));
+			@include link($grey09, lighten($color, 40%));
+			@include icon-link($grey09, lighten($color, 40%));
 
 			background-color: $color;
-			color: $grey08;
+			color: $grey09;
 		}
 
 		> .status-info {
@@ -114,6 +115,12 @@ $status-colors: (
 		margin-top: 10px;
 		table {
 			margin: 0px;
+		}
+
+		* {
+			overflow-wrap: break-word;
+			word-wrap: break-word;
+			word-break: break-word;
 		}
 	}
 }
@@ -317,6 +324,10 @@ $status-colors: (
 		max-width: 25%;
 		padding-right: 15px;
 
+		a {
+			line-height: 1.6em;
+		}
+
 		li {
 			padding: 3px 0px;
 		}
@@ -362,7 +373,7 @@ $status-colors: (
 		border-width: 1px;
 		border-top-style: solid;
 		border-bottom-style: solid;
-		background-color: $grey08;
+		background-color: $grey09;
 	}
 
 	.repo-input {
@@ -375,6 +386,7 @@ $status-colors: (
 		border-right-style: solid;
 		cursor: pointer;
 		color: $grey00;
+		width: 40px;
 
 		&:hover {
 			background-color: $grey07;
