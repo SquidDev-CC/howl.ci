@@ -47,8 +47,10 @@ script:
 
 		<h3>Making your builds do something</h3>
 		<p>
-			The issue here is that the howl.ci runner, and so Travis has no way of telling if your build has succeeded or not. To do this
-			you should use the <code>howlci</code> API. This provides a <code>howlapi.status(status:string, message:string)</code>
+			The issue here is that the howl.ci runner, and so Travis has no way of telling if your build has succeeded
+			or not. To do this you should use the <code>howlci</code> API. This is like any other ComputerCraft API
+			(like <code>os</code> or <code>fs</code>), it is just a normal Lua table with some functions inside. The
+			<code>howlci</code> API provides a <code>howlapi.status(status:string, message:string)</code>
 			that sets the status of your build.
 		</p>
 		<p>
@@ -56,6 +58,15 @@ script:
 			"error" for when something unexpected that you were not expecting: such as everything crashing. If you don't
 			terminate with a status then the howl.ci runner will presume the build errored.
 		</p>
+
+<pre class="box">
+local success, err = pcall(myTest)
+if success then
+	howlci.status("success", "Everything passed!")
+else
+	howlci.status("failure", "Something failed: " .. tostring(err))
+end
+</pre>
 
 		<h3>Running your build</h3>
 		<p>
