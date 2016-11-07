@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 		<title>howl.ci</title>
-			<link rel="stylesheet" href="../main.min.css?v=0.1.12" />
+			<link rel="stylesheet" href="../main.min.css?v=0.1.13" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
 	</head>
 	<body>
@@ -18,7 +18,7 @@
 						<input type="hidden" name="p" value="travis/builds">
 						<label>
 							<span class="aria-hint">Repo/Build</span>
-							<input type="text" name="repo" placeholder="User/Repo" class="repo-input"/>
+							<input type="text" name="repo" placeholder="User / Repository" class="repo-input"/>
 						</label>
 						<button type="submit" class="repo-submit">
 							<span class="aria-hint">Search</span>
@@ -77,8 +77,10 @@ script:
 
 		<h3>Making your builds do something</h3>
 		<p>
-			The issue here is that the howl.ci runner, and so Travis has no way of telling if your build has succeeded or not. To do this
-			you should use the <code>howlci</code> API. This provides a <code>howlapi.status(status:string, message:string)</code>
+			The issue here is that the howl.ci runner, and so Travis has no way of telling if your build has succeeded
+			or not. To do this you should use the <code>howlci</code> API. This is like any other ComputerCraft API
+			(like <code>os</code> or <code>fs</code>), it is just a normal Lua table with some functions inside. The
+			<code>howlci</code> API provides a <code>howlapi.status(status:string, message:string)</code>
 			that sets the status of your build.
 		</p>
 		<p>
@@ -86,6 +88,15 @@ script:
 			"error" for when something unexpected that you were not expecting: such as everything crashing. If you don't
 			terminate with a status then the howl.ci runner will presume the build errored.
 		</p>
+
+<pre class="box">
+local success, err = pcall(myTest)
+if success then
+	howlci.status("success", "Everything passed!")
+else
+	howlci.status("failure", "Something failed: " .. tostring(err))
+end
+</pre>
 
 		<h3>Running your build</h3>
 		<p>
@@ -134,7 +145,7 @@ script:
 				<span class="pull-left">
 					&copy; 2016 SquidDev with <a href="../credits.html" data-jslicense="1">help from others</a>
 				</span>
-				<span class="pull-right">Version <code>0.1.12</code></span>
+				<span class="pull-right">Version <code>0.1.13</code></span>
 			</footer>
 		</div>
 
