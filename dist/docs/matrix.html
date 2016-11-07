@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 		<title>howl.ci</title>
-			<link rel="stylesheet" href="../main.min.css?v=0.1.12" />
+			<link rel="stylesheet" href="../main.min.css?v=0.1.13" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
 	</head>
 	<body>
@@ -18,7 +18,7 @@
 						<input type="hidden" name="p" value="travis/builds">
 						<label>
 							<span class="aria-hint">Repo/Build</span>
-							<input type="text" name="repo" placeholder="User/Repo" class="repo-input"/>
+							<input type="text" name="repo" placeholder="User / Repository" class="repo-input"/>
 						</label>
 						<button type="submit" class="repo-submit">
 							<span class="aria-hint">Search</span>
@@ -52,7 +52,7 @@ env:
 		<p>
 			If you were to run this build now, you'd notice travis would create two jobs: one for each environment.
 			Now we just need to instruct the howl.ci runner to use each version. We can reference these variables in the
-			<code>.howl.properties</code> file.
+			<code>.howl.ci.properties</code> file.
 		</p>
 
 <pre class="box">
@@ -89,7 +89,7 @@ computercraft.file=ComputerCraft${CC_VERSION|1.79}.jar
 				<span class="pull-left">
 					&copy; 2016 SquidDev with <a href="../credits.html" data-jslicense="1">help from others</a>
 				</span>
-				<span class="pull-right">Version <code>0.1.12</code></span>
+				<span class="pull-right">Version <code>0.1.13</code></span>
 			</footer>
 		</div>
 

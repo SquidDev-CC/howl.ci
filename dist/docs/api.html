@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 		<title>howl.ci</title>
-			<link rel="stylesheet" href="../main.min.css?v=0.1.12" />
+			<link rel="stylesheet" href="../main.min.css?v=0.1.13" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
 	</head>
 	<body>
@@ -18,7 +18,7 @@
 						<input type="hidden" name="p" value="travis/builds">
 						<label>
 							<span class="aria-hint">Repo/Build</span>
-							<input type="text" name="repo" placeholder="User/Repo" class="repo-input"/>
+							<input type="text" name="repo" placeholder="User / Repository" class="repo-input"/>
 						</label>
 						<button type="submit" class="repo-submit">
 							<span class="aria-hint">Search</span>
@@ -32,7 +32,9 @@
 	<div class="main-content text-content">
 		<h2>The <code>howlci</code> API</h2>
 		<p>
-			howl.ci provides an API with several methods to interact with the CI environment.
+			howl.ci provides an API with several methods to interact with the CI environment. The <code>howlci</code> API
+			can be used like any other ComputerCraft API like as <code>os</code> or <code>fs</code>: it is just a normal
+			Lua table with methods attached!
 		</p>
 
 		<h3 id="func-log"><code>log(level:string, message:any)</code></h3>
@@ -144,7 +146,7 @@
 				<span class="pull-left">
 					&copy; 2016 SquidDev with <a href="../credits.html" data-jslicense="1">help from others</a>
 				</span>
-				<span class="pull-right">Version <code>0.1.12</code></span>
+				<span class="pull-right">Version <code>0.1.13</code></span>
 			</footer>
 		</div>
 
