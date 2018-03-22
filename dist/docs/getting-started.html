@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 		<title>howl.ci</title>
-			<link rel="stylesheet" href="../main.min.css?v=0.1.13" />
+			<link rel="stylesheet" href="../main.min.css?v=0.2.0" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
 	</head>
 	<body>
@@ -70,7 +70,7 @@
 jdk:
   - oraclejdk8
 install:
-  - wget -O howlci.jar https://dl.bintray.com/squiddev/maven/org/squiddev/howl.ci/0.1.9/howl.ci-0.1.9.jar
+  - wget -O howlci.jar https://dl.bintray.com/squiddev/maven/org/squiddev/howl.ci/0.2.0/howl.ci-0.2.0.jar
 script:
   - java -jar howlci.jar
 </pre>
@@ -96,6 +96,8 @@ if success then
 else
 	howlci.status("failure", "Something failed: " .. tostring(err))
 end
+
+howlci.close()
 </pre>
 
 		<h3>Running your build</h3>
@@ -143,9 +145,9 @@ end
 			</div>
 			<footer>
 				<span class="pull-left">
-					&copy; 2016 SquidDev with <a href="../credits.html" data-jslicense="1">help from others</a>
+					&copy; 2018 SquidDev with <a href="../credits.html" data-jslicense="1">help from others</a>
 				</span>
-				<span class="pull-right">Version <code>0.1.13</code></span>
+				<span class="pull-right">Version <code>0.2.0</code></span>
 			</footer>
 		</div>
 
