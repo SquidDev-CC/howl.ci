@@ -1,7 +1,7 @@
 namespace HowlCI {
 	"use strict";
 
-	const request = function(url: string, type?: string): Promise<XMLHttpRequest> {
+	const request = (url: string, type?: string): Promise<XMLHttpRequest> => {
 		return new Promise((resolve, reject) => {
 			const xhr = new XMLHttpRequest();
 
@@ -23,14 +23,14 @@ namespace HowlCI {
 		});
 	};
 
-	const always = function<T>(args: T) { return  Promise.resolve(args); };
+	const always = <T>(args: T) => Promise.resolve(args);
 
 	type FailureBase = { success: false, nothing: true } |
 		{ success: false, text: string, status: string, headers: string };
 
 	type Failure<T> = T & FailureBase;
 
-	const handleError = function<T extends {}>(xhr: XMLHttpRequest, data: T): Failure<T> {
+	const handleError = <T extends {}>(xhr: XMLHttpRequest, data: T): Failure<T> => {
 		let output: FailureBase;
 		if (xhr.status) {
 			output = {
@@ -48,11 +48,11 @@ namespace HowlCI {
 
 		for (const key in data) {
 			if (data.hasOwnProperty(key)) {
-				output[key] = data[key];
+				(output as any)[key] = data[key];
 			}
 		}
 
-		return <Failure<T>> output;
+		return output as Failure<T>;
 	};
 
 	type Args = { [name: string]: string|null };
@@ -64,7 +64,7 @@ namespace HowlCI {
 
 	export const pages: { [name: string]: Page<any> } = {};
 
-	let staticPage = (title: string) => ({ build: always, title: _ => title });
+	const staticPage = (title: string) => ({ build: always, title: _ => title });
 
 	pages["index"] = staticPage("Home | howl.ci");
 	pages["error"] = staticPage("Page not found | howl.ci");
@@ -87,12 +87,12 @@ namespace HowlCI {
 					}
 
 					return {
-						repo: repo,
+						repo,
 						success: true,
 						builds: res.builds,
 					};
 				},
-				xhr => handleError(xhr, { repo: repo }),
+				xhr => handleError(xhr, { repo }),
 			);
 		},
 		title: model => model.repo + " | howl.ci",
@@ -113,12 +113,12 @@ namespace HowlCI {
 							"text/plain",
 							).then(req => {
 								if (req.status === 204) {
-									return request(<string> req.getResponseHeader("Location"), "text/plain");
+									return request(req.getResponseHeader("Location") as string, "text/plain");
 								} else {
 									return req;
 								}
 							}).then(req => ({
-								job: job,
+								job,
 								id: job.id,
 								lines: Packets.parse(req.responseText),
 								config: !!job.config.env,
@@ -137,8 +137,8 @@ namespace HowlCI {
 								return {
 									success: true,
 									id: build,
-									logs: logs,
-									repo: repo,
+									logs,
+									repo,
 									build: res.build,
 									commit: res.commit,
 								};
@@ -173,22 +173,22 @@ namespace HowlCI {
 						terminal = null;
 					}
 
-					const link = <HTMLElement> document.getElementById("job-link-" + log.job.id);
+					const link = document.getElementById("job-link-" + log.job.id) as HTMLElement;
 					const linker = link.parentElement;
-					const tab = <HTMLElement> document.getElementById("job-" + log.job.id);
+					const tab = document.getElementById("job-" + log.job.id) as HTMLElement;
 
 					const onClick = () => {
 						if (link === activeJobLink) return false;
 
 						if (activeJobLink != null) {
 							activeJobLink.classList.remove("active");
-							activeJobLink.firstElementChild.setAttribute("aria-selected", "false");
+							activeJobLink.firstElementChild!.setAttribute("aria-selected", "false");
 						}
 						if (activeJobTab != null) activeJobTab.classList.remove("active");
 						if (activeJobTerminal) activeJobTerminal.detach();
 
-						linker.classList.add("active");
-						linker.firstElementChild.setAttribute("aria-selected", "true");
+						linker!.classList.add("active");
+						linker!.firstElementChild!.setAttribute("aria-selected", "true");
 						tab.classList.add("active");
 						if (terminal != null) terminal.attach();
 
@@ -214,7 +214,7 @@ namespace HowlCI {
 		lines: Packets.PacketCollection,
 	};
 
-	pages["url"] = <Page<URLModel>> {
+	pages["url"] = {
 		build: (args) => {
 			const url = args["url"];
 
@@ -222,23 +222,23 @@ namespace HowlCI {
 				xhr => {
 					const res = xhr.responseText;
 
-					let lines = Packets.parse(res);
+					const lines = Packets.parse(res);
 					if (lines.exists) {
 						return {
-							url: url,
+							url,
 							success: true,
 							id: 0,
-							lines: lines,
+							lines,
 						};
 					} else {
 						return {
-							url: url,
+							url,
 							success: false,
 							fetched: true,
 						};
 					}
 				},
-				xhr => handleError(xhr, { url: url }),
+				xhr => handleError(xhr, { url }),
 			);
 		},
 		title: model => "URL " + model.url + " | howl.ci",
@@ -258,11 +258,11 @@ namespace HowlCI {
 				terminal.attach();
 			}
 		},
-	};
+	} as Page<URLModel>;
 
 	pages["gist"] = {
 		build: (args) => {
-			const provided = <string> args["gist"];
+			const provided = args["gist"] as string;
 
 			const firstSlash = provided.indexOf("/");
 			const secondSlash = provided.indexOf("/", firstSlash + 1);
@@ -288,31 +288,23 @@ namespace HowlCI {
 				xhr => {
 					const res = xhr.responseText;
 
-					let lines = Packets.parse(res);
+					const lines = Packets.parse(res);
 					if (lines.exists) {
 						return {
-							user: user,
-							path: path,
-							view: view,
+							user, path, view,
 							success: true,
 							id: 0,
-							lines: lines,
+							lines,
 						};
 					} else {
 						return {
-							user: user,
-							path: path,
-							view: view,
+							user, path, view,
 							success: false,
 							fetched: true,
 						};
 					}
 				},
-				xhr => handleError(xhr, {
-					path: path,
-					view: view,
-					user: user,
-				}),
+				xhr => handleError(xhr, { user, path, view }),
 			);
 		},
 		title: model => "Gist/" + model.path + " | howl.ci",

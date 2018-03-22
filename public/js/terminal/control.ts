@@ -64,17 +64,17 @@ namespace HowlCI.Terminal {
 		constructor(id: number, lines: Packets.PacketCollection, callback: (id: number) => void) {
 			this.lines = lines;
 
-			this.useTime = <HTMLInputElement> document.getElementById("playback-time-" + id);
-			this.usePackets = <HTMLInputElement> document.getElementById("playback-packet-" + id);
-			this.speedTime = <HTMLInputElement> document.getElementById("playback-speed-time-" + id);
-			this.speedPackets = <HTMLInputElement> document.getElementById("playback-speed-packet-" + id);
+			this.useTime = document.getElementById("playback-time-" + id) as HTMLInputElement;
+			this.usePackets = document.getElementById("playback-packet-" + id) as HTMLInputElement;
+			this.speedTime = document.getElementById("playback-speed-time-" + id) as HTMLInputElement;
+			this.speedPackets = document.getElementById("playback-speed-packet-" + id) as HTMLInputElement;
 
-			this.goBack = <HTMLLinkElement> document.getElementById("playback-back-" + id);
-			this.goForward = <HTMLLinkElement> document.getElementById("playback-forward-" + id);
-			this.play = <HTMLLinkElement> document.getElementById("playback-play-" + id);
-			this.pause = <HTMLLinkElement> document.getElementById("playback-pause-" + id);
+			this.goBack = document.getElementById("playback-back-" + id) as HTMLLinkElement;
+			this.goForward = document.getElementById("playback-forward-" + id) as HTMLLinkElement;
+			this.play = document.getElementById("playback-play-" + id) as HTMLLinkElement;
+			this.pause = document.getElementById("playback-pause-" + id) as HTMLLinkElement;
 
-			this.progress = <HTMLInputElement> document.getElementById("playback-progress-" + id);
+			this.progress = document.getElementById("playback-progress-" + id) as HTMLInputElement;
 
 			// Register playback handlers
 			this.playing = true;
@@ -140,22 +140,22 @@ namespace HowlCI.Terminal {
 					this.progress.valueAsNumber = line.time;
 					this.progress.step = "1";
 
-					this.speedTime.parentElement.style.display = null;
-					this.speedPackets.parentElement.style.display = "none";
+					this.speedTime.parentElement!.style.display = null;
+					this.speedPackets.parentElement!.style.display = "none";
 				} else {
 					this.progress.min = "0";
 					this.progress.max = (this.lines.lines.length - 1).toString();
 					this.progress.valueAsNumber = termId;
 					this.progress.step = "0.01";
 
-					this.speedTime.parentElement.style.display = "none";
-					this.speedPackets.parentElement.style.display = null;
+					this.speedTime.parentElement!.style.display = "none";
+					this.speedPackets.parentElement!.style.display = null;
 				}
 
 				callback(termId);
 			};
 
-			this.speedPackets.parentElement.style.display = "none";
+			this.speedPackets.parentElement!.style.display = "none";
 		}
 
 		private doPause() {
@@ -256,14 +256,14 @@ namespace HowlCI.Terminal {
 			this.lines = lines.lines;
 			this.terminals = terminals;
 
-			this.canvas = <HTMLCanvasElement> document.getElementById("computer-" + id);
-			this.context = <CanvasRenderingContext2D> this.canvas.getContext("2d");
+			this.canvas = document.getElementById("computer-" + id) as HTMLCanvasElement;
+			this.context = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
-			const log = this.log = <HTMLPreElement> document.getElementById("computer-output-" + id);
-			this.follow = <HTMLInputElement> document.getElementById("computer-follow-" + id);
+			const log = this.log = document.getElementById("computer-output-" + id) as HTMLPreElement;
+			this.follow = document.getElementById("computer-follow-" + id) as HTMLInputElement;
 
 			this.playback = new PlaybackControl(id, lines, this.redrawTerminal.bind(this));
-			this.playbackWrapper = <HTMLElement> document.getElementById("playback-" + id);
+			this.playbackWrapper = document.getElementById("playback-" + id) as HTMLElement;
 
 			this.sticky = new Sticky();
 			this.sticky.setup(this.canvas.parentElement, { marginTop: 50, stickyFor: 800 });
@@ -313,6 +313,7 @@ namespace HowlCI.Terminal {
 			const termId = this.lastTerminalId = id === undefined ? this.playback.getId() : id;
 
 			const terminal = this.terminals[termId];
+			console.log(terminal.palette);
 			const line = this.lines[termId];
 
 			const sizeX = terminal.sizeX || 51;
@@ -336,7 +337,7 @@ namespace HowlCI.Terminal {
 			const ctx = this.context;
 
 			// Calculate terminal scaling to fit the screen
-			const actualWidth = this.canvas.parentElement.clientWidth - Render.margin;
+			const actualWidth = this.canvas.parentElement!.clientWidth - Render.margin;
 
 			const width = sizeX * Render.pixelWidth;
 			const height = sizeY * Render.pixelHeight;
@@ -353,13 +354,13 @@ namespace HowlCI.Terminal {
 			// out of range and hasn't changed.
 			if (!changed) {
 				if (blink) {
-					Render.foreground(ctx, terminal.cursorX, terminal.cursorY, terminal.currentFore, "_", scale);
+					Render.foreground(ctx, terminal.cursorX, terminal.cursorY, terminal.currentFore, "_", scale, terminal.palette);
 				} else {
 					const x = terminal.cursorX;
 					const y = terminal.cursorY;
 
-					Render.background(ctx, x, y, terminal.back[y][x], scale, sizeX, sizeY);
-					Render.foreground(ctx, x, y, terminal.fore[y][x],  terminal.text[y][x], scale);
+					Render.background(ctx, x, y, terminal.back[y][x], scale, sizeX, sizeY, terminal.palette);
+					Render.foreground(ctx, x, y, terminal.fore[y][x],  terminal.text[y][x], scale, terminal.palette);
 				}
 
 				return;
@@ -367,10 +368,11 @@ namespace HowlCI.Terminal {
 
 			// Update the log lines
 			const logLines = this.log.childNodes;
+			// tslint:disable-next-line:prefer-for-of
 			for (let i = 0; i < logLines.length; i++) {
 				const logLine = logLines[i];
 				if (logLine instanceof HTMLElement) {
-					let elem = <string> logLine.getAttribute("data-terminal");
+					const elem = logLine.getAttribute("data-terminal") as string;
 					logLine.style.display = parseInt(elem, 10) > termId ? "none" : null;
 				}
 			}
@@ -387,11 +389,11 @@ namespace HowlCI.Terminal {
 			}
 
 			// Prevent blur when up/down-scaling
-			(<any> ctx).imageSmoothingEnabled = false; // Isn"t standardised so we have to cast.
+			(ctx as any).imageSmoothingEnabled = false; // Isn"t standardised so we have to cast.
 			ctx.oImageSmoothingEnabled = false;
 			ctx.webkitImageSmoothingEnabled = false;
 			ctx.mozImageSmoothingEnabled = false;
-			ctx.msImageSmoothingEnabled = false;
+			(ctx as any).msImageSmoothingEnabled = false;
 
 			// And render!
 			if (terminal.sizeX === 0 && terminal.sizeY === 0) {
@@ -403,7 +405,7 @@ namespace HowlCI.Terminal {
 
 		private onResize(force = false) {
 			// Check if we have resized this item
-			const element = this.canvas.parentElement;
+			const element = this.canvas.parentElement!;
 			if (force || element.clientWidth !== this.oldWidth || element.clientHeight !== this.oldHeight) {
 				// Save the new dimensions
 				this.oldWidth = element.clientWidth;
@@ -426,7 +428,7 @@ namespace HowlCI.Terminal {
 			if (this.follow.checked) {
 				// Scroll the window to the bottom of the log.
 				// We have a flag to suppress scroll events
-				const bottom = this.log.parentElement.offsetTop + this.log.parentElement.scrollHeight;
+				const bottom = this.log.parentElement!.offsetTop + this.log.parentElement!.scrollHeight;
 				const scroll = this.expectedScroll = bottom - window.innerHeight + 10;
 				window.scrollTo(window.scrollX, scroll);
 			}

@@ -328,7 +328,7 @@ class Sticky {
 	 * @param {object} properties - CSS properties that will be added/removed from specified element
 	 */
 	private css(element, properties) {
-		for (let property in properties) {
+		for (const property in properties) {
 			if (properties.hasOwnProperty(property)) {
 				element.style[property] = properties[property];
 			}

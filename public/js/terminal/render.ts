@@ -16,50 +16,37 @@ namespace HowlCI.Terminal.Render {
 	const fontWidth = 96;
 	const fontHeight = 144;
 
-	// Color code lookups
-	const colors = {
-		"0": "rgb(240, 240, 240)", // White
-		"1": "rgb(242, 178, 51)",  // Orange
-		"2": "rgb(229, 127, 216)", // Magenta
-		"3": "rgb(153, 178, 242)", // Light blue
-		"4": "rgb(222, 222, 108)", // Yellow
-		"5": "rgb(127, 204, 25)",  // Lime
-		"6": "rgb(242, 178, 204)", // Pink
-		"7": "rgb(76, 76, 76)",    // Grey
-		"8": "rgb(153, 153, 153)", // Light grey
-		"9": "rgb(76, 153, 178)",  // Cyan
-		"a": "rgb(178, 102, 229)", // Purple
-		"b": "rgb(37, 49, 146)",   // Blue
-		"c": "rgb(127, 102, 76)",  // Brown
-		"d": "rgb(87, 166, 78)",   // Green
-		"e": "rgb(204, 76, 76)",   // Red
-		"f": "rgb(0, 0, 0)",       // Black
-	};
-
 	const font = new Image();
 	const fonts = {};
 	font.src = "termFont.png";
 
+	const loadFont = (colour: PaletteColour) => {
+		const cached = fonts[colour];
+		if (cached) return cached;
+
+		const canvas = document.createElement("canvas");
+		const context = canvas.getContext("2d") as CanvasRenderingContext2D;
+
+		canvas.width = fontWidth;
+		canvas.height = fontHeight;
+
+		context.globalCompositeOperation = "destination-atop";
+		context.fillStyle = colour;
+		context.globalAlpha = 1.0;
+
+		context.fillRect(0, 0, fontWidth, fontHeight);
+		context.drawImage(font, 0, 0);
+
+		fonts[colour] = canvas;
+		return canvas;
+	};
+
 	// Generate a series of fonts for each color code
 	let fontLoaded = false;
 	font.onload = () => {
-		for (const key in colors) {
-			if (!colors.hasOwnProperty(key)) continue;
-
-			const canvas = document.createElement("canvas");
-			const context = <CanvasRenderingContext2D> canvas.getContext("2d");
-
-			canvas.width = fontWidth;
-			canvas.height = fontHeight;
-
-			context.globalCompositeOperation = "destination-atop";
-			context.fillStyle = colors[key];
-			context.globalAlpha = 1.0;
-
-			context.fillRect(0, 0, fontWidth, fontHeight);
-			context.drawImage(font, 0, 0);
-
-			fonts[key] = canvas;
+		for (const key in defaultPalette) {
+			if (!defaultPalette.hasOwnProperty(key)) continue;
+			loadFont(defaultPalette[key]);
 		}
 
 		fontLoaded = true;
@@ -69,6 +56,7 @@ namespace HowlCI.Terminal.Render {
 		ctx: CanvasRenderingContext2D, x: number, y: number,
 		color: string, scale: number,
 		width: number, height: number,
+		palette: Palette,
 	): void => {
 		scale /= 3;
 
@@ -95,13 +83,13 @@ namespace HowlCI.Terminal.Render {
 
 		ctx.beginPath();
 		ctx.rect(cellX, cellY, actualWidth, actualHeight);
-		ctx.fillStyle = colors[color];
+		ctx.fillStyle = palette[color];
 		ctx.fill();
 	};
 
 	export const foreground = (
 		ctx: CanvasRenderingContext2D, x: number, y: number,
-		color: string, chr: string, scale: number,
+		color: string, chr: string, scale: number, palette: Palette,
 	): void => {
 		if (!fontLoaded) return;
 
@@ -118,7 +106,7 @@ namespace HowlCI.Terminal.Render {
 		const imgY = Math.floor(point / (fontHeight / cellHeight)) * cellHeight;
 
 		ctx.drawImage(
-			fonts[color],
+			loadFont(palette[color]),
 			imgX, imgY, cellWidth, cellHeight,
 			cellX, cellY, cellWidth * scale, cellHeight * scale,
 		);
@@ -130,8 +118,8 @@ namespace HowlCI.Terminal.Render {
 
 		for (let y = 0; y < sizeY; y++) {
 			for (let x = 0; x < sizeX; x++) {
-				background(ctx, x, y, term.back[y].charAt(x), scale, term.sizeX, term.sizeY);
-				foreground(ctx, x, y, term.fore[y].charAt(x), term.text[y].charAt(x), scale);
+				background(ctx, x, y, term.back[y].charAt(x), scale, term.sizeX, term.sizeY, term.palette);
+				foreground(ctx, x, y, term.fore[y].charAt(x), term.text[y].charAt(x), scale, term.palette);
 			}
 		}
 
@@ -140,7 +128,7 @@ namespace HowlCI.Terminal.Render {
 			term.cursorX >= 0 && term.cursorX < sizeX &&
 			term.cursorY >= 0 && term.cursorY < sizeY
 		) {
-			foreground(ctx, term.cursorX, term.cursorY, term.currentFore, "_", scale);
+			foreground(ctx, term.cursorX, term.cursorY, term.currentFore, "_", scale, term.palette);
 		}
 	};
 
@@ -156,13 +144,13 @@ namespace HowlCI.Terminal.Render {
 			width * cellWidth * oScale + margin * 2,
 			height * cellHeight * oScale + margin * 2,
 		);
-		ctx.fillStyle = colors.b;
+		ctx.fillStyle = defaultPalette["b"];
 		ctx.fill();
 
 		const startX = Math.floor((width - text.length) / 2);
 		const startY = Math.floor((height - 1) / 2);
 		for (let x = 0; x < text.length; x++) {
-			foreground(ctx, startX + x, startY, "0", text.charAt(x), scale);
+			foreground(ctx, startX + x, startY, "0", text.charAt(x), scale, defaultPalette);
 		}
 	};
 }

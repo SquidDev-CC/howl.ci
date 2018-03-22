@@ -18,7 +18,7 @@ if (!page) {
 	page = HowlCI.pages["error"];
 }
 
-const contentFrame = <HTMLElement> document.getElementById("content");
+const contentFrame = document.getElementById("content") as HTMLElement;
 page.build(query).then(model => {
 	if (!model) model = {};
 	model.page = pageName;

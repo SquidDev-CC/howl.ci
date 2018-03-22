@@ -26,11 +26,9 @@ namespace ResizeSensor {
 	// In combination with the event based resize sensor this saves cpu time, because the sensor is too fast and
 	// would generate too many unnecessary events.
 	const requestAnimationFrame = window.requestAnimationFrame ||
-		(<any> window).mozRequestAnimationFrame ||
+		(window as any).mozRequestAnimationFrame ||
 		window.webkitRequestAnimationFrame ||
-		function (fn) {
-			return window.setTimeout(fn, 20);
-		};
+		(fn => window.setTimeout(fn, 20));
 
 	/**
 	 * Iterate over each of the provided element(s).
@@ -46,7 +44,7 @@ namespace ResizeSensor {
 			|| ("[object HTMLCollection]" === elementsType)
 		);
 		if (isCollectionTyped) {
-			const j = (<HTMLElement[]> elements).length;
+			const j = (elements as HTMLElement[]).length;
 			for (let i; i < j; i++) {
 				callback(elements[i]);
 			}
@@ -60,18 +58,18 @@ namespace ResizeSensor {
 	 * @constructor
 	 */
 	const EventQueue = function() {
-		let  q: (() => void)[] = [];
+		let  q: Array<() => void> = [];
 		this.add = ev => q.push(ev);
 
-		this.call = function() {
+		this.call = () => {
 			const l = q.length;
 			for (let i = 0; i < l; i++) {
 				q[i].call(null);
 			}
 		};
 
-		this.remove = function(ev) {
-			const newQueue: (() => void)[] = [];
+		this.remove = (ev) => {
+			const newQueue: Array<() => void> = [];
 			const l = q.length;
 			for (let i = 0; i < l; i++) {
 				if (q[i] !== ev) newQueue.push(q[i]);
@@ -79,9 +77,7 @@ namespace ResizeSensor {
 			q = newQueue;
 		};
 
-		this.length = function() {
-			return q.length;
-		};
+		this.length = () => q.length;
 	};
 
 	/**
@@ -89,7 +85,7 @@ namespace ResizeSensor {
 	 * @param {String}      prop
 	 * @returns {String|Number}
 	 */
-	function getComputedStyle(element, prop) {
+	const getComputedStyle = (element, prop) => {
 		if (element.currentStyle) {
 			return element.currentStyle[prop];
 		} else if (window.getComputedStyle) {
@@ -107,7 +103,7 @@ namespace ResizeSensor {
 	 *
 	 * @constructor
 	 */
-	export const attach = function(elements: HTMLElement|NodeList|HTMLElement[], callback: () => void): void {
+	export const attach = (elements: HTMLElement|NodeList|HTMLElement[], callback: () => void): void => {
 		/**
 		 *
 		 * @param {HTMLElement} element
@@ -144,7 +140,7 @@ namespace ResizeSensor {
 			const expandChild = expand.childNodes[0];
 			const shrink = element.resizeSensor.childNodes[1];
 
-			const reset = function() {
+			const reset = () => {
 				expandChild.style.width  = 100000 + "px";
 				expandChild.style.height = 100000 + "px";
 
@@ -158,7 +154,7 @@ namespace ResizeSensor {
 			reset();
 			let dirty = false;
 
-			const dirtyChecking = function() {
+			const dirtyChecking = () => {
 				if (!element.resizedAttached) return;
 
 				if (dirty) {
@@ -175,7 +171,7 @@ namespace ResizeSensor {
 			let cachedWidth; // useful to not query offsetWidth twice
 			let cachedHeight;
 
-			const onScroll = function() {
+			const onScroll = () => {
 				cachedWidth = element.offsetWidth;
 				cachedHeight = element.offsetHeight;
 				if (cachedWidth !== lastWidth || cachedHeight !== lastHeight) {
@@ -187,7 +183,7 @@ namespace ResizeSensor {
 				reset();
 			};
 
-			const addEvent = function(el, name, cb) {
+			const addEvent = (el, name, cb) => {
 				if (el.attachEvent) {
 					el.attachEvent("on" + name, cb);
 				} else {
@@ -199,13 +195,13 @@ namespace ResizeSensor {
 			addEvent(shrink, "scroll", onScroll);
 		}
 
-		forEachElement(elements, function(elem){
+		forEachElement(elements, (elem) => {
 			attachResizeEvent(elem, callback);
 		});
 	};
 
-	export const detach = function(element, ev?: (() => void)) {
-		forEachElement(element, function(elem){
+	export const detach = (element, ev?: (() => void)) => {
+		forEachElement(element, (elem) => {
 			if (elem.resizedAttached && typeof ev === "function") {
 				elem.resizedAttached.remove(ev);
 				if (elem.resizedAttached.length()) return;

@@ -41,10 +41,10 @@ namespace HowlCI.Packets {
 				maxTime = Math.max(maxTime, time);
 
 				out.push({
-					computer: computer,
+					computer,
 					time: lastTime,
 					command: match[1],
-					meta: meta,
+					meta,
 					data: match[3],
 				});
 			}
@@ -55,8 +55,7 @@ namespace HowlCI.Packets {
 		return {
 			lines: out,
 			exists: out.length > 0,
-			minTime: minTime,
-			maxTime: maxTime,
+			minTime, maxTime,
 		};
 	};
 }

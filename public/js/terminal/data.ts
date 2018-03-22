@@ -5,7 +5,7 @@ namespace HowlCI.Terminal {
 		Status,
 		Log,
 		Close,
-	};
+	}
 
 	export class LogItem {
 		public text: string;
@@ -13,14 +13,38 @@ namespace HowlCI.Terminal {
 		public kind: LogKind;
 	}
 
-	const interSplice = function(text: string, partial: string, offset: number) {
+	const interSplice = (text: string, partial: string, offset: number) => {
 		return text.substr(0, offset) + partial + text.substr(offset + partial.length);
+	};
+
+	export type PaletteColour = string;
+	export type Palette = {[colour: string]: PaletteColour};
+
+	export const defaultPalette: Palette = {
+		"0": "rgb(240,240,240)", // White
+		"1": "rgb(242,178,51)",  // Orange
+		"2": "rgb(229,127,216)", // Magenta
+		"3": "rgb(153,178,242)", // Light blue
+		"4": "rgb(222,222,108)", // Yellow
+		"5": "rgb(127,204,25)",  // Lime
+		"6": "rgb(242,178,204)", // Pink
+		"7": "rgb(76,76,76)",    // Grey
+		"8": "rgb(153,153,153)", // Light grey
+		"9": "rgb(76,153,178)",  // Cyan
+		"a": "rgb(178,102,229)", // Purple
+		"b": "rgb(37,49,146)",   // Blue
+		"c": "rgb(127,102,76)",  // Brown
+		"d": "rgb(87,166,78)",   // Green
+		"e": "rgb(204,76,76)",   // Red
+		"f": "rgb(0,0,0)",       // Black
 	};
 
 	export class TerminalData {
 		public text: string[];
 		public fore: string[];
 		public back: string[];
+
+		public palette: Palette;
 
 		public currentFore: string;
 		public currentBack: string;
@@ -49,6 +73,8 @@ namespace HowlCI.Terminal {
 			this.currentBack = "f";
 
 			this.log = [];
+
+			this.palette = defaultPalette;
 
 			this.resize(width, height);
 		}
@@ -81,6 +107,7 @@ namespace HowlCI.Terminal {
 			copied.text = this.text;
 			copied.fore = this.fore;
 			copied.back = this.back;
+			copied.palette = this.palette;
 
 			copied.sizeX = this.sizeX;
 			copied.sizeY = this.sizeY;
@@ -101,7 +128,7 @@ namespace HowlCI.Terminal {
 			const cloned = this.clone();
 			switch (code) {
 				case "TC": { // Set cursor position
-					const [_, x, y] = <string[]> data.match(/(-?\d+),(-?\d+)/);
+					const [_, x, y] = data.match(/(-?\d+),(-?\d+)/) as string[];
 					cloned.cursorX = parseInt(x, 10) - 1;
 					cloned.cursorY = parseInt(y, 10) - 1;
 					break;
@@ -119,7 +146,7 @@ namespace HowlCI.Terminal {
 					break;
 				}
 				case "TR": { // Resizes the terminal
-					const [_, width, height] = <string[]> data.match(/(\d+),(\d+)/);
+					const [_, width, height] = data.match(/(\d+),(\d+)/) as string[];
 					cloned.resize(parseInt(width, 10), parseInt(height, 10));
 					break;
 				}
@@ -164,7 +191,7 @@ namespace HowlCI.Terminal {
 					cloned.back = cloned.back.slice(0);
 
 					// We use [\s\S] to capture "\r" too.
-					const [_, xV, yV, remainder] = <string[]> data.match(/(\d+),(\d+),([\s\S]*)/);
+					const [_, xV, yV, remainder] = data.match(/(\d+),(\d+),([\s\S]*)/) as string[];
 					const x = parseInt(xV, 10) - 1;
 					const y = parseInt(yV, 10) - 1;
 
@@ -177,7 +204,7 @@ namespace HowlCI.Terminal {
 					break;
 				}
 				case "TS": {
-					const [_, dir] = <string[]> data.match(/(-?\d+)/);
+					const [_, dir] = data.match(/(-?\d+)/) as string[];
 					const diff = parseInt(dir, 10);
 
 					cloned.resize(cloned.sizeX, cloned.sizeY);
@@ -206,7 +233,7 @@ namespace HowlCI.Terminal {
 
 					let baseFore = "";
 					let baseBack = "";
-					for (let x = 0; x < width; x++ ) {
+					for (let i = 0; i < width; i++) {
 						baseFore += cloned.currentFore;
 						baseBack += cloned.currentBack;
 					}
@@ -214,6 +241,21 @@ namespace HowlCI.Terminal {
 					cloned.fore[y] = interSplice(cloned.fore[y], baseFore, x);
 					cloned.back[y] = interSplice(cloned.back[y], baseBack, x);
 					cloned.text[y] = interSplice(cloned.text[y], data.substr(0, width), x);
+					break;
+				}
+				case "TM": {
+					cloned.palette = {};
+					for (const attr in this.palette) {
+						if (this.palette.hasOwnProperty(attr)) {
+							cloned.palette[attr] = this.palette[attr];
+						}
+					}
+
+					const [_, col, r, g, b] = data.match(/([0-9a-f]),([\d.]+),([\d.]+),([\d.]+)/) as string[];
+					cloned.palette[col] = "rgb(" +
+						Math.floor(parseFloat(r) * 255) + "," +
+						Math.floor(parseFloat(g) * 255) + "," +
+						Math.floor(parseFloat(b) * 255) + ")";
 					break;
 				}
 				case "XD": // Add a debug message to the log

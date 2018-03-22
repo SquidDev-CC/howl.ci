@@ -156,7 +156,7 @@ public class TerminalStreaming extends Terminal implements ComputerInstance.ICom
 			// do anything
 			if (initialised && (current[0] != r || current[1] != g || current[2] != b)) {
 				logger.message("TM", id, String.format("%s,%s,%s,%s",
-					COLORS[i], PALETTE_FORMAT.format(r), PALETTE_FORMAT.format(g), PALETTE_FORMAT.format(b)));
+					COLORS[15 - i], PALETTE_FORMAT.format(r), PALETTE_FORMAT.format(g), PALETTE_FORMAT.format(b)));
 			}
 
 			super.setColour(i, r, g, b);
