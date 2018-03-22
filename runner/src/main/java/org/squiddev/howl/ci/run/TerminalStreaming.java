@@ -1,7 +1,10 @@
 package org.squiddev.howl.ci.run;
 
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.shared.util.Palette;
 import org.squiddev.howl.ci.TRoRLogger;
+
+import java.text.DecimalFormat;
 
 /**
  * A terminal which emits TRoR tokens
@@ -12,13 +15,22 @@ public class TerminalStreaming extends Terminal implements ComputerInstance.ICom
 		"8", "9", "a", "b", "c", "d", "e", "f"
 	};
 
+	private static final DecimalFormat PALETTE_FORMAT;
+
+	static {
+		PALETTE_FORMAT = new DecimalFormat();
+		PALETTE_FORMAT.setMaximumFractionDigits(3);
+	}
+
 	private final String id;
 	private final TRoRLogger logger;
+	private final LoggingPalette palette;
 
 	public TerminalStreaming(int width, int height, String id, TRoRLogger logger) {
 		super(width, height);
 		this.id = id;
 		this.logger = logger;
+		this.palette = new LoggingPalette();
 
 		logger.message("TR", id, width + "," + height);
 		logger.message("TC", id, (getCursorX() + 1) + "," + (getCursorY() + 1));
@@ -115,12 +127,39 @@ public class TerminalStreaming extends Terminal implements ComputerInstance.ICom
 	}
 
 	@Override
-	public void update(double dt) {
+	public Palette getPalette() {
+		return palette;
+	}
 
+	@Override
+	public void update(double dt) {
 	}
 
 	@Override
 	public void close() {
 		logger.message("SC", id, "Closed");
+	}
+
+	private class LoggingPalette extends Palette {
+		private boolean initialised;
+
+		LoggingPalette() {
+			initialised = true;
+		}
+
+		@Override
+		public void setColour(int i, double r, double g, double b) {
+			double[] current = getColour(i);
+			if (current == null) return;
+
+			// Only update the palette once the class has been updated, so initial palettes don't
+			// do anything
+			if (initialised && (current[0] != r || current[1] != g || current[2] != b)) {
+				logger.message("TM", id, String.format("%s,%s,%s,%s",
+					COLORS[i], PALETTE_FORMAT.format(r), PALETTE_FORMAT.format(g), PALETTE_FORMAT.format(b)));
+			}
+
+			super.setColour(i, r, g, b);
+		}
 	}
 }

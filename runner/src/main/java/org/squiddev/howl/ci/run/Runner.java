@@ -1,6 +1,7 @@
 package org.squiddev.howl.ci.run;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.apis.AddressPredicate;
 import org.squiddev.cctweaks.lua.ConfigPropertyLoader;
 import org.squiddev.cctweaks.lua.lib.ApiRegister;
 import org.squiddev.howl.ci.ConfigLoader;
@@ -95,21 +96,20 @@ public class Runner {
 		config.addListener(new Runnable() {
 			@Override
 			public void run() {
-				double version = Double.parseDouble(ComputerCraft.getVersion());
-				if (version >= 1.77) {
-					ComputerCraft.default_computer_settings = config.getProperty("computercraft.defaultSettings", "");
-				}
-
-				if (version >= 1.74) {
-					ComputerCraft.disable_lua51_features = Boolean.parseBoolean(config.getProperty("computercraft.disable51", "false"));
-				}
-
-				if (version >= 63) {
-					ComputerCraft.http_whitelist = config.getProperty("computercraft.whitelist", "*");
-				}
+				ComputerCraft.default_computer_settings = config.getProperty("computercraft.defaultSettings", "");
+				ComputerCraft.disable_lua51_features = Boolean.parseBoolean(config.getProperty("computercraft.disable51", "false"));
 
 				ComputerCraft.http_enable = Boolean.parseBoolean(config.getProperty("computercraft.http", "true"));
 
+				if (config.getProperty("computercraft.whitelist") != null) {
+					ComputerCraft.http_whitelist = new AddressPredicate(
+						config.getProperty("computercraft.whitelist").split(";"));
+				}
+
+				if (config.getProperty("computercraft.blacklist") != null) {
+					ComputerCraft.http_blacklist = new AddressPredicate(
+						config.getProperty("computercraft.blacklist").split(";"));
+				}
 			}
 		});
 

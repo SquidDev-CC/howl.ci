@@ -48,7 +48,7 @@ public class HowlAPI implements ILuaAPI {
 	@Override
 	public Object[] callMethod(ILuaContext context, int method, Object[] args) throws LuaException, InterruptedException {
 		switch (method) {
-			case 0: { // debug
+			case 0: { // log
 				if (args.length < 2) throw new LuaException("Expected level, message");
 				String levelName = String.valueOf(args[0]);
 				emulator.getLogger().log(computer.getIdentifier(), levelName, String.valueOf(args[1]));

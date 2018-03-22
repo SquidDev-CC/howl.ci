@@ -7,6 +7,7 @@ import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.core.terminal.Terminal;
 
 import java.io.Closeable;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -85,13 +86,18 @@ public class ComputerInstance implements IComputerEnvironment, Closeable {
 	}
 
 	@Override
-	public IWritableMount createSaveDirMount(String s, long l) {
-		return emulator.createSaveDirMount(s, l);
+	public IWritableMount createSaveDirMount(String subPath, long capacity) {
+		return emulator.createSaveDirMount(subPath, capacity);
 	}
 
 	@Override
-	public IMount createResourceMount(String s, String s1) {
-		return emulator.createResourceMount(s, s1);
+	public IMount createResourceMount(String domain, String subPath) {
+		return emulator.createResourceMount(domain, subPath);
+	}
+
+	@Override
+	public InputStream createResourceFile(String domain, String subPath) {
+		return emulator.createResourceFile(domain, subPath);
 	}
 
 	@Override

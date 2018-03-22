@@ -14,6 +14,7 @@ import org.squiddev.howl.ci.TRoRLogger;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -104,6 +105,10 @@ public class Emulator {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public InputStream createResourceFile(String domain, String subPath) {
+		return ComputerCraft.class.getClassLoader().getResourceAsStream("assets/" + domain + "/" + subPath);
 	}
 
 	public synchronized int assignNewID() {

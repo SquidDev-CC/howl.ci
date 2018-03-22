@@ -26,19 +26,19 @@ public class TRoRLogger {
 	}
 
 	public void log(String id, String level, String message) {
-		message(EXTENSION_LOG, id, level.toLowerCase().replaceAll("[^\\w-]", "") + "," + message.replace('\n', '\r'));
+		message(EXTENSION_LOG, id, level.toLowerCase().replaceAll("[^\\w-]", "") + "," + normaliseLines(message));
 	}
 
 	public void debug(String id, String message) {
-		log(id, "debug", message.replace('\n', '\r'));
+		log(id, "debug", normaliseLines(message));
 	}
 
 	public void warn(String id, String message) {
-		log(id, "warn", message.replace('\n', '\r'));
+		log(id, "warn", normaliseLines(message));
 	}
 
 	public void error(String id, String message) {
-		log(id, "error", message.replace('\n', '\r'));
+		log(id, "error", normaliseLines(message));
 	}
 
 	public void error(String id, String message, Throwable e) {
@@ -64,5 +64,9 @@ public class TRoRLogger {
 		SUCCESS,
 		FAILURE,
 		ERROR,
+	}
+
+	private static String normaliseLines(String text) {
+		return text.replace("\r\n", "\r").replace('\n', '\r');
 	}
 }

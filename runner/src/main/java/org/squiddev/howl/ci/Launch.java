@@ -1,12 +1,16 @@
 package org.squiddev.howl.ci;
 
-import org.squiddev.cctweaks.lua.launch.RewritingLoader;
+import org.squiddev.cctweaks.lua.launch.ClassLoaderHelpers;
+import org.squiddev.cctweaks.lua.launch.DelegatingRewritingLoader;
+import org.squiddev.cctweaks.lua.launch.PriorityURLClassLoader;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.net.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Map;
@@ -139,52 +143,39 @@ public class Launch {
 			throw new LaunchException("computercraft.file is not a file");
 		}
 
-		// Add ComputerCraft to the class path
-		URLClassLoader defaultLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-		URL[] urls = defaultLoader.getURLs();
-
-		URL[] newUrls = new URL[urls.length + 1];
-		System.arraycopy(urls, 0, newUrls, 0, urls.length);
 		try {
-			newUrls[urls.length] = mainJar.toURI().toURL();
-		} catch (MalformedURLException e) {
-			throw new LaunchException("Cannot parse computercraft.file", e);
-		}
+			// Setup the new loader, using the CC Jar
+			DelegatingRewritingLoader loader = new DelegatingRewritingLoader(
+				new PriorityURLClassLoader(new URL[]{mainJar.toURI().toURL()}, ClassLoader.getSystemClassLoader()),
+				new File("asm/cctweaks")
+			);
+			loader.addClassLoaderExclusion("org.squiddev.howl.ci.ConfigLoader");
+			loader.addClassLoaderExclusion("org.squiddev.howl.ci.TRoRLogger");
 
-		// Setup the appropriate loader.
-		String methodName;
-		RewritingLoader loader = new RewritingLoader(newUrls, new File("asm/cctweaks"));
-		loader.addClassLoaderExclusion("org.squiddev.howl.ci.ConfigLoader");
-		loader.addClassLoaderExclusion("org.squiddev.howl.ci.TRoRLogger");
+			// Setup CCTweaks if needed
+			String methodName;
+			if (Boolean.parseBoolean(config.getProperty("cctweaks.enabled"))) {
+				try {
+					ClassLoaderHelpers.loadPropertyConfig(loader);
+					ClassLoaderHelpers.syncDump(loader);
+					ClassLoaderHelpers.setupChain(loader);
+				} catch (Exception e) {
+					throw new LaunchException("Unexpected error loading CCTweaks", e);
+				}
 
-		if (Boolean.parseBoolean(config.getProperty("cctweaks.enabled"))) {
-			try {
-				loader.loadConfig();
-				loader.loadChain();
-			} catch (Exception e) {
-				throw new LaunchException("Unexpected error loading CCTweaks", e);
+				methodName = "runCCTweaks";
+			} else {
+				methodName = "run";
 			}
 
-			loader.chain.finalise();
+			// Finalise launching and start the runner
+			loader.chain().finalise();
+			Thread.currentThread().setContextClassLoader(loader);
 
-			methodName = "runCCTweaks";
-		} else {
-			methodName = "run";
-		}
-
-		Thread.currentThread().setContextClassLoader(loader);
-
-		try {
 			loader.loadClass("org.squiddev.howl.ci.run.Runner")
 				.getMethod(methodName, File.class, ConfigLoader.class, TRoRLogger.class)
 				.invoke(null, mainJar, config, logger);
-		} catch (NoSuchMethodException e) {
-			throw new LaunchException("Cannot load runner", e);
-		} catch (IllegalAccessException e) {
-			throw new LaunchException("Cannot load runner", e);
-		} catch (InvocationTargetException e) {
-			throw new LaunchException("Cannot load runner", e);
-		} catch (ClassNotFoundException e) {
+		} catch (Exception e) {
 			throw new LaunchException("Cannot load runner", e);
 		}
 	}

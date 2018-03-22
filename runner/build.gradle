@@ -14,7 +14,7 @@ sourceCompatibility = 1.6
 repositories {
 	mavenCentral()
 
-	ivy { artifactPattern "http://addons-origin.cursecdn.com/files/2291/384/[module][revision](.[ext])" }
+	maven { url = "https://cc.crzd.me/maven" }
 	maven { url = "https://dl.bintray.com/squiddev/maven" }
 	maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
 }
@@ -26,8 +26,8 @@ configurations {
 }
 
 dependencies {
-	provided "ComputerCraft:ComputerCraft:1.79"
-	shade('org.squiddev:cctweaks-lua:1.1.3') {
+	provided "dan200.computercraft:ComputerCraft:1.80pr1-build5"
+	shade('org.squiddev:cctweaks-lua:1.5.0-pr4') {
 		exclude group: 'ComputerCraft'
 		exclude module: 'ConfigGen'
 	}
