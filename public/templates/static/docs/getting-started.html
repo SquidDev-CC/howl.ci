@@ -66,6 +66,8 @@ if success then
 else
 	howlci.status("failure", "Something failed: " .. tostring(err))
 end
+
+howlci.close()
 </pre>
 
 		<h3>Running your build</h3>
