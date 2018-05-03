@@ -1,12 +1,17 @@
 namespace HowlCI {
 	"use strict";
 
-	const request = (url: string, type?: string): Promise<XMLHttpRequest> => {
+	const request = (url: string, type: string, travis?: boolean): Promise<XMLHttpRequest> => {
 		return new Promise((resolve, reject) => {
 			const xhr = new XMLHttpRequest();
 
 			xhr.open("GET", url);
-			xhr.setRequestHeader("Accept", type || "application/vnd.travis-ci.2+json");
+			if (travis) {
+				xhr.setRequestHeader("Travis-API-Version", "3");
+			}
+
+			// Sadly we can't set the user agent due to security reasons.
+			xhr.setRequestHeader("Accept", type);
 			xhr.timeout = 10000;
 
 			xhr.onload = () => {
@@ -22,6 +27,8 @@ namespace HowlCI {
 			xhr.send(null);
 		});
 	};
+
+	const requestTravis = (url: string, type?: string) => request(url, type || "application/json", true);
 
 	const always = <T>(args: T) => Promise.resolve(args);
 
@@ -55,11 +62,11 @@ namespace HowlCI {
 		return output as Failure<T>;
 	};
 
-	type Args = { [name: string]: string|null };
+	type Args = { [name: string]: string | null };
 	export type Page<T> = {
 		build: (args: Args) => Promise<T>,
-		title: (model: T)   => string,
-		after?: (model: T)  => void,
+		title: (model: T) => string,
+		after?: (model: T) => void,
 	};
 
 	export const pages: { [name: string]: Page<any> } = {};
@@ -72,17 +79,18 @@ namespace HowlCI {
 	pages["travis/builds"] = {
 		build: (args) => {
 			const repo = args["repo"];
+			if (!repo) {
+				return Promise.resolve({
+					success: false,
+					nothing: true,
+					repo,
+				});
+			}
 
-			return request(`https://api.travis-ci.org/repos/${repo}/builds`).then(
+			return requestTravis(`https://api.travis-ci.org/repo/${encodeURIComponent(repo)}/builds`).then(
 				xhr => {
 					const res = JSON.parse(xhr.responseText);
-					const commitLookup = {};
-					for (const commit of res.commits) {
-						commitLookup[commit.id] = commit;
-					}
-
 					for (const build of res.builds) {
-						build.commit = commitLookup[build.commit_id];
 						build.success = build.state === "passed";
 					}
 
@@ -102,60 +110,57 @@ namespace HowlCI {
 		build: (args) => {
 			const build = args["id"];
 
-			return request(`https://api.travis-ci.org/builds/${build}`)
+			return requestTravis(`https://api.travis-ci.org/build/${build}/jobs?include=job.config`)
 				.then(
 					xhr => {
 						const res = JSON.parse(xhr.responseText);
+						if (!res.jobs || res.jobs.length === 0) {
+							return Promise.reject(handleError(xhr, { id: build }));
+						}
 
-						// Taken from https://github.com/travis-ci/travis-web/blob/master/app/models/log.js
-						const tasks = res.jobs.map(job => request(
-							`https://api.travis-ci.org/jobs/${job.id}/log?cors_hax=true`,
+						const tasks = res.jobs.map(job => requestTravis(
+							`https://api.travis-ci.org/job/${job.id}/log.txt`,
 							"text/plain",
-							).then(req => {
-								if (req.status === 204) {
-									return request(req.getResponseHeader("Location") as string, "text/plain");
-								} else {
-									return req;
-								}
-							}).then(req => ({
-								job,
-								id: job.id,
-								lines: Packets.parse(req.responseText),
-								config: !!job.config.env,
-							})),
+						).then(req => {
+							if (req.status === 204) {
+								return request(req.getResponseHeader("Location") as string, "text/plain");
+							} else {
+								return req;
+							}
+						}).then(req => ({
+							job,
+							id: job.id,
+							lines: Packets.parse(req.responseText),
+							config: !!job.config.env,
+						})),
 						);
-						tasks.push(
-							request(`https://api.travis-ci.org/repos/${res.build.repository_id}`)
-								.then(x => JSON.parse(x.responseText).repo),
-						);
+
+						const info = res.jobs[0];
 
 						return Promise.all(tasks)
-							.then((results: any[]) => {
-								const repo = results.pop();
-								const logs = results;
-
+							.then((logs: any[]) => {
 								return {
 									success: true,
 									id: build,
 									logs,
-									repo,
-									build: res.build,
-									commit: res.commit,
+									repo: info.repository,
+									build: info.build,
+									commit: info.commit,
 								};
 							});
 					},
 					xhr => handleError(xhr, { id: build }),
-				);
+			);
 		},
 		title: model => "Build #" + model.id + " | howl.ci",
 		after: model => {
 			if (model.success) {
-				let activeJobLink: HTMLElement|null = null;
-				let activeJobTerminal: Terminal.TerminalControl|null = null;
-				let activeJobTab: HTMLElement|null  = null;
+				let activeJobLink: HTMLElement | null = null;
+				let activeJobTerminal: Terminal.TerminalControl | null = null;
+				let activeJobTab: HTMLElement | null = null;
 
 				for (const log of model.logs) {
-					let terminal: Terminal.TerminalControl|null;
+					let terminal: Terminal.TerminalControl | null;
 
 					if (log.lines.exists) {
 						let term = Terminal.TerminalData.empty();
@@ -207,7 +212,7 @@ namespace HowlCI {
 		},
 	};
 
-	type URLModel = Failure<{url: string}> | {
+	type URLModel = Failure<{ url: string }> | {
 		success: true,
 		url: string,
 		id: 0,
@@ -218,7 +223,7 @@ namespace HowlCI {
 		build: (args) => {
 			const url = args["url"];
 
-			return request(String(url)).then(
+			return request(String(url), "text/plain").then(
 				xhr => {
 					const res = xhr.responseText;
 
@@ -284,7 +289,7 @@ namespace HowlCI {
 				fetch = provided + "/raw/";
 			}
 
-			return request(String("https://gist.githubusercontent.com/" + fetch)).then(
+			return request(String("https://gist.githubusercontent.com/" + fetch), "text/plain").then(
 				xhr => {
 					const res = xhr.responseText;
 

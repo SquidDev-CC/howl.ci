@@ -202,7 +202,7 @@ const jsMinify = step('Minify JS', () => {
 	});
 	fs.writeFileSync('dist/main.min.js', result.code);
 	for(const file of javascript) {
-		if(file.startsWith('dist/')) fs.unlink(file);
+		if(file.startsWith('dist/')) fs.unlinkSync(file);
 	}
 }, !config.development);
 
