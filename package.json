@@ -15,12 +15,12 @@
   "author": "SquidDev",
   "license": "MIT",
   "devDependencies": {
-    "colors": "^1.1.2",
-    "http-server": "^0.9.0",
-    "node-sass": "^3.10.1",
-    "tslint": "^5.9.1",
-    "typescript": "^2.7.2",
-    "uglify-js": "^2.7.4"
+    "colors": "^1.0.0",
+    "http-server": "^0.11.0",
+    "node-sass": "^4.0.0",
+    "tslint": "^5.9.0",
+    "typescript": "^2.7.0",
+    "uglify-js": "^3.0.0"
   },
   "dependencies": {
     "es6-promise": "^4.0.5",
